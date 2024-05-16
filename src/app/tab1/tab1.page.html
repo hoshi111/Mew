@@ -1,0 +1,32 @@
+<ion-header>
+    <p>Mew</p>
+    <div class="profile"></div>
+</ion-header>
+
+<div class="chip-container">
+  <div class="chips">
+    <ion-chip [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</ion-chip>
+  </div>
+</div>
+
+<ion-content>
+  <div class="mid">
+    <ion-grid [fixed]="true">
+      <ion-row>
+        <ion-col size="6" *ngFor="let movieDetail of movieDetails">
+          <ion-card (click)="showDetailsPage(movieDetail)">
+            <img *ngIf="!isAnime" src= "https://image.tmdb.org/t/p/w500{{movieDetail.poster_path}}" />
+            <img *ngIf="isAnime" src= "{{movieDetail.image}}" />
+            
+            <ion-card-header>
+              <ion-card-title>{{movieDetail.displayTitle}}</ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-content>

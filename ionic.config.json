@@ -1,0 +1,7 @@
+{
+  "name": "Mew",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

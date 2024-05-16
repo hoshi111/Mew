@@ -1,0 +1,19 @@
+<ion-header>
+  <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
+  <p>{{data.original_title}}</p>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <!-- <iframe cache-view="false" width="100%" height="315" [src]="trustedVideoUrl" frameborder="0" allowfullscreen></iframe> -->
+
+  <!-- <vg-player>
+    <video [vgMedia]="media" #media id="singleVideo" controls>
+        <source src="{{trustedVideoUrl}}">
+    </video>
+</vg-player> -->
+
+<vg-player (onPlayerReady)="onPlayerReady($event)">
+  <video class="videoplayer" [vgMedia]="media" #media id="singleVideo" preload="auto" controls crossorigin>
+    <source [src]="urlVideo">
+  </video>
+</vg-player>
+</ion-content>

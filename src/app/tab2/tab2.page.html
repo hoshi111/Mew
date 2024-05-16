@@ -1,0 +1,21 @@
+<ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+
+
+<ion-content>
+  <p class="label" *ngIf="query"><i>Search result for"{{query}}"</i></p>
+  <ion-grid [fixed]="true">
+    <ion-row>
+      <ion-col size="6" *ngFor="let movieDetail of movieDetails">
+        <ion-card (click)="showDetailsPage(movieDetail)">
+          <img src= "https://image.tmdb.org/t/p/original{{movieDetail.poster_path}}" />
+          <ion-card-header>
+            <ion-card-title>{{movieDetail.title}}</ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <!-- <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+      </ion-infinite-scroll> -->
+    </ion-row>
+  </ion-grid>
+</ion-content>

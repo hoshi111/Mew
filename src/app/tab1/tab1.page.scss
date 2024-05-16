@@ -1,0 +1,56 @@
+ion-content {
+  --background: var(--mainColor);
+}
+
+ion-card {
+  background-color: #1e1e1e;
+}
+
+ion-card-title {
+  color: white;
+}
+
+  ion-header {
+    height: 10%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    background-color: var(--mainColor);
+
+    p {
+      font-size: 40px;
+      font-weight: 900;
+      margin-left: 20px;
+    }
+  
+    .profile {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      background-color: #444450;
+      position: absolute;
+      right: 30px;
+    }
+  }
+
+  .chip-container {
+    height: 8%;
+    background-color: var(--mainColor);
+    display: flex;
+    align-items: center;
+
+    .chips {
+      margin: 0 auto;
+      overflow-x: scroll;
+    }
+
+    ion-chip {
+      font-size: 16px;
+      height: 40px;
+    }
+  }
+
+  .active {
+    background-color: #2e2552 !important;
+  }
