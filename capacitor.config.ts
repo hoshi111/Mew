@@ -1,10 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mew.com',
-  appName: 'Mew',
-  webDir: 'www',
-  bundledWebRuntime: false,
+  appId: 'com.mew.app',
+  appName: 'mew',
+  webDir: 'www'
 };
 
 export default config;

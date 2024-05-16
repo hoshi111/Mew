@@ -19,10 +19,6 @@ export class Tab2Page {
               private router: Router
   ) {}
 
-  // ngOnInit() {
-  //   console.log(this.query.length)
-  // }
-
   handleInput(e: any) {
     this.query = e.target.value.toLowerCase();
     this.searchKeyword(this.query).then((result: any) => {

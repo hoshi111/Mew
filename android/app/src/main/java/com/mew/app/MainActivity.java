@@ -1,4 +1,4 @@
-package com.mew.com;
+package com.mew.app;
 
 import com.getcapacitor.BridgeActivity;
 

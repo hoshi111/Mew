@@ -32,6 +32,10 @@ export class Tab1Page implements OnInit{
     this.generateItems(this.initial);
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
   generateItems(vid: any) {
     console.log(this.initial)
     this.getList(vid, 'new', this.i).then((result: any) => {
