@@ -3,7 +3,8 @@ import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
-import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
+import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 
 @Component({
   selector: 'app-tab1',
@@ -28,7 +29,10 @@ export class Tab1Page implements OnInit{
 
   constructor(private apiService: ApiService,
               private router: Router,
-              private loaderService: LoaderService
+              private loaderService: LoaderService,
+              private modalCtrl: ModalController
+
+
   ) {}
 
   ngOnInit() {
@@ -271,6 +275,16 @@ export class Tab1Page implements OnInit{
     })
   }
 
+  // async openModal(data: any) {
+  //   const modal = await this.modalCtrl.create({
+  //     component: DetailsModalComponent,
+  //     componentProps: {
+  //       value: data
+  //     }
+  //   });
+  //   await modal.present();
+  // }
+
   showDetailsPage(movieDetail: any) {
     console.log(movieDetail)
     const queryParams: any = {};
@@ -279,6 +293,6 @@ export class Tab1Page implements OnInit{
 
     const navigationExtras: NavigationExtras = {queryParams}
 
-    this.router.navigate(['details'], navigationExtras);
+    this.router.navigate(['player'], navigationExtras);
   }
 }

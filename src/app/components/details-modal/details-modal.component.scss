@@ -1,0 +1,11 @@
+ion-header {
+    background-color: var(--mainColor);
+    position: relative;
+    height: 6%;
+}
+
+ion-icon {
+    display: flex;
+    position: absolute;
+    right: 0;
+}

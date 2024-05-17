@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { DetailsModalComponent } from './components/details-modal/details-modal.component';
 
 const routes: Routes = [
   {
@@ -7,8 +8,8 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'details',
-    loadChildren: () => import('./details/details.module').then( m => m.DetailsPageModule)
+    path: 'player',
+    loadChildren: () => import('./player/player.module').then( m => m.PlayerPageModule)
   }
 ];
 @NgModule({

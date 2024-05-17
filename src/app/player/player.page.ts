@@ -11,11 +11,11 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 
 @Component({
-  selector: 'app-details',
-  templateUrl: './details.page.html',
-  styleUrls: ['./details.page.scss'],
+  selector: 'app-player',
+  templateUrl: './player.page.html',
+  styleUrls: ['./player.page.scss'],
 })
-export class DetailsPage implements OnInit {
+export class PlayerPage implements OnInit {
   private topOverlayElements: HTMLDivElement | undefined;
   private bottomOverlayElements: HTMLDivElement | undefined;
   private buttonsVideoControl: HTMLDivElement | undefined;

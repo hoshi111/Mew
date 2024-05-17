@@ -2,10 +2,6 @@ ion-content {
   --background: var(--mainColor);
 }
 
-ion-card {
-  background-color: #1e1e1e;
-}
-
 ion-card-title {
   color: white;
 }
@@ -24,13 +20,33 @@ ion-card-title {
       margin-left: 20px;
     }
   
-    .profile {
+    ion-icon {
       height: 40px;
       width: 40px;
       border-radius: 50%;
-      background-color: #444450;
       position: absolute;
       right: 30px;
+    }
+  }
+  ion-card {
+    height: 100%;
+    font-size: 0.8em;
+    position: relative;
+
+    .img {
+      width:100%;
+      height:0px;
+      padding-bottom:100%;
+      background-size: 100% 100%;
+    }
+
+    .titleContainer {
+      display: flex;
+      width: 100%;
+      bottom: 0;
+      position: absolute;
+      min-height: 30%;
+      background-color: #1e1e1eaf;
     }
   }
 

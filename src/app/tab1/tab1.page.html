@@ -1,6 +1,6 @@
 <ion-header>
     <p>Mew</p>
-    <div class="profile"></div>
+    <ion-icon name="logo-ionic"></ion-icon>
 </ion-header>
 
 <div class="chip-container">
@@ -15,12 +15,15 @@
       <ion-row>
         <ion-col size="6" *ngFor="let movieDetail of movieDetails">
           <ion-card (click)="showDetailsPage(movieDetail)">
+          <!-- <ion-card (click)="openModal(movieDetail)"> -->
             <!-- <img *ngIf="!isAnime" src= "https://image.tmdb.org/t/p/w500{{movieDetail.poster_path}}" /> -->
-            <img src= "{{movieDetail.image}}" />
+            <div class="img">
+              <img src= "{{movieDetail.image}}" />
+            </div>
             
-            <ion-card-header>
-              <ion-card-title>{{movieDetail.displayTitle}}</ion-card-title>
-            </ion-card-header>
+              <div class="titleContainer">
+                <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>
+              </div>
           </ion-card>
         </ion-col>
         <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
