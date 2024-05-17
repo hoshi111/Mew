@@ -14,12 +14,15 @@ export class Tab1Page implements OnInit{
   public subscription: any = Subscription;
   list: any = [];
   movieDetails: any = [];
-  categories: any = [{name: 'Movies', pressed: true}, 
-                     {name: 'TV Shows', pressed: false},
-                     {name: 'Episodes', pressed: false},
-                      {name: 'Anime', pressed: false}];
+  // categories: any = [{name: 'Movies', pressed: true}, 
+  //                    {name: 'TV Shows', pressed: false},
+  //                    {name: 'Episodes', pressed: false},
+  //                     {name: 'Anime', pressed: false}];
+
+  categories: any = [{name: 'Anime Latest Episodes',code: 'anime-latest', pressed: true},
+                      {name: 'Top-Airing Anime', code: 'anime-top', pressed: false},
+                    ];
   i = 1;
-  initial = 'movie';
   isAnime: boolean = false;
   animeResults: any = [];
 
@@ -29,69 +32,91 @@ export class Tab1Page implements OnInit{
   ) {}
 
   ngOnInit() {
-    this.generateItems(this.initial);
+    this.generateItems(this.categories[0].code);
+    // this.animeRecentEpisodes();
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  generateItems(vid: any) {
-    console.log(this.initial)
-    this.getList(vid, 'new', this.i).then((result: any) => {
-      this.list = result.result.items;
-      console.log(this.list)
+  // generateItems(vid: any) {
+  //   console.log(this.initial)
+  //   this.getList(vid, 'new', this.i).then((result: any) => {
+  //     this.list = result.result.items;
+  //     console.log(this.list)
 
-      if (this.initial === 'movie') {
-        this.list.forEach((item: any) => {
-          this.getDetail(item.imdb_id).then((result: any) => {
-            // console.log(result)
-            result.movie_results[0].displayTitle = item.title;
-            result.movie_results[0].link = item.embed_url_imdb;
-            result.movie_results[0].isAnime = false;
-            this.movieDetails.push(result.movie_results[0])
-          })
-        })
-      }
+  //     if (this.initial === 'movie') {
+  //       this.list.forEach((item: any) => {
+  //         this.getDetail(item.imdb_id).then((result: any) => {
+  //           // console.log(result)
+  //           result.movie_results[0].displayTitle = item.title;
+  //           result.movie_results[0].link = item.embed_url_imdb;
+  //           result.movie_results[0].isAnime = false;
+  //           this.movieDetails.push(result.movie_results[0])
+  //         })
+  //       })
+  //     }
 
-      else if (this.initial === 'tv') {
-        this.list.forEach((item: any) => {
-          this.getDetail(item.imdb_id).then((result: any) => {
-            console.log('result: ', result)
-            result.tv_results[0].displayTitle = item.title;
-            result.tv_results[0].link = item.embed_url_imdb;
-            result.movie_results[0].isAnime = false;
-            this.movieDetails.push(result.tv_results[0])
-          })
-        })
-      }
+  //     else if (this.initial === 'tv') {
+  //       this.list.forEach((item: any) => {
+  //         this.getDetail(item.imdb_id).then((result: any) => {
+  //           console.log('result: ', result)
+  //           result.tv_results[0].displayTitle = item.title;
+  //           result.tv_results[0].link = item.embed_url_imdb;
+  //           result.movie_results[0].isAnime = false;
+  //           this.movieDetails.push(result.tv_results[0])
+  //         })
+  //       })
+  //     }
 
-      else {
-        this.list.forEach((item: any) => {
-          this.getDetail(item.imdb_id).then((result: any) => {
-            // console.log(result)
-            result.episode_results[0].displayTitle = item.title;
-            result.episode_results[0].link = item.embed_url_imdb;
-            result.movie_results[0].isAnime = false;
-            this.movieDetails.push(result.episode_results[0])
-          })
-        })
-      }
+  //     else {
+  //       this.list.forEach((item: any) => {
+  //         this.getDetail(item.imdb_id).then((result: any) => {
+  //           // console.log(result)
+  //           result.episode_results[0].displayTitle = item.title;
+  //           result.episode_results[0].link = item.embed_url_imdb;
+  //           result.movie_results[0].isAnime = false;
+  //           this.movieDetails.push(result.episode_results[0])
+  //         })
+  //       })
+  //     }
       
-      console.log(this.movieDetails)
-    })
+  //     console.log(this.movieDetails)
+  //   })
+  // }
+
+  generateItems(vid: any) {
+    console.log(vid)
+    if (vid == 'anime-latest') {
+      this.animeRecentEpisodes();
+    }
+
+    else if (vid == 'anime-top') {
+      this.animeTopAiring();
+    }
   }
 
   onIonInfinite(ev: Event) {
-    console.log('true')
-    this.i += 1;
-    if (!this.isAnime) {
-      this.generateItems(this.initial);
-    }
+    this.categories.forEach((category: any) => {
+      if(category.pressed) {
+        this.i += 1;
+        if (category.code == 'anime-latest') {
+          this.animeRecentEpisodes();
+        }
+    
+        else if (category.code == 'anime-top') {
+          this.animeTopAiring();
+        }
+      }
+    })
+    // if (!this.isAnime) {
+    //   this.generateItems(this.initial);
+    // }
 
-    else {
-      this.animeRecentEpisodes();
-    }
+    // else {
+    //   this.animeRecentEpisodes();
+    // }
     
     setTimeout(() => {
       (ev as InfiniteScrollCustomEvent).target.complete();
@@ -105,52 +130,68 @@ export class Tab1Page implements OnInit{
     });
     index.pressed = !index.pressed;
 
-    if (index.name == 'Movies') {
-      this.isAnime = false;
-      this.initial = 'movie'
-      this.movieDetails = [];
-      this.i = 1;
-    }
-
-    else if (index.name == 'TV Shows') {
-      this.isAnime = false;
-      this.initial = 'tv'
-      this.movieDetails = [];
-      this.i = 1;
-    }
-
-    else if (index.name == 'Episodes') {
-      this.isAnime = false;
-      this.initial = 'episode'
-      this.movieDetails = [];
-      this.i = 1;
-    }
-
-    else if (index.name == 'Anime') {
+    if (index.code == 'anime-latest') {
       this.isAnime = true;
       this.animeResults = [];
       this.movieDetails = [];
       this.i = 1;
       this.animeRecentEpisodes();
-      
     }
 
-    if (index.name != 'Anime') {
-      this.generateItems(this.initial);
+    else if (index.code == 'anime-top') {
+      this.isAnime = true;
+      this.animeResults = [];
+      this.movieDetails = [];
+      this.i = 1;
+      this.animeTopAiring();
     }
+
+    // else if (index.name == 'Anime') {
+    //   this.isAnime = true;
+    //   this.animeResults = [];
+    //   this.movieDetails = [];
+    //   this.i = 1;
+    //   this.animeRecentEpisodes();
+      
+    // }
+
+    // if (index.name == 'Movies') {
+    //   this.isAnime = false;
+    //   this.movieDetails = [];
+    //   this.i = 1;
+    // }
+
+    // else if (index.name == 'TV Shows') {
+    //   this.isAnime = false;
+    //   this.movieDetails = [];
+    //   this.i = 1;
+    // }
+
+    // else if (index.name == 'Episodes') {
+    //   this.isAnime = false;
+    //   this.movieDetails = [];
+    //   this.i = 1;
+    // }
+
+    // else if (index.name == 'Anime') {
+    //   this.isAnime = true;
+    //   this.animeResults = [];
+    //   this.movieDetails = [];
+    //   this.i = 1;
+    //   this.animeRecentEpisodes();
+      
+    // }
   }
 
   animeRecentEpisodes() {
     this.animeGetRecent(this.i).then((result: any) => {
       console.log(result)
-
       result.results.forEach((item: any) => {
         this.animeResults = {
           id: item.id,
           displayTitle: item.title,
           image: item.image,
           link: item.url,
-          isAnime: true
         }
 
         this.movieDetails.push(this.animeResults)
@@ -158,8 +199,24 @@ export class Tab1Page implements OnInit{
 
       console.log(this.movieDetails)
     })
+  }
 
-    
+  animeTopAiring() {
+    this.animeGetTopAiring(this.i).then((result: any) => {
+      console.log(result)
+      result.results.forEach((item: any) => {
+        this.animeResults = {
+          id: item.id,
+          displayTitle: item.title,
+          image: item.image,
+          link: item.url,
+        }
+
+        this.movieDetails.push(this.animeResults)
+      })
+
+      console.log(this.movieDetails)
+    })
   }
 
   getList(vid: string, type: string, page: any) {
@@ -191,6 +248,19 @@ export class Tab1Page implements OnInit{
   animeGetRecent(page: number) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.gogoAnimeRecentEp(page).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  animeGetTopAiring(page: number) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.gogoAnimeTopAiring(page).subscribe(
         (result: any) => {
           resolve(result)
         },

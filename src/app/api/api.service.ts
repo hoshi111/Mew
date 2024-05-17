@@ -39,11 +39,19 @@ export class ApiService {
     }
 
     gogoAnimeRecentEp(page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/recent-episodes?page='+page);
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/recent-episodes?page=' + page);
+    }
+
+    gogoAnimeTopAiring(page: number) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/top-airing?page=' + page)
     }
 
     getAnimeVideoServer(id: any) {
         return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + id)
+    }
+
+    searchAnime(query: string, page: number) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/' + query + '?page=' + page)
     }
 
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'

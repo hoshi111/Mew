@@ -1,5 +1,5 @@
 ion-content {
-    --background: var(--mainColor);
+    --background: black;
 }
 
 .header {
@@ -30,9 +30,9 @@ ion-content {
     border-radius:50%;
     border: none;
     display: flex;
-    left: 20px;
+    left: 7%;
     position: absolute;
-    margin-top: 5%;
+    margin-top: 1%;
     z-index: 99999;
 
      ion-icon {
@@ -94,7 +94,8 @@ ion-content {
       position: absolute;
       z-index: 20;
     }
-    .topOverlayElement
+    
+    .topOverlayElements
     {
       display: inline-block;
       width: 100%;
@@ -108,7 +109,7 @@ ion-content {
       }
     }
     
-    .bottomOverlayElement
+    .bottomOverlayElements
     {
       position: absolute;
       width: 100%;
@@ -132,6 +133,11 @@ ion-content {
       opacity: 0;
     }
 
+    .buttonsVideoControl-hidden {
+      visibility: hidden;
+      opacity: 0;
+    }
+
     .fadeOut
     {
       visibility: hidden;
@@ -147,17 +153,22 @@ ion-content {
 
     .rotate {
         transform: rotate(90deg);
-        // transform-origin:bottom left;
-        
         position:absolute;
         top: -100vw;
         left: 0;
         
         height: 10vw;
         width:10vh;
-        
-        // background-color:#000;
-        // color:#fff;
+    }
 
-        // overflow:auto;
+    .playBtn {
+      position: absolute;
+      display: flex;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      --background: rgba(124, 111, 178, 0.8);
+      font-size: 90px;
     }

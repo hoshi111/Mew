@@ -29,5 +29,6 @@ export var check = function(value) {
     //     // makeLandscape();
     //   }
     // window.screen.orientation.lock('landscape');
-    video.play()
+    // video.play()
+    console.log('ready to play')
 }

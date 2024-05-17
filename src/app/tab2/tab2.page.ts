@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -14,25 +15,53 @@ export class Tab2Page {
   public results = [...this.data];
   query: any;
   movieDetails: any = [];
+  i = 1;
 
   constructor(private apiService: ApiService,
               private router: Router
   ) {}
 
   handleInput(e: any) {
+    this.movieDetails = [];
     this.query = e.target.value.toLowerCase();
-    this.searchKeyword(this.query).then((result: any) => {
-      console.log(result.results)
-      this.movieDetails = result.results
+    if(this.query) {
+      this.findItems();
+    }
+  }
+
+  findItems() {
+    this.searchKeyword(this.query, this.i).then((result: any) => {
+      if(!result) {
+        console.log('true')
+      }
+
+      else {
+        console.log(result.results)
+      }
+      result.results.forEach((item: any) => {
+        this.movieDetails.push(item);
+      })
+      // console.log(result.results)
+      // this.movieDetails = result.results
       // result.results.forEach((item: any) => {
       //   console.log(item)
       // })
     })
+    console.log(this.movieDetails)
   }
 
-  searchKeyword(text: string) {
+  onIonInfinite(ev: Event) {
+    this.i += 1;
+    console.log(this.i, this.query)
+    this.findItems();
+    setTimeout(() => {
+      (ev as InfiniteScrollCustomEvent).target.complete();
+    }, 500);
+  }
+
+  searchKeyword(query: string, page: number) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.searchKeyword(text).subscribe(
+      this.subscription = this.apiService.searchAnime(query, page).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -71,7 +100,7 @@ export class Tab2Page {
 
   showDetailsPage(movieDetail: any) {
     console.log(movieDetail)
-
+    movieDetail.url = 'https://consumet-beige.vercel.app/anime/gogoanime/watch/' + movieDetail.id + '-episode-1'
     // const link = {
     //   link: 'https://vidsrc.to/embed/movie/' + movieDetail.id
     // }
