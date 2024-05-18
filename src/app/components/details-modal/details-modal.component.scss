@@ -9,3 +9,11 @@ ion-icon {
     position: absolute;
     right: 0;
 }
+
+ion-content {
+    --background: var(--mainColor);
+}
+
+ion-col {
+    border-style: solid;
+}

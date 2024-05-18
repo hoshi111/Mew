@@ -1,11 +1,6 @@
-export var check = function(value) {
-    function makeLandscape() {
-        // this works on android, not iOS
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape');
-        }
-      }
+import { ParseSourceFile } from "@angular/compiler";
 
+export var check = function(value) {
     if (Hls.isSupported()) {
         var video = document.getElementById('video');
         var hls = new Hls();
@@ -17,26 +12,15 @@ export var check = function(value) {
             'manifest loaded, found ' + data.levels.length + ' quality level',
             );
         });
-        hls.detachMedia();
+        video.removeAttribute('src');
         hls.loadSource(value);
         hls.attachMedia(video);
     }
-    // video.requestFullscreen()
-    // if (video.mozRequestFullScreen) {
-    //     video.mozRequestFullScreen();
-    //     // makeLandscape();
-    //   } else if (video.webkitRequestFullScreen) {
-    //     video.webkitRequestFullScreen();
-    //     // makeLandscape();
-    //   }
-    // window.screen.orientation.lock('landscape');
-    // video.play()
     console.log('ready to play')
 }
 
 
 export var whilePlaying = function() {
-    console.log('true')
     const video = document.getElementById("video");
     const progressBar = document.querySelector(".progressBar");
     const currentTimeRef = document.getElementById("current-time"); 
@@ -48,23 +32,20 @@ export var whilePlaying = function() {
         let second = Math.floor(timeInput % 60); 
         second = second < 10 ? "0" + second : second; 
         return `${minute}:${second}`; 
-    }; 
+    };
 
     video.addEventListener("timeupdate", () => { 
-        const currentTime = video.currentTime; 
-        const duration = video.duration; 
-        const percentage = (currentTime / duration) * 100;
-        console.log(percentage)
+        const currentTime = video.currentTime;
+        console.log(video.currentTime);
+        const percentage = currentTime;
         progressBar.value = percentage; 
-
-        //  min="1" max="100" value="50"
+        progressBar.max = video.duration;
     });
 
     progressBar.oninput = function() {
-        // progressBar.value  = (this.value / progressBar.clientWidth) * video.duration;
-        video.currentTime = ((this.value / progressBar.clientWidth) * video.duration);
-        progressBar.value = (video.currentTime / video.duration) * 100;
-        console.log(video.currentTime)
+        video.currentTime = this.value;
+        progressBar.value = video.currentTime;
+        console.log(this.value)
       }
     
     setInterval(() => { 

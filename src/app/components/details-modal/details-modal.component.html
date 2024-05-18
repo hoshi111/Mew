@@ -1,3 +1,31 @@
 <ion-header>
   <ion-icon name="close"></ion-icon>
 </ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <img src="{{state.image}}">
+        <p>{{state.title}} ({{state.releaseDate}})</p>
+        <p *ngFor="let genre of state.genres">{{genre}}</p>
+        <p>{{state.status}}</p>
+        <p>Total Episodes: {{state.totalEpisodes}}</p>
+      </ion-col>
+      <ion-col size="6">
+        <p>Summary:</p>
+        <p>{{state.description}}</p>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        Episode List:
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
+        {{episode.number}}
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

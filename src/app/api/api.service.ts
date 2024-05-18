@@ -54,6 +54,14 @@ export class ApiService {
         return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/' + query + '?page=' + page)
     }
 
+    gogoAnimeGetDetails(query: string) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + query)
+    }
+
+    gogoAnimePlayVideo(query: any) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + query)
+    }
+
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'
     
 }

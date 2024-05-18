@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
-import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
+import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 
 @Component({
   selector: 'app-tab2',
@@ -18,11 +19,13 @@ export class Tab2Page {
   i = 1;
 
   constructor(private apiService: ApiService,
-              private router: Router
+              private router: Router,
+              private modalCtrl: ModalController
   ) {}
 
   handleInput(e: any) {
     this.movieDetails = [];
+    this.i = 1;
     this.query = e.target.value.toLowerCase();
     if(this.query) {
       this.findItems();
@@ -57,6 +60,33 @@ export class Tab2Page {
     setTimeout(() => {
       (ev as InfiniteScrollCustomEvent).target.complete();
     }, 500);
+  }
+
+  async openDetailsModal(value: any) {
+    this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
+      const modal = await this.modalCtrl.create({
+        component: DetailsModalComponent,
+        componentProps: {state: result},
+        breakpoints: [0, 0.6, 1],
+        initialBreakpoint: 0.6,
+        backdropDismiss: true,
+        backdropBreakpoint: 0,
+      });
+      await modal.present();
+    })
+  }
+
+  gogoAnimeGetDetails(query: any) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
   }
 
   searchKeyword(query: string, page: number) {
@@ -98,26 +128,25 @@ export class Tab2Page {
     })
   }
 
-  showDetailsPage(movieDetail: any) {
-    console.log(movieDetail)
-    movieDetail.url = 'https://consumet-beige.vercel.app/anime/gogoanime/watch/' + movieDetail.id + '-episode-1'
-    // const link = {
-    //   link: 'https://vidsrc.to/embed/movie/' + movieDetail.id
-    // }
+  // showDetailsPage(movieDetail: any) {
+  //   console.log(movieDetail)
+  //   movieDetail.url = 'https://consumet-beige.vercel.app/anime/gogoanime/watch/' + movieDetail.id + '-episode-1'
+  //   // const link = {
+  //   //   link: 'https://vidsrc.to/embed/movie/' + movieDetail.id
+  //   // }
 
-    // movieDetail.push(link);
+  //   // movieDetail.push(link);
 
-    // this.getVideo(movieDetail.id).then((result: any) => {
-    //   movieDetail.push(link);
-    // })
+  //   // this.getVideo(movieDetail.id).then((result: any) => {
+  //   //   movieDetail.push(link);
+  //   // })
 
-    const queryParams: any = {};
+  //   const queryParams: any = {};
 
-    queryParams.value = JSON.stringify(movieDetail);
+  //   queryParams.value = JSON.stringify(movieDetail);
 
-    const navigationExtras: NavigationExtras = {queryParams}
+  //   const navigationExtras: NavigationExtras = {queryParams}
 
-    this.router.navigate(['details'], navigationExtras);
-  }
-
+  //   this.router.navigate(['details'], navigationExtras);
+  // }
 }
