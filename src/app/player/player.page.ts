@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import {check} from 'src/assets/video-js' ;
+import { check, whilePlaying } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 
@@ -19,6 +19,7 @@ export class PlayerPage implements OnInit {
   private topOverlayElements: HTMLDivElement | undefined;
   private bottomOverlayElements: HTMLDivElement | undefined;
   private buttonsVideoControl: HTMLDivElement | undefined;
+  private playbackLine: HTMLDivElement | undefined;
   private header: HTMLDivElement | undefined;
   private timeoutDelay: any;
   public subscription: any = Subscription;
@@ -32,6 +33,8 @@ export class PlayerPage implements OnInit {
   currentVideo: any;
   endpoint: any;
   displayTitle: any;
+  progressBar: any;
+  isPlaying: boolean = false;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -107,6 +110,7 @@ export class PlayerPage implements OnInit {
               this.trustedVideoUrl = data.url;
               this.header?.classList.add('headerHidden');
               check(this.trustedVideoUrl);
+              whilePlaying();
             }
           })
         })
@@ -118,7 +122,7 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy() { 
     this.subscription.unsubscribe();
   }
 
@@ -167,6 +171,7 @@ export class PlayerPage implements OnInit {
         this.bottomOverlayElements?.classList.add('fadeOut', 'bottom-overlay-hidden');
         this.bottomOverlayElements?.classList.remove('fadeIn');
         this.buttonsVideoControl?.classList.add('fadeOut', 'buttonsVideoControl-hidden');
+        this.buttonsVideoControl?.classList.remove('fadeIn');
       }
     }, 4000);
     console.log("reset Idle timer and do something");
@@ -187,9 +192,16 @@ export class PlayerPage implements OnInit {
 
   playPauseVideo() {
     this.currentVideo = document.getElementById("video");
+    this.progressBar = document.getElementById("progressBar");
     if (this.currentVideo.paused) {
       this.currentVideo.play();
-    this.icon_name = 'pause';
+      this.icon_name = 'pause';
+
+      if (!this.isPlaying) {
+        this.isPlaying = true;
+        this.progressBar.classList.remove('playbackLineHidden');
+        this.progressBar.classList.add('playbackLine');
+      }
     }
 
     else {
@@ -220,7 +232,9 @@ export class PlayerPage implements OnInit {
   // }
 
   goBack() {
-    clearInterval(this.interval)
+    this.currentVideo = document.getElementById("video");
+    this.currentVideo.pause();
+    clearInterval(this.interval);
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     StatusBar.setOverlaysWebView({ overlay: false });
     StatusBar.show();

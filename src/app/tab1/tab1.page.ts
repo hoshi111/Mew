@@ -35,10 +35,24 @@ export class Tab1Page implements OnInit{
 
   ) {}
 
+  handleRefresh(event: any) {
+    setTimeout(() => {
+      this.movieDetails = [];
+      this.i = 1;
+      this.ngOnInit();
+      event.target.complete();
+    }, 2000);
+  }
+
   ngOnInit() {
     this.generateItems(this.categories[0].code);
     // this.animeRecentEpisodes();
   }
+
+  test() {
+    console.log('test')
+  }
+
 
   ngOnDestroy() {
     this.subscription.unsubscribe();

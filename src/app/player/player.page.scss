@@ -114,7 +114,6 @@ ion-content {
       position: absolute;
       width: 100%;
       line-height: 1em;
-      text-align: center;
       color: white;
       bottom: 7vh;
       span
@@ -171,4 +170,43 @@ ion-content {
       height: 80px;
       --background: rgba(124, 111, 178, 0.8);
       font-size: 90px;
+    }
+
+    .playbackLineHidden {
+      visibility: hidden;
+    }
+
+    .playbackLine { 
+      position: absolute;
+      height: 10px; 
+      background-color: #ddd; 
+      width: 80%; 
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 auto;
+      right: 50%;
+      transform: translateX(50%);
+      margin-bottom: 3%;
+      background-color: var(--mainColor); 
+      transition: width 0.1s linear;
+    }
+
+    .progressBar { 
+      height: 100%; 
+      width: 80%; 
+      background-color: var(--mainColor); 
+      transition: width 0.1s linear;
+      border-radius: 10px;
+    }
+
+    #current-time {
+      position: absolute;
+      left: 5%;
+      font-size: 16px;
+    }
+
+    #max-duration {
+      position: absolute;
+      right: 5%;
+      font-size: 16px;
     }

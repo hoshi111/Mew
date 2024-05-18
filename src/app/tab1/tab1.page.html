@@ -10,6 +10,9 @@
 </div>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="mid">
     <ion-grid [fixed]="true">
       <ion-row>
