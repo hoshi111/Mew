@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
+import { LoaderService } from '../api/loader.service';
 
 @Component({
   selector: 'app-tab2',
@@ -20,7 +21,8 @@ export class Tab2Page {
 
   constructor(private apiService: ApiService,
               private router: Router,
-              private modalCtrl: ModalController
+              private modalCtrl: ModalController,
+              private loaderService: LoaderService
   ) {}
 
   handleInput(e: any) {
@@ -63,6 +65,7 @@ export class Tab2Page {
   }
 
   async openDetailsModal(value: any) {
+    this.loaderService.showLoader();
     this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
       const modal = await this.modalCtrl.create({
         component: DetailsModalComponent,
@@ -72,7 +75,9 @@ export class Tab2Page {
         backdropDismiss: true,
         backdropBreakpoint: 0,
       });
-      await modal.present();
+      await modal.present().then(() => {
+        this.loaderService.hideLoader();
+      })
     })
   }
 

@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { check, whilePlaying } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 
@@ -20,6 +20,8 @@ export class PlayerPage implements OnInit {
   private topOverlayElements: HTMLDivElement | undefined;
   private bottomOverlayElements: HTMLDivElement | undefined;
   private buttonsVideoControl: HTMLDivElement | undefined;
+  private buttonRewind: HTMLDivElement | undefined;
+  private buttonForward: HTMLDivElement | undefined;
   private progressBarElements: HTMLDivElement | undefined;
   private header: HTMLDivElement | undefined;
   private timeoutDelay: any;
@@ -37,6 +39,7 @@ export class PlayerPage implements OnInit {
   displayTitle: any;
   isPlaying: boolean = false;
   btn: any;
+  fsUpdate: any;
   i = 0;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
@@ -55,7 +58,6 @@ export class PlayerPage implements OnInit {
     this.currentVideo = document.getElementById("video");
     this.currentVideo.removeAttribute('src');
     const value = this.activatedRoute.snapshot.queryParamMap.get('value');
-    console.log(value);
     ScreenOrientation.lock({ orientation: "landscape-primary" });
     StatusBar.setOverlaysWebView({ overlay: true });
     StatusBar.hide();
@@ -70,79 +72,27 @@ export class PlayerPage implements OnInit {
 
     if (value) {
       this.data = JSON.parse(value);
-      console.log(this.data)
-
-      // console.log(this.data.link)
-      // if(true) {
-      //   this.endpoint = this.data.link.replace('https://anitaku.so/', '');
-      // }
-
-      // else {
-      //   this.endpoint = this.data.link.replace('https://anitaku.so//', '');
-      // }
-      
-      // console.log(this.endpoint.match(/[0-9]+$/))
-      // this.displayTitle = this.data.displayTitle + ' Episode ' + this.data.number;
-      // console.log(this.displayTitle)
-      
       this.setLink();
-      
-      // this.trustedVideoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.data.link);
-
-      // if (!this.data.isAnime) {
-      // this.trustedVideoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.data.link);
-      // // check(this.data.link);
-
-      // }
-      
-      // else {
-      //   this.animeGetVideoServer(this.data.id).then((result: any) => {
-      //     console.log(result)
-      //     this.subscription = this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + this.data.id + '-episode-6').subscribe((result1: any) => {
-      //       console.log(result1)
-      //       result1.sources.forEach((data: any) => {
-      //         if (data.quality == 'default') {
-      //           console.log(data.url)
-      //           this.trustedVideoUrl = data.url;
-      //           this.header?.classList.add('headerHidden');
-      //           check(this.trustedVideoUrl);
-      //         }
-      //       })
-      //     })
-      //   })
-      // }
-
-      // this.animeGetVideoServer(this.data.id).then((result: any) => {
-      //   console.log(result)
-      //   this.subscription = this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + this.endpoint).subscribe((result1: any) => {
-      //     console.log(result1)
-      //     result1.sources.forEach((data: any) => {
-      //       if (data.quality == 'default') {
-      //         console.log(data.url)
-      //         this.trustedVideoUrl = data.url;
-      //         this.header?.classList.add('headerHidden');
-      //         check(this.trustedVideoUrl);
-      //         whilePlaying();
-      //       }
-      //     })
-      //   })
-      // })
     }
     else {
       console.error('No data');
       this.goBack();
     }
+
+    this.nextVideo().then(() => {
+      nextAvailable();
+    })
   }
 
   setLink() {
     this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
     this.playVideo(this.data.id).then((result: any) => {
-      result.sources.forEach((data: any) => {
-          if (data.quality == 'default') {
-            console.log(data.url)
-            this.trustedVideoUrl = data.url;
+      result.sources.forEach((value: any) => {
+          if (value.quality == 'default') {
+            this.trustedVideoUrl = value.url;
             this.header?.classList.add('headerHidden');
             check(this.trustedVideoUrl);
+            updateDb(this.data);
             whilePlaying();
           }
         })
@@ -150,13 +100,14 @@ export class PlayerPage implements OnInit {
   }
 
   public toggleOverlayByUser() {
-    console.log("into toggle overlay");
     this.topOverlayElements?.classList.remove('fadeOut');
     this.bottomOverlayElements?.classList.remove('fadeOut');
     this.buttonsVideoControl?.classList.remove('fadeOut');
     
     if (this.isPlaying) {
       this.progressBarElements?.classList.remove('fadeOut');
+      this.buttonRewind?.classList.remove('fadeOut');
+      this.buttonForward?.classList.remove('fadeOut');
     }
 
     this.resetIdleTimer();
@@ -174,6 +125,10 @@ export class PlayerPage implements OnInit {
         if (this.isPlaying) {
           this.progressBarElements?.classList.remove('progressHidden');
           this.progressBarElements?.classList.add('fadeIn');
+          this.buttonRewind?.classList.remove('rewindHidden');
+          this.buttonRewind?.classList.add('fadeIn');
+          this.buttonForward?.classList.remove('forwardHidden');
+          this.buttonForward?.classList.add('fadeIn');
         }
     }
     else {
@@ -186,7 +141,11 @@ export class PlayerPage implements OnInit {
       
       if (this.isPlaying) {
         this.progressBarElements?.classList.remove('fadeIn');
-      this.progressBarElements?.classList.add('progressHidden');
+        this.progressBarElements?.classList.add('progressHidden');
+        this.buttonRewind?.classList.remove('fadeIn');
+        this.buttonRewind?.classList.add('rewindHidden');
+        this.buttonForward?.classList.remove('fadeIn');
+        this.buttonForward?.classList.add('forwardHidden');
       }
     }
   }
@@ -194,7 +153,9 @@ export class PlayerPage implements OnInit {
     this.topOverlayElements = document.getElementById('topOverlay') as HTMLDivElement;
     this.bottomOverlayElements = document.getElementById('bottomOverlay') as HTMLDivElement;
     this.buttonsVideoControl = document.getElementById('btnID') as HTMLDivElement;
-    this.progressBarElements = document.getElementById('progressID') as HTMLDivElement;
+    this.buttonRewind = document.getElementById('rewindBtn') as HTMLDivElement;
+    this.buttonForward = document.getElementById('forwardBtn') as HTMLDivElement;
+    this.progressBarElements = document.getElementById('progressComponents') as HTMLDivElement;
     this.resetIdleTimer();
   }
   public resetIdleTimer()
@@ -215,10 +176,13 @@ export class PlayerPage implements OnInit {
           if (this.isPlaying) {
             this.progressBarElements?.classList.add('fadeOut', 'progressBarHidden');
             this.progressBarElements?.classList.remove('fadeIn');
+            this.buttonRewind?.classList.add('fadeOut', 'rewindHidden');
+            this.buttonRewind?.classList.remove('fadeIn');
+            this.buttonForward?.classList.add('fadeOut', 'forwardHidden');
+            this.buttonForward?.classList.remove('fadeIn');
           }
       }
-    }, 4000);
-    console.log("reset Idle timer and do something");
+    }, 1000);
   }
 
   playPauseVideo() {
@@ -226,10 +190,13 @@ export class PlayerPage implements OnInit {
     if (this.currentVideo.paused) {
       this.currentVideo.play();
       this.icon_name = 'pause';
-
       if (!this.isPlaying) {
         this.progressBarElements?.classList.remove('progressHidden');
         this.progressBarElements?.classList.add('progress');
+        this.buttonRewind?.classList.remove('rewindHidden');
+        this.buttonRewind?.classList.add('rewindProperty');
+        this.buttonForward?.classList.remove('forwardHidden');
+        this.buttonForward?.classList.add('forwardProperty');
         this.isPlaying = true;
       }
     }
@@ -238,16 +205,25 @@ export class PlayerPage implements OnInit {
       this.currentVideo.pause();
       this.icon_name = 'play';
       const c = document.getElementById('current-time');
-      console.log(this.currentVideo.currentPosition);
+      dismissInterval();
       this.toggleOverlayByUser();
     }
   }
 
+  updateFS() {
+    console.log(this.currentVideo)
+  }
+
+  rewindVideo() {
+
+  }
+
+  forwardVideo() {
+
+  }
+
   videoEnded() {
     this.icon_name = 'play';
-    console.log('VIdeo ended');
-    this.btn?.classList.remove('playNextHidden');
-    this.btn?.classList.add('playNext');
     
     this.topOverlayElements?.classList.remove('top-overlay-hidden');
     this.topOverlayElements?.classList.add('fadeIn');
@@ -257,27 +233,44 @@ export class PlayerPage implements OnInit {
     this.buttonsVideoControl?.classList.add('fadeIn');
     this.progressBarElements?.classList.remove('progressHidden');
     this.progressBarElements?.classList.add('fadeIn');
+    this.buttonRewind?.classList.remove('rewindHidden');
+    this.buttonRewind?.classList.add('fadeIn');
+    this.buttonForward?.classList.remove('forwardHidden');
+    this.buttonForward?.classList.add('fadeIn');
     clearInterval(this.interval);
   }
 
   playNext() {
+    this.loaderService.showLoader();
     this.i += 1;
     this.btn?.classList.remove('playNext');
     this.btn?.classList.add('playNextHidden');
     const no = this.data.number + this.i;
-    this.displayTitle = this.data.title + ' | Episode ' + no;
     var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-    console.log(newVid);
     this.playVideo(newVid).then((result: any) => {
-      result.sources.forEach((data: any) => {
+      if (result) {
+        result.sources.forEach((data: any) => {
           if (data.quality == 'default') {
-            console.log(data.url)
             this.trustedVideoUrl = data.url;
             this.header?.classList.add('headerHidden');
             check(this.trustedVideoUrl);
             whilePlaying();
+            this.displayTitle = this.data.title + ' | Episode ' + no;
+            this.loaderService.hideLoader();
+            this.currentVideo.play();
           }
         })
+      }
+    })
+  }
+
+  nextVideo() {
+    this.i += 1;
+    const no = this.data.number + this.i;
+    var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+
+    return this.playVideo(newVid).then(() => {
+      console.log('Next Episode Available!')
     })
   }
 
@@ -286,6 +279,7 @@ export class PlayerPage implements OnInit {
     this.currentVideo.pause();
     this.currentVideo.removeAttribute('src');
     clearInterval(this.interval);
+    dismissInterval();
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     StatusBar.setOverlaysWebView({ overlay: false });
     StatusBar.show();

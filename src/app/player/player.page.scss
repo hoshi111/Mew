@@ -86,6 +86,7 @@ ion-content {
   margin-left: 0% ;
   height: 40%;
   bottom: 0;
+  position: relative;
   background:linear-gradient(to bottom, transparent 40%, black);
   background: -moz-linear-gradient(to bottom, transparent 0%, black);
   background: -webkit-linear-gradient(to bottom, transparent 0%, black);
@@ -129,13 +130,13 @@ ion-content {
 {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0s 5s, opacity 5s linear;
+  transition: visibility 0s 1s, opacity 1s linear;
 }
 .fadeIn
 {
   visibility: visible;
   opacity: 1;
-  transition: opacity 0.5s linear;
+  transition: opacity 0.1s linear;
 }
 
 .rotate {
@@ -153,11 +154,66 @@ ion-content {
   display: flex;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
   height: 80px;
+  width: 80px;
+  transform: translate(-50%, -50%);
   --background: rgba(124, 111, 178, 0.8);
   font-size: 90px;
+}
+
+.rewindHidden {
+  visibility: hidden;
+}
+
+.rewindVisible {
+  visibility: visible;
+}
+
+.rewindBtn {
+  --background: rgba(124, 111, 178, 0.8);
+  font-size: 20px;
+}
+
+.rewindProperty {
+  position: absolute;
+  display: flex;
+  top: 50%;
+  left: 30%;
+  transform: translate(-50%, -50%);
+}
+
+.forwardHidden {
+  visibility: hidden;
+}
+
+.forwardVisible {
+  visibility: visible;
+}
+
+.forwardBtn {
+  font-size: 20px;
+  --background: rgba(124, 111, 178, 0.8);
+}
+
+.forwardProperty {
+  position: absolute;
+  display: flex;
+  top: 50%;
+  right: 23%;
+  transform: translate(-50%, -50%);
+}
+
+.bottomOverlayElements {
+  position: absolute;
+  width: 100%;
+  background-color: green;
+  bottom: 0;
+}
+
+ion-grid {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
 
 .progressHidden {
@@ -165,42 +221,76 @@ ion-content {
 }
 
 .progressProperty {
-  height: 10%;
-  bottom: 20%;
-  position: absolute;
   width: 100%;
-  margin: 0 auto;
+  top: 0;
+  bottom: 0;
+  position: absolute;
 }
 
 .progressBar { 
   height: 100%; 
-  width: 80%; 
+  width: 90%; 
   accent-color: var(--mainColor); 
   transition: width 0.1s linear;
   border-radius: 10px;
 }
 
 #current-time {
-  left: 5%;
   font-size: 16px;
-  position: absolute;
-  top: 0;
 }
 
 #max-duration {
-  right: 5%;
   font-size: 16px;
-  position: absolute;
-  top: 0;
 }
 
 .playNextHidden {
   visibility: hidden;
 }
 
-.playNext {
+#playNext {
   position: absolute;
   right: 10%;
-  bottom: 50%;
+  bottom: 20%;
   --background: var(--mainColor);
+}
+
+.loaderHidden {
+  visibility: hidden;
+}
+
+.showLoader {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  width: 50px;
+  aspect-ratio: 1;
+  display: grid;
+  border: 4px solid #0000;
+  border-radius: 50%;
+  border-right-color: var(--mainColor);
+  animation: l15 1s infinite linear;
+}
+.loader::before,
+.loader::after {    
+  content: "";
+  grid-area: 1/1;
+  margin: 2px;
+  border: inherit;
+  border-radius: 50%;
+  animation: l15 2s infinite;
+}
+.loader::after {
+  margin: 8px;
+  animation-duration: 3s;
+}
+@keyframes l15{ 
+  100%{transform: rotate(1turn)}
 }

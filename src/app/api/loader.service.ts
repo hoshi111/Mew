@@ -6,8 +6,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class LoaderService {
-  public isLoading = new BehaviorSubject(false);
-  public loading: any;  
+  public loading: any;
   
   constructor(public loadingController: LoadingController) {}
 
@@ -15,24 +14,24 @@ export class LoaderService {
     this.loading = await this.loadingController.create({
       duration: 2500,
       backdropDismiss: true,
-      cssClass: 'loader',
+      cssClass: 'mainLoader',
       spinner: 'lines'
     });
   
-    await this.loading?.present();    
+    this.loading.present();    
   };
 
   async showLoader() {
     this.loading = await this.loadingController.create({
       showBackdrop: false,
-      cssClass: 'loader',
-      spinner: 'lines'
+      spinner: 'crescent',
+      translucent: true
     });
   
-    await this.loading?.present();   
+    this.loading.present();   
   };
 
   async hideLoader() {
-    await this.loading?.dismiss();
+    await this.loading.dismiss();
   }
 };

@@ -1,0 +1,13 @@
+<ion-content [fullscreen]="true">
+  <p class="welcome">Welcome to Mew!</p>
+  <p class="loginLbl">Login</p>
+  <ion-input label="Email" label-placement="floating" fill="outline" placeholder="user@user.com" [(ngModel)]="email"></ion-input>
+  <ion-input label="Password" label-placement="floating" fill="outline" placeholder="password" type="password" [(ngModel)]="password"></ion-input>
+  
+  <p class="errorHidden" id="errorId">Incorrect email or password!</p>
+  
+  <ion-button class="loginBtn" (click)="login()">Login</ion-button>
+  <p>Forgot Password!</p>
+  <p class="signupLbl">Sign up</p>
+  
+</ion-content>

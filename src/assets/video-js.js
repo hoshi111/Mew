@@ -1,16 +1,23 @@
 import { ParseSourceFile } from "@angular/compiler";
+import { doc, setDoc } from "firebase/firestore"; 
+import { db } from "src/app/app.component";
+
+var dbSavingInterval;
+
+var localstorage = localStorage;
+var uid = localstorage.getItem('uid');
 
 export var check = function(value) {
     if (Hls.isSupported()) {
         var video = document.getElementById('video');
         var hls = new Hls();
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-            console.log('video and hls.js are now bound together !');
+            // console.log('video and hls.js are now bound together !');
         });
         hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-            console.log(
-            'manifest loaded, found ' + data.levels.length + ' quality level',
-            );
+            // console.log(
+            // 'manifest loaded, found ' + data.levels.length + ' quality level',
+            // );
         });
         video.removeAttribute('src');
         hls.loadSource(value);
@@ -25,6 +32,10 @@ export var whilePlaying = function() {
     const progressBar = document.querySelector(".progressBar");
     const currentTimeRef = document.getElementById("current-time"); 
     const maxDuration = document.getElementById("max-duration"); 
+    const rewind = document.getElementById("rewindBtn");
+    const forward = document.getElementById("forwardBtn");
+    const loaderPanel = document.getElementById("loaderContainer");
+    const playNext = document.getElementById("playNext");
 
     const timeFormatter = (timeInput) => { 
         let minute = Math.floor(timeInput / 60); 
@@ -34,9 +45,16 @@ export var whilePlaying = function() {
         return `${minute}:${second}`; 
     };
 
+    video.onwaiting = function() {
+        loaderPanel.classList.remove("loaderHidden");
+    }
+
+    video.onplaying = function() {
+        loaderPanel.classList.add("loaderHidden");
+    }
+
     video.addEventListener("timeupdate", () => { 
         const currentTime = video.currentTime;
-        console.log(video.currentTime);
         const percentage = currentTime;
         progressBar.value = percentage; 
         progressBar.max = video.duration;
@@ -45,22 +63,68 @@ export var whilePlaying = function() {
     progressBar.oninput = function() {
         video.currentTime = this.value;
         progressBar.value = video.currentTime;
-        console.log(this.value)
-      }
+    }
+
+    forward.onclick = function() {
+        video.currentTime = video.currentTime + 20;
+        progressBar.value = video.currentTime;
+    }
+
+    rewind.onclick = function() {
+        video.currentTime = video.currentTime - 10;
+        progressBar.value = video.currentTime;
+    }
     
     setInterval(() => { 
         currentTimeRef.innerHTML = timeFormatter(video.currentTime); 
         maxDuration.innerText = timeFormatter(video.duration); 
-    }, 1); 
+    }, 1);
     
 }
 
-// export var progressBarChange = function() {
-//     const video = document.getElementById("video");
-//     const playbackLine = document.querySelector(".playbackLine");
-//     // playbackLine.addEventListener("click", (e) => { 
-//     //     console.log('click registered')
-//     //     let timelineWidth = playbackLine.clientWidth; 
-//     //     video.currentTime = (e.offsetX / timelineWidth) * video.duration;
-//     // });
-// }
+export var nextAvailable = function() {
+    const video = document.getElementById("video");
+    console.log(video.currentTime)
+    console.log(uid)
+    video.addEventListener("timeupdate", () => { 
+        console.log(video.currentTime)
+    if (video.currentTime >= video.duration - 100) {
+        playNext.classList.remove('playNextHidden');
+        playNext.classList.add('playNext');
+        }
+
+        else {
+            playNext.classList.remove('playnext');
+        playNext.classList.add('playNextHidden');
+        }
+    })
+}
+
+export var updateDb = function(data) {
+    var checker = false;
+    const video = document.getElementById("video");
+    console.log(video.currentTime)
+    console.log(uid)
+    dbSavingInterval = setInterval(async () => {
+        await setDoc(doc(db, "watchHistory", data.id), {
+            episodes: {
+                uid: uid,
+                episodeDetail: {
+                    epNumber: data.number,
+                    lastTimeStamp: video.currentTime
+                }
+            }
+        })
+        checker = true;
+    }, 180000);
+
+    if(checker) {
+        console.log('false');
+        clearInterval(dbSavingInterval);
+        checker = false;
+    }
+}
+
+export var dismissInterval = function() {
+    clearInterval(dbSavingInterval);
+}

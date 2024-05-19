@@ -1,0 +1,10 @@
+ion-content {
+    --background: var(--mainColor);
+}
+
+.logout {
+    --background: var(--secColor);
+    width: 80%;
+    margin: 70vh auto 0;
+    display: flex;
+}

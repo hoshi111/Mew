@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 @Component({
   selector: 'app-tab3',
@@ -7,6 +9,18 @@ import { Component } from '@angular/core';
 })
 export class Tab3Page {
 
-  constructor() {}
+  constructor(private router: Router) {}
 
+  ngOnInit() {
+
+  }
+
+  logOut() {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      this.router.navigate(['splashscreen']);
+    }).catch((error) => {
+      alert('Logout Failed!');
+    });
+  }
 }

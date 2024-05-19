@@ -1,16 +1,30 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { DetailsModalComponent } from './components/details-modal/details-modal.component';
 
 const routes: Routes = [
   {
     path: '',
+    redirectTo: 'splashscreen',
+    pathMatch: 'full'
+  },
+  {
+    path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
     path: 'player',
     loadChildren: () => import('./player/player.module').then( m => m.PlayerPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'splashscreen',
+    loadChildren: () => import('./splashscreen/splashscreen.module').then( m => m.SplashscreenPageModule)
   }
+
+
 ];
 @NgModule({
   imports: [

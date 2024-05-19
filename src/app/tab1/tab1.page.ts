@@ -5,6 +5,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
 import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
+import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
 
 @Component({
   selector: 'app-tab1',
@@ -23,6 +24,9 @@ export class Tab1Page implements OnInit{
   categories: any = [{name: 'Anime Latest Episodes',code: 'anime-latest', pressed: true},
                       {name: 'Top-Airing Anime', code: 'anime-top', pressed: false},
                     ];
+  
+  isAnimeLatest:boolean = true;
+  isAnimeTop: boolean = false;
   i = 1;
   isAnime: boolean = false;
   animeResults: any = [];
@@ -202,6 +206,9 @@ export class Tab1Page implements OnInit{
   }
 
   animeRecentEpisodes() {
+    this.isAnimeLatest = true;
+    this.isAnimeTop = false;
+    console.log(this.isAnimeLatest, this.isAnimeTop)
     this.animeGetRecent(this.i).then((result: any) => {
       console.log(result)
       result.results.forEach((item: any) => {
@@ -220,6 +227,9 @@ export class Tab1Page implements OnInit{
   }
 
   animeTopAiring() {
+    this.isAnimeLatest = false;
+    this.isAnimeTop = true;
+    console.log(this.isAnimeLatest, this.isAnimeTop)
     this.animeGetTopAiring(this.i).then((result: any) => {
       console.log(result)
       result.results.forEach((item: any) => {
@@ -289,24 +299,56 @@ export class Tab1Page implements OnInit{
     })
   }
 
-  // async openModal(data: any) {
-  //   const modal = await this.modalCtrl.create({
-  //     component: DetailsModalComponent,
-  //     componentProps: {
-  //       value: data
-  //     }
-  //   });
-  //   await modal.present();
-  // }
+  gogoAnimeGetDetails(query: any) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
 
   showDetailsPage(movieDetail: any) {
     console.log(movieDetail)
-    const queryParams: any = {};
+    this.loaderService.showLoader();
+    if (this.isAnimeLatest) {
+      this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
+        console.log(result);
+        const ep = result.episodes[(result.episodes.length) - 1];
+        ep['title'] = result.title;
+        ep['image'] = result.image;
+        console.log(ep)
+  
+        const queryParams: any = {};
+  
+      queryParams.value = JSON.stringify(ep);
+  
+      const navigationExtras: NavigationExtras = {queryParams}
+      
+      this.router.navigate(['player'], navigationExtras).then(() => {
+        this.loaderService.hideLoader();
+      });
+      })
+    }
 
-    queryParams.value = JSON.stringify(movieDetail);
-
-    const navigationExtras: NavigationExtras = {queryParams}
-
-    this.router.navigate(['player'], navigationExtras);
+    else {
+      this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
+          componentProps: {state: result},
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 0.6,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        });
+      })
+    }
   }
 }
