@@ -283,7 +283,7 @@ export class PlayerPage implements OnInit {
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     StatusBar.setOverlaysWebView({ overlay: false });
     StatusBar.show();
-    this.router.navigate(['/tabs/tab1']);
+    this.navCtrl.back();
   }
   
   playVideo(value: string) {
