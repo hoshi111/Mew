@@ -1,5 +1,5 @@
 import { ParseSourceFile } from "@angular/compiler";
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc, getDoc } from "firebase/firestore"; 
 import { db } from "src/app/app.component";
 
 var dbSavingInterval;
@@ -85,7 +85,6 @@ export var whilePlaying = function() {
 export var nextAvailable = function() {
     const video = document.getElementById("video");
     console.log(video.currentTime)
-    console.log(uid)
     video.addEventListener("timeupdate", () => { 
         console.log(video.currentTime)
     if (video.currentTime >= video.duration - 100) {
@@ -101,28 +100,56 @@ export var nextAvailable = function() {
 }
 
 export var updateDb = function(data) {
-    var checker = false;
     const video = document.getElementById("video");
     console.log(video.currentTime)
     console.log(uid)
-    dbSavingInterval = setInterval(async () => {
-        await setDoc(doc(db, "watchHistory", data.id), {
-            episodes: {
-                uid: uid,
-                episodeDetail: {
-                    epNumber: data.number,
-                    lastTimeStamp: video.currentTime
-                }
-            }
-        })
-        checker = true;
-    }, 180000);
+    console.log(data)
 
-    if(checker) {
-        console.log('false');
-        clearInterval(dbSavingInterval);
-        checker = false;
-    }
+    video.addEventListener('pause', async() => {
+        const docRef = doc(db, "watchHistory", uid);
+        const docSnap = await getDoc(docRef);
+
+        console.log(data.title)
+        console.log(docSnap.data().anime.name)
+        if (docSnap.data().anime.name === data.title) {
+            console.log('true');
+        }
+
+        else {
+            console.log('false');
+        }
+
+        if (uid) {
+            await setDoc(doc(db, "watchHistory", uid), {
+                anime: {
+                    name: data.title,
+                    episode: {
+                        id: data.id,
+                        epNumber: data.number,
+                        lastTimeStamp: video.currentTime
+                    }
+                }
+            })
+        }
+    })
+
+    // dbSavingInterval = setInterval(async () => {
+    //     await setDoc(doc(db, "watchHistory", uid), {
+    //         [data.title]: {
+    //             [data.id]: {
+    //                 epNumber: data.number,
+    //                 lastTimeStamp: video.currentTime
+    //             }
+    //         }
+    //     })
+    //     checker = true;
+    // }, 1000);
+
+    // if(checker) {
+    //     console.log('false');
+    //     clearInterval(dbSavingInterval);
+    //     checker = false;
+    // }
 }
 
 export var dismissInterval = function() {
