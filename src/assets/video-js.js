@@ -100,53 +100,40 @@ export var nextAvailable = function() {
 }
 
 export var updateDb = function(data) {
+    setVideocurrentTime(data);
     const video = document.getElementById("video");
     console.log(video.currentTime)
     console.log(uid)
     console.log(data)
 
     video.addEventListener('pause', async() => {
-        // const docRef = doc(db, "watchHistory", uid);
-        // const docSnap = await getDoc(docRef);
-
-        // console.log(data.title)
-        // console.log(docSnap.data().anime.name)
-        // if (docSnap.data().anime.name === data.title) {
-        //     console.log('true');
-        // }
-
-        // else {
-        //     console.log('false');
-        // }
         if (uid) {
-                await setDoc(doc(db, uid, data.id), {
-                    details: {
-                        title: data.title,
-                        id: data.id,
-                        epNumber: data.number,
-                        lastTimestamp: video.currentTime
-                    }
-                })
-            } 
-        })
+            await setDoc(doc(db, uid, data.id), {
+                details: {
+                    title: data.title,
+                    id: data.id,
+                    epNumber: data.number,
+                    lastTimestamp: video.currentTime
+                }
+            })
+        } 
+    })
+}
 
-    // dbSavingInterval = setInterval(async () => {
-    //     await setDoc(doc(db, "watchHistory", uid), {
-    //         [data.title]: {
-    //             [data.id]: {
-    //                 epNumber: data.number,
-    //                 lastTimeStamp: video.currentTime
-    //             }
-    //         }
-    //     })
-    //     checker = true;
-    // }, 1000);
+export var setVideocurrentTime = async function(data) {
+    const flag = false;
+    const video = document.getElementById("video");
+    const querySnapshot = await getDocs(collection(db, uid));
+     querySnapshot.forEach(result => {
+        if(data.id === result.id) {
+            video.currentTime = result.data().details.lastTimestamp;
+            flag = true;
+        }
+    });
 
-    // if(checker) {
-    //     console.log('false');
-    //     clearInterval(dbSavingInterval);
-    //     checker = false;
-    // }
+    if (!flag) {
+        video.currentTime = 0;
+    }
 }
 
 export var dismissInterval = function() {
