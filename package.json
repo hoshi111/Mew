@@ -32,7 +32,7 @@
     "@consumet/extensions": "github:consumet/consumet.ts",
     "@ionic/angular": "^8.0.0",
     "angular-local-storage": "^0.7.1",
-    "firebase": "^10.12.0",
+    "firebase": "^10.12.1",
     "ionicons": "^7.0.0",
     "ioredis": "^5.4.1",
     "m3u8-parser": "^7.1.0",

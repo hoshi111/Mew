@@ -202,7 +202,7 @@ export class PlayerPage implements OnInit {
     }
 
     else {
-      this.currentVideo.pause();
+      this.currentVideo.pause(); 
       this.icon_name = 'play';
       const c = document.getElementById('current-time');
       dismissInterval();

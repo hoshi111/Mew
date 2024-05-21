@@ -1,5 +1,5 @@
 import { ParseSourceFile } from "@angular/compiler";
-import { doc, setDoc, getDoc } from "firebase/firestore"; 
+import { doc, setDoc, getDocs, updateDoc, addDoc, collection } from "firebase/firestore"; 
 import { db } from "src/app/app.component";
 
 var dbSavingInterval;
@@ -106,32 +106,29 @@ export var updateDb = function(data) {
     console.log(data)
 
     video.addEventListener('pause', async() => {
-        const docRef = doc(db, "watchHistory", uid);
-        const docSnap = await getDoc(docRef);
+        // const docRef = doc(db, "watchHistory", uid);
+        // const docSnap = await getDoc(docRef);
 
-        console.log(data.title)
-        console.log(docSnap.data().anime.name)
-        if (docSnap.data().anime.name === data.title) {
-            console.log('true');
-        }
+        // console.log(data.title)
+        // console.log(docSnap.data().anime.name)
+        // if (docSnap.data().anime.name === data.title) {
+        //     console.log('true');
+        // }
 
-        else {
-            console.log('false');
-        }
-
+        // else {
+        //     console.log('false');
+        // }
         if (uid) {
-            await setDoc(doc(db, "watchHistory", uid), {
-                anime: {
-                    name: data.title,
-                    episode: {
+                await setDoc(doc(db, uid, data.id), {
+                    details: {
+                        title: data.title,
                         id: data.id,
                         epNumber: data.number,
-                        lastTimeStamp: video.currentTime
+                        lastTimestamp: video.currentTime
                     }
-                }
-            })
-        }
-    })
+                })
+            } 
+        })
 
     // dbSavingInterval = setInterval(async () => {
     //     await setDoc(doc(db, "watchHistory", uid), {

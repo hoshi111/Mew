@@ -3,7 +3,9 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from "firebase/firestore";
 
 import { environment } from 'src/environments/environment';
-export var db: any;
+const app = initializeApp(environment.firebaseConfig);
+const db = getFirestore(app);
+export {db};
 
 @Component({
   selector: 'app-root',
@@ -12,7 +14,6 @@ export var db: any;
 })
 export class AppComponent {
   constructor() {
-    const app = initializeApp(environment.firebaseConfig);
-    db = getFirestore(app);
+    
    }
 }
