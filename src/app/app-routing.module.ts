@@ -4,7 +4,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'splashscreen',
+    redirectTo: 'watch-list',
     pathMatch: 'full'
   },
   {
@@ -22,7 +22,12 @@ const routes: Routes = [
   {
     path: 'splashscreen',
     loadChildren: () => import('./splashscreen/splashscreen.module').then( m => m.SplashscreenPageModule)
+  },
+  {
+    path: 'watch-list',
+    loadChildren: () => import('./watch-list/watch-list.module').then( m => m.WatchListPageModule)
   }
+
 
 
 ];

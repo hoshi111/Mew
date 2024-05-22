@@ -1,10 +1,25 @@
 ion-content {
     --background: var(--mainColor);
+    text-align: center;
+}
+
+.profileImage {
+    width: 40%;
+    height: 40%;
+    margin: 0 auto;
+    display: flex;
+}
+
+.watchList {
+    --background: var(--secColor);
+    width: 80%;
+    margin: 20vh auto 0;
+    display: flex;
 }
 
 .logout {
     --background: var(--secColor);
     width: 80%;
-    margin: 70vh auto 0;
+    margin: 20vh auto 0;
     display: flex;
 }

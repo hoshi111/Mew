@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { getAuth, signOut } from "firebase/auth";
 import { db } from '../app.component';
 import { collection, doc, getDoc, getDocs, snapshotEqual } from 'firebase/firestore';
+
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
@@ -35,6 +36,10 @@ export class Tab3Page {
     // const test = doc(db, this.uid,'title');
     // console.log(test.data());
 
+  }
+
+  showWatchList() {
+    this.router.navigate(['watch-list']);
   }
 
   logOut() {

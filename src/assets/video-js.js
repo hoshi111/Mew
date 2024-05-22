@@ -121,7 +121,7 @@ export var updateDb = function(data) {
 }
 
 export var setVideocurrentTime = async function(data) {
-    const flag = false;
+    let flag = false;
     const video = document.getElementById("video");
     const querySnapshot = await getDocs(collection(db, uid));
      querySnapshot.forEach(result => {
