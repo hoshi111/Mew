@@ -1,4 +1,5 @@
 <ion-content [fullscreen]="true">
+  <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
   <div class="pageTitle">
     <span>Your Watchlist</span>
   </div>
@@ -6,14 +7,14 @@
   <div class="mid">
     <ion-grid [fixed]="true">
       <ion-row>
-        <ion-col size="6">
-          <ion-card>
+        <ion-col size="6" *ngFor="let data of list">
+          <ion-card (click)="openDetailsModal(data)">
             <div class="img">
-              <img />
+              <img src="{{data.image}}" />
             </div>
             
               <div class="titleContainer">
-                <ion-card-title ></ion-card-title>
+                <ion-card-title >{{data.title}}</ion-card-title>
               </div>
           </ion-card>
         </ion-col>

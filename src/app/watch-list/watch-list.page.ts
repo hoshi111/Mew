@@ -4,8 +4,9 @@ import { db } from '../app.component';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../api/api.service';
 import { LoaderService } from '../api/loader.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
+
 
 @Component({
   selector: 'app-watch-list',
@@ -21,72 +22,74 @@ export class WatchListPage implements OnInit {
 
   constructor(private apiService: ApiService,
               private loaderService: LoaderService,
-              private modalCtrl: ModalController
+              private modalCtrl: ModalController,
+              private navCtrl: NavController
 
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.loaderService.showLoader();
     this.uid = this.localstorage.getItem('uid');
-    this.fetchData();
+    await this.fetchData().then(() => {
+      this.loaderService.hideLoader();
+    });
   }
 
   async fetchData() {
-    // const querySnapshot = await getDocs(collection(db, 'watchHistory', this.uid, 'forFetching'));
-    // querySnapshot.forEach((doc: any) => {
-    //   console.log(doc.ref.parent.parent.id);
-    // });
-
     const querySnapshot = await getDocs(collection(db, this.uid));
      querySnapshot.forEach((doc: any) => {
-      // console.log(doc.id)
-      // console.log(doc.data());
-      // console.log(doc.data().details.title);
-      this.tempList.push(doc.data())
-      // this.list.forEach((value: any) => {
-      //   if (doc.data().details.title) {
-
-      //   }
+      this.tempList.push(doc.data());
       })
-      // this.searchKeyword(doc.data().details.title, 1).then(async(result: any) => {
-      //   console.log(result);
-      // })
-    // });
 
-    // const test = doc(db, this.uid,'title');
-    // console.log(test.data());
-
-    this.tempList.forEach((value: any) => {
-      console.log(value.details.title)
-      this.list.forEach((value1: any) => {
-        if (value.details.title != value1.details.title) {
-          this.list.push(value);
+    let size = this.tempList.length;
+    
+    for (let z = 0; z < size; z++) {
+      for (let i = z + 1; i < size; i++) {
+        
+        if (this.tempList[z].details.title == this.tempList[i].details.title) {
+          console.log(this.tempList[z].details.title, ' === ', this.tempList[i].details.title)
+          for (let k = i; k < size -1; k++) {
+            this.tempList[k] = Object.assign(this.tempList[k + 1]);
+          }
+          size--;
+          i--;
         }
+      }
+    }
 
-        else {
-          console.log('false')
-        }
+    this.tempList.length = size;
+    // console.log(this.tempList)
+
+    this.tempList.forEach(async (data: any) => {
+      await this.searchKeyword(data.details.title, 1).then(async (data1: any) => {
+        // console.log(data1);
+        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+          this.list.push(data2);
+        })
       })
-    })
-
-    console.log(this.list)
+    });
   }
 
-  // async openDetailsModal(value: any) {
-  //   this.loaderService.showLoader();
-  //   // this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
-  //     const modal = await this.modalCtrl.create({
-  //       component: DetailsModalComponent,
-  //       componentProps: {state: result},
-  //       breakpoints: [0, 0.6, 1],
-  //       initialBreakpoint: 0.6,
-  //       backdropDismiss: true,
-  //       backdropBreakpoint: 0,
-  //     });
-  //     await modal.present().then(() => {
-  //       this.loaderService.hideLoader();
-  //     })
-  //   // })
-  // }
+  goBack() {
+    this.navCtrl.back();
+  }
+
+  async openDetailsModal(value: any) {
+    this.loaderService.showLoader();
+    // this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
+      const modal = await this.modalCtrl.create({
+        component: DetailsModalComponent,
+        componentProps: {state: value},
+        breakpoints: [0, 0.6, 1],
+        initialBreakpoint: 0.6,
+        backdropDismiss: true,
+        backdropBreakpoint: 0,
+      });
+      await modal.present().then(() => {
+        this.loaderService.hideLoader();
+      })
+    // })
+  }
 
   gogoAnimeGetDetails(query: any) {
     return new Promise((resolve, reject) => {
