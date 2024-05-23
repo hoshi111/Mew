@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true">
-  <ion-icon class="profileImage" name="logo-ionic" size="large"></ion-icon>
-  <span>Name</span>
+  <ion-icon class="profileImage" size="large" [src]="profileImg" ></ion-icon>
+  <span>{{name}}</span>
   <ion-button class="watchList" (click)="showWatchList()">Watchlist</ion-button>
   <ion-button class="logout" (click)="logOut()">Logout</ion-button>
 </ion-content>

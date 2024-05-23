@@ -36,32 +36,47 @@ export class WatchListPage implements OnInit {
   }
 
   async fetchData() {
+    let flag = false;
     const querySnapshot = await getDocs(collection(db, this.uid));
      querySnapshot.forEach((doc: any) => {
-      this.tempList.push(doc.data());
-      })
-
-    let size = this.tempList.length;
-    
-    for (let z = 0; z < size; z++) {
-      for (let i = z + 1; i < size; i++) {
-        
-        if (this.tempList[z].details.title == this.tempList[i].details.title) {
-          console.log(this.tempList[z].details.title, ' === ', this.tempList[i].details.title)
-          for (let k = i; k < size -1; k++) {
-            this.tempList[k] = Object.assign(this.tempList[k + 1]);
-          }
-          size--;
-          i--;
+      this.tempList.forEach((t: any | undefined) => {
+        if (t == doc.data().details.title) {
+          flag = true;
         }
+      })
+      
+      if(!flag) {
+        this.tempList.push(doc.data().details.title);
+        
       }
-    }
 
-    this.tempList.length = size;
-    // console.log(this.tempList)
+      else {
+        flag = false;
+      }
+      })
+      console.log(this.tempList)
+
+    // let size = this.tempList.length;
+    
+    // for (let z = 0; z < size; z++) {
+    //   for (let i = z + 1; i < size; i++) {
+        
+    //     if (this.tempList[z] == this.tempList[i]) {
+    //       console.log(this.tempList[z], ' === ', this.tempList[i])
+    //       for (let k = i; k < size -1; k++) {
+    //         this.tempList[k] = Object.assign(this.tempList[k + 1]);
+    //       }
+    //       size--;
+    //       i--;
+    //     }
+    //   }
+    // }
+
+    // this.tempList.length = size;
+    // // console.log(this.tempList)
 
     this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data.details.title, 1).then(async (data1: any) => {
+      await this.searchKeyword(data, 1).then(async (data1: any) => {
         // console.log(data1);
         await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
           this.list.push(data2);

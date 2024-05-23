@@ -11,31 +11,16 @@ import { collection, doc, getDoc, getDocs, snapshotEqual } from 'firebase/firest
 })
 export class Tab3Page {
   localstorage = localStorage;
-  uid: any;
+  name: any;
+  profileImg: any;
 
   constructor(private router: Router) {}
 
   ngOnInit() {
-    this.uid = this.localstorage.getItem('uid');
-    this.fetchData();
-  }
-
-  async fetchData() {
-    // const querySnapshot = await getDocs(collection(db, 'watchHistory', this.uid, 'forFetching'));
-    // querySnapshot.forEach((doc: any) => {
-    //   console.log(doc.ref.parent.parent.id);
-    // });
-
-    const querySnapshot = await getDocs(collection(db, this.uid));
-     querySnapshot.forEach((doc: any) => {
-      console.log(doc.id)
-      console.log(doc.data());
-      console.log(doc.data().details.title);
-    });
-
-    // const test = doc(db, this.uid,'title');
-    // console.log(test.data());
-
+    this.name = this.localstorage.getItem('name');
+    this.profileImg = this.localstorage.getItem('profileImg');
+    console.log(this.name);
+    console.log(this.profileImg);
   }
 
   showWatchList() {
@@ -43,6 +28,10 @@ export class Tab3Page {
   }
 
   logOut() {
+    this.localstorage.removeItem('uid');
+    this.localstorage.removeItem('name');
+    this.localstorage.removeItem('user');
+    this.localstorage.removeItem('profileImg');
     const auth = getAuth();
     signOut(auth).then(() => {
       this.router.navigate(['splashscreen']);
