@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { getAuth, signOut } from "firebase/auth";
-import { db } from '../app.component';
-import { collection, doc, getDoc, getDocs, snapshotEqual } from 'firebase/firestore';
 
 @Component({
   selector: 'app-tab3',
@@ -21,6 +19,7 @@ export class Tab3Page {
     this.profileImg = this.localstorage.getItem('profileImg');
     console.log(this.name);
     console.log(this.profileImg);
+    console.log(this.localstorage.getItem('uid'));
   }
 
   showWatchList() {

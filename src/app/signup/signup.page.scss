@@ -1,0 +1,47 @@
+ion-content {
+    --background: var(--mainColor);
+    text-align: center;
+}
+
+ion-input {
+    width: 80%;
+    margin: 30px auto;
+    --background: var(--secColor);
+}
+
+.signup {
+    margin-top: 20%;
+    margin-bottom: 20%;
+    font-size: 40px;
+    font-weight: 900;
+}
+
+.signupBtn {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    width: 60%;
+    --background: var(--secColor);
+}
+
+ion-header {
+    background-color: var(--mainColor);
+}
+
+
+#icon-wrapper-booking {
+    background: white;
+    height: 35px;
+    width: 35px;
+    border-radius:50%;
+    border: none;
+    display: flex;
+    left: 7%;
+    position: absolute;
+    margin-top: 30px;
+
+     ion-icon {
+      font-size: 30px; 
+      padding:2px;
+      color: black;
+    }
+ }

@@ -1,11 +1,31 @@
-import { ParseSourceFile } from "@angular/compiler";
-import { doc, setDoc, getDocs, updateDoc, addDoc, collection } from "firebase/firestore"; 
-import { db } from "src/app/app.component";
+import { doc, setDoc, getDocs, collection } from "firebase/firestore"; 
+import { db } from "src/environments/environment";
 
 var dbSavingInterval;
 
 var localstorage = localStorage;
 var uid = localstorage.getItem('uid');
+
+// import { FFmpeg } from "/assets/ffmpeg/package/dist/esm/index.js";
+// import { fetchFile } from "/assets/util/package/dist/esm/index.js";
+// let ffmpeg = null;
+
+// export const transcode = async (value) => {
+// if (ffmpeg === null) {
+//     ffmpeg = new FFmpeg();
+//     await ffmpeg.load({
+//     coreURL: "/assets/core/package/dist/esm/ffmpeg-core.js",
+//     });
+// }
+// const name = value;
+// await ffmpeg.writeFile(name, await fetchFile(value));
+// message.innerHTML = 'Start transcoding';
+// await ffmpeg.exec(['-i', name,  'output.mp4']);
+// message.innerHTML = 'Complete transcoding';
+// const data = await ffmpeg.readFile('output.mp4');
+
+// console.log(URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' })));
+// }
 
 export var check = function(value) {
     if (Hls.isSupported()) {
@@ -22,6 +42,7 @@ export var check = function(value) {
         video.removeAttribute('src');
         hls.loadSource(value);
         hls.attachMedia(video);
+        console.log(video);
     }
     console.log('ready to play')
 }
@@ -29,13 +50,14 @@ export var check = function(value) {
 
 export var whilePlaying = function() {
     const video = document.getElementById("video");
-    const progressBar = document.querySelector(".progressBar");
+    const progressBar = document.querySelector("#myRange");
     const currentTimeRef = document.getElementById("current-time"); 
     const maxDuration = document.getElementById("max-duration"); 
     const rewind = document.getElementById("rewindBtn");
     const forward = document.getElementById("forwardBtn");
     const loaderPanel = document.getElementById("loaderContainer");
-    const playNext = document.getElementById("playNext");
+    const overlayElements = document.getElementById("overlay");
+    const btnID = document.getElementById("btnID");
 
     const timeFormatter = (timeInput) => { 
         let minute = Math.floor(timeInput / 60); 
@@ -63,6 +85,46 @@ export var whilePlaying = function() {
     progressBar.oninput = function() {
         video.currentTime = this.value;
         progressBar.value = video.currentTime;
+    }
+
+    // for mobile
+    progressBar.ontouchmove = function() {
+        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+        overlayElements.classList.add("fadeIn");
+        btnID.classList.add("hidePlayBtn");
+        if (video.paused) {
+            loaderPanel.classList.remove("loaderHidden");
+        }
+    }
+
+    progressBar.ontouchend = function() {
+        btnID.classList.remove("hidePlayBtn");
+        overlayElements.classList.remove("fadeIn");
+        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+
+        if (video.paused) {
+            loaderPanel.classList.add("loaderHidden");
+        }
+    }
+
+    // for PC
+    progressBar.onmousemove = function() {
+        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+        overlayElements.classList.add("fadeIn");
+        btnID.classList.add("hidePlayBtn");
+        if (video.paused) {
+            loaderPanel.classList.remove("loaderHidden");
+        }
+    }
+
+    progressBar.onmouseout = function() {
+        btnID.classList.remove("hidePlayBtn");
+        overlayElements.classList.remove("fadeIn");
+        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+
+        if (video.paused) {
+            loaderPanel.classList.add("loaderHidden");
+        }
     }
 
     forward.onclick = function() {
@@ -123,6 +185,7 @@ export var updateDb = function(data) {
 export var setVideocurrentTime = async function(data) {
     let flag = false;
     const video = document.getElementById("video");
+
     const querySnapshot = await getDocs(collection(db, uid));
      querySnapshot.forEach(result => {
         if(data.id === result.id) {

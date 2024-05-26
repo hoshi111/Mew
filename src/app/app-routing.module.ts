@@ -26,7 +26,12 @@ const routes: Routes = [
   {
     path: 'watch-list',
     loadChildren: () => import('./watch-list/watch-list.module').then( m => m.WatchListPageModule)
+  },
+  {
+    path: 'signup',
+    loadChildren: () => import('./signup/signup.module').then( m => m.SignupPageModule)
   }
+
 
 
 

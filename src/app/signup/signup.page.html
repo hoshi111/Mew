@@ -1,0 +1,12 @@
+<ion-header>
+  <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <p class="signup">Sign up</p>
+  <ion-input label="Email" label-placement="floating" fill="outline" placeholder="user@user.com" [(ngModel)]="email"></ion-input>
+  <ion-input label="Password" label-placement="floating" fill="outline" placeholder="password" [(ngModel)]="password"></ion-input>
+  <ion-input label="First Name" label-placement="floating" fill="outline" placeholder="John" [(ngModel)]="firstName"></ion-input>
+  <ion-input label="Last Name" label-placement="floating" fill="outline" placeholder="Doe" [(ngModel)]="lastName"></ion-input>
+
+  <ion-button class="signupBtn" (click)="submit()">Submit</ion-button>
+</ion-content>

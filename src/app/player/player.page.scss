@@ -2,53 +2,29 @@ ion-content {
     --background: black;
 }
 
-.header {
-    height: 8%;
-    text-align: center;
-    visibility: visible;
-    p {
-        margin: 0 auto;
-        font-size: 26px;
-        font-weight: 900;
-        width: 60%;
-        margin-top: 2%;
-    }
-}
-
-.headerHidden {
-    visibility: hidden;
-}
-
 #video {
     height: 100%;
 }
 
 #icon-wrapper-booking {
     background: white;
-    height: 35px;
-    width: 35px;
+    height: 45px;
+    width: 45px;
     border-radius:50%;
     border: none;
     display: flex;
     left: 7%;
     position: absolute;
-    margin-top: 1%;
+    margin-top: 15px;
     z-index: 99999;
 
      ion-icon {
-      font-size: 30px; 
+      font-size: 40px; 
       padding:2px;
       color: black;
     }
  }
 
-.ionButton {
-      height: 30px;
-      width: 80px;
-      font-size: 0.8em;
-      background-color: transparent;
-      -webkit-text-fill-color: white;
-  }
 .mainContent
 {
     width: 100%;
@@ -60,93 +36,19 @@ ion-content {
     bottom: 0;
     overflow: hidden ;
     text-align: center;
-    span
-    {
-        position: relative;
-        top: 50%;
-    }
-}
-.top-overlay-visible
-{
-  width: 100%;
-  left: 0;
-  margin-left: 0% ;
-  height: 40%;
-  background: linear-gradient(to top, transparent 40%, black 100%);
-  background: -moz-linear-gradient(to top, transparent 0%, black 100%);
-  background: -webkit-linear-gradient(to top, transparent 0%, black 100%);
-  background: -o-linear-gradient(to top, transparent 0%, black 100%);
-  position: absolute;
-  z-index: 20;
-}
-.bottom-overlay-visible
-{
-  width: 100%;
-  left: 0;
-  margin-left: 0% ;
-  height: 40%;
-  bottom: 0;
-  position: relative;
-  background:linear-gradient(to bottom, transparent 40%, black);
-  background: -moz-linear-gradient(to bottom, transparent 0%, black);
-  background: -webkit-linear-gradient(to bottom, transparent 0%, black);
-  background: -o-linear-gradient(to bottom, transparent 0%, black);
-  position: absolute;
-  z-index: 20;
-}
-
-.topOverlayElements
-{
-  display: inline-block;
-  width: 100%;
-  line-height: 1em;
-  text-align: center;
-  color: white;
-  margin-top: 5vh;
-  span
-  {
-    font-size: 1.5em;
-  }
-}
-
-.top-overlay-hidden
-{
-  visibility: hidden;
-  opacity: 0;
-}
-
-.bottom-overlay-hidden
-{
-  visibility: hidden;
-  opacity: 0;
-}
-
-.buttonsVideoControl-hidden {
-  visibility: hidden;
-  opacity: 0;
 }
 
 .fadeOut
 {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0s 1s, opacity 1s linear;
+  transition: visibility 0.1s, opacity 0.1s linear;
 }
 .fadeIn
 {
   visibility: visible;
   opacity: 1;
   transition: opacity 0.1s linear;
-}
-
-.rotate {
-    transform: rotate(90deg);
-    position:absolute;
-    top: -100vw;
-    left: 0;
-    
-    height: 10vw;
-    width:10vh;
 }
 
 .playBtn {
@@ -161,53 +63,24 @@ ion-content {
   font-size: 90px;
 }
 
-.rewindHidden {
-  visibility: hidden;
-}
-
-.rewindVisible {
-  visibility: visible;
-}
-
 .rewindBtn {
-  --background: rgba(124, 111, 178, 0.8);
-  font-size: 20px;
-}
-
-.rewindProperty {
   position: absolute;
   display: flex;
   top: 50%;
-  left: 30%;
+  left: 35%;
   transform: translate(-50%, -50%);
-}
-
-.forwardHidden {
-  visibility: hidden;
-}
-
-.forwardVisible {
-  visibility: visible;
+  --background: rgba(124, 111, 178, 0.8);
+  font-size: 20px;
 }
 
 .forwardBtn {
-  font-size: 20px;
-  --background: rgba(124, 111, 178, 0.8);
-}
-
-.forwardProperty {
   position: absolute;
   display: flex;
   top: 50%;
-  right: 30%;
+  right: 35%;
   transform: translate(50%, -50%);
-}
-
-.bottomOverlayElements {
-  position: absolute;
-  width: 100%;
-  background-color: green;
-  bottom: 0;
+  font-size: 20px;
+  --background: rgba(124, 111, 178, 0.8);
 }
 
 ion-grid {
@@ -216,23 +89,25 @@ ion-grid {
   width: 100%;
 }
 
-.progressHidden {
-  visibility: hidden;
-}
-
 .progressProperty {
   width: 100%;
-  top: 0;
-  bottom: 0;
-  position: absolute;
+  justify-content: center;
+  height: 100%;
 }
 
 .progressBar { 
-  height: 100%; 
-  width: 90%; 
+  width: 100%; 
   accent-color: var(--mainColor); 
   transition: width 0.1s linear;
   border-radius: 10px;
+}
+
+#myRange {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 #current-time {
@@ -278,6 +153,7 @@ ion-grid {
   border-right-color: var(--mainColor);
   animation: l15 1s infinite linear;
 }
+
 .loader::before,
 .loader::after {    
   content: "";
@@ -287,10 +163,50 @@ ion-grid {
   border-radius: 50%;
   animation: l15 2s infinite;
 }
+
 .loader::after {
   margin: 8px;
   animation-duration: 3s;
 }
 @keyframes l15{ 
   100%{transform: rotate(1turn)}
+}
+
+.main-overlay-visible {
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  position: absolute;
+  top: 0;
+}
+
+.main-overlay-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.alwaysHide {
+  visibility: hidden;
+}
+
+#title {
+  font-size: 24px;
+}
+
+.hidePlayBtn {
+  visibility: hidden;
+}
+
+input[type=range]{
+  pointer-events: none;
+}
+input[type=range]::-webkit-slider-thumb{/*Webkit Browsers like Chrome and Safari*/
+  pointer-events: auto;
+}
+input[type=range]::-moz-range-thumb{/*Firefox*/
+  pointer-events: auto;
+}
+input[type=range]::-ms-thumb{/*Internet Explorer*/
+  pointer-events: auto;
 }

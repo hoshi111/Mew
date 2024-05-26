@@ -1,44 +1,30 @@
-<ion-content [fullscreen]="true"> 
-  <div class="mainContent" (click)="toggleOverlayByUser()">
-
-    <div class= "overlay-visible top-overlay-visible" id="topOverlay">
+<ion-content [fullscreen]="true">
+  <iframe id="my_iframe" style="display:none;"></iframe>
+  <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()">
+    <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
+    <a href="{{trustedVideoUrl}}" download="video.mp4">test download</a>
+    <div class="overlay-visible main-overlay-visible" id="overlay">
       <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
-      <div class="topOverlayElements">
-          <span>{{displayTitle}}</span>
+      <div class="overlayElements">
+        <p id="title">{{displayTitle}}</p>
+        
+      <div class="showLoader loaderHidden" id="loaderContainer">
+        <div class="loader" id="loader"></div>
       </div>
-    </div>
+    
+      <ion-button class="rewindBtn alwaysHide" id="rewindBtn" shape="round" (click)="rewindVideo()">
+        <ion-icon slot="icon-only" id="icon" name="play-skip-back"></ion-icon>
+      </ion-button>
 
-    <!-- <video *ngIf="!data.isAnime" id="video" autoplay [src]="trustedVideoUrl" height="100wh" cache-view="false" type="video/mp4" ></video> -->
-    <!-- <div *ngIf="!data.isAnime" class="iframe-disable-background" ng-show="isEnable">
-    <iframe cache-view="false" width="100%" height="315" [src]="trustedVideoUrl" frameborder="0" sandbox="allow-same-origin allow-scripts"></iframe>
-    </div>
-    <video *ngIf="data.isAnime" id="video" poster="{{data.image}}" height="100wh" cache-view="false" ></video> -->
-    <div class="showLoader loaderHidden" id="loaderContainer">
-      <div class="loader" id="loader"></div>
-    </div>
-    <video id="video" poster="{{data.image}}" width="100%" cache-view="false"(ended)="videoEnded()"></video>
-    
-    <div class="videoControls" id="videoControlsID">
-      <div class="rewindHidden" id="rewindBtn">
-        <ion-button class="rewindBtn" shape="round" (click)="rewindVideo()">
-          <ion-icon slot="icon-only" id="icon" name="play-skip-back"></ion-icon>
-        </ion-button> 
-      </div>
-    
       <ion-button class="playBtn" id="btnID" shape="round" (click)="playPauseVideo()">
           <ion-icon slot="icon-only" id="icon" name="{{icon_name}}"></ion-icon>
       </ion-button>
     
-      <div class="forwardHidden" id="forwardBtn">
-        <ion-button class="forwardBtn" shape="round" (click)="forwardVideo()">
-          <ion-icon slot="icon-only" id="icon" name="play-skip-forward"></ion-icon>
-        </ion-button>
-      </div>
-    </div>
-    
-
-    <div class= "overlay-visible bottom-overlay-visible" id="bottomOverlay">
-      <ion-grid class="progressHidden" id="progressComponents">
+      <ion-button class="forwardBtn alwaysHide" id="forwardBtn" shape="round" (click)="forwardVideo()">
+        <ion-icon slot="icon-only" id="icon" name="play-skip-forward"></ion-icon>
+      </ion-button>
+      
+      <ion-grid class="progressBar alwaysHide" id="progressMain">
         <ion-row>
           <ion-col class="ion-text-end">
             <p id="current-time" class="current-time">00:00</p>
@@ -55,8 +41,11 @@
           </ion-col>
         </ion-row>
       </ion-grid>
+
+
+
+      </div>
     </div>
-    <ion-button class="playNextHidden" id="playNext" (click)="playNext()">Play Next</ion-button>
+
   </div>
 </ion-content>
-

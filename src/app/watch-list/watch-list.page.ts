@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../app.component';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../api/api.service';
 import { LoaderService } from '../api/loader.service';
 import { ModalController, NavController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
+import { db } from 'src/environments/environment';
 
 
 @Component({

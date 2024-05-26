@@ -26,10 +26,11 @@ export class LoginPage{
   }
 
   login() {
-    signInWithEmailAndPassword(this.auth, this.email, this.password).then((userCredential) => {
+    signInWithEmailAndPassword(this.auth, this.email, this.password).then((userCredential: any) => {
       var localstorage = localStorage;
       localstorage.setItem('uid', userCredential.user.uid)
       console.log(localstorage.getItem('uid'));
+      localstorage.setItem('name', userCredential.user.displayName);
       console.log('success')
 
       this.router.navigate(['tabs']);
@@ -61,15 +62,19 @@ export class LoginPage{
     }
     // IdP data available using getAdditionalUserInfo(result)
     // ...
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    const credential = GoogleAuthProvider.credentialFromError(error);
-    // ...
-  });
+    }).catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData.email;
+      // The AuthCredential type that was used.
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      // ...
+    });
+  }
+
+  signUpPage() {
+    this.router.navigate(['signup']);
   }
 }

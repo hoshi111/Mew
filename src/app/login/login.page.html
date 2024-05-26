@@ -1,14 +1,5 @@
 <ion-content [fullscreen]="true">
   <p class="welcome">Welcome to Mew!</p>
-  <p class="loginLbl">Login with:</p>
-
-  <!-- <ion-button class="googleBtn" (click)="loginGoogle()">Login using Google</ion-button> -->
-
-  <div class="googleBtn" (click)="loginGoogle()">
-    <img src="assets/icon/google.png" />
-  </div>
-
-  <!-- <p>Or</p>
 
   <ion-input label="Email" label-placement="floating" fill="outline" placeholder="user@user.com" [(ngModel)]="email"></ion-input>
   <ion-input label="Password" label-placement="floating" fill="outline" placeholder="password" type="password" [(ngModel)]="password"></ion-input>
@@ -17,5 +8,13 @@
   
   <ion-button class="loginBtn" (click)="login()">Login</ion-button>
   <p>Forgot Password?</p>
-  <p class="signupLbl">Sign up</p> -->
+
+  <p class="loginLbl">Login with:</p>
+
+  <div class="googleBtn" (click)="loginGoogle()">
+    <img src="assets/icon/google.png" />
+  </div>
+
+
+  <p class="signupLbl" (click)="signUpPage()">Sign up here</p>
 </ion-content>
