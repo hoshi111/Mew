@@ -1,5 +1,4 @@
 <ion-content [fullscreen]="true">
-  <iframe id="my_iframe" style="display:none;"></iframe>
   <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()">
     <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
     <a href="{{trustedVideoUrl}}" download="video.mp4">test download</a>
@@ -41,11 +40,10 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-
-
-
       </div>
     </div>
-
   </div>
+
+  <ion-button class="playNextHidden" id="playNext" (click)="playNextVid()">Play Next</ion-button>
+
 </ion-content>

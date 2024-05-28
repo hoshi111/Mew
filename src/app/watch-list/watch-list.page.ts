@@ -19,6 +19,8 @@ export class WatchListPage implements OnInit {
   public subscription: any = Subscription;
   tempList: any = [];
   list: any = [];
+  watchedEp: any = [];
+  listForEp: any = [];
 
   constructor(private apiService: ApiService,
               private loaderService: LoaderService,
@@ -39,45 +41,26 @@ export class WatchListPage implements OnInit {
     let flag = false;
     const querySnapshot = await getDocs(collection(db, this.uid));
      querySnapshot.forEach((doc: any) => {
+      this.listForEp.push(doc.data().details);
       this.tempList.forEach((t: any | undefined) => {
-        if (t == doc.data().details.title) {
+        if (t.title == doc.data().details.title) {
           flag = true;
         }
       })
       
       if(!flag) {
-        this.tempList.push(doc.data().details.title);
+        this.tempList.push(doc.data().details);
         
       }
 
       else {
         flag = false;
       }
-      })
-      console.log(this.tempList)
-
-    // let size = this.tempList.length;
-    
-    // for (let z = 0; z < size; z++) {
-    //   for (let i = z + 1; i < size; i++) {
-        
-    //     if (this.tempList[z] == this.tempList[i]) {
-    //       console.log(this.tempList[z], ' === ', this.tempList[i])
-    //       for (let k = i; k < size -1; k++) {
-    //         this.tempList[k] = Object.assign(this.tempList[k + 1]);
-    //       }
-    //       size--;
-    //       i--;
-    //     }
-    //   }
-    // }
-
-    // this.tempList.length = size;
-    // // console.log(this.tempList)
+    })
+    console.log(this.tempList)
 
     this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data, 1).then(async (data1: any) => {
-        // console.log(data1);
+      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
         await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
           this.list.push(data2);
         })
@@ -91,18 +74,26 @@ export class WatchListPage implements OnInit {
 
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
-    // this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
-      const modal = await this.modalCtrl.create({
-        component: DetailsModalComponent,
-        componentProps: {state: value},
-        breakpoints: [0, 0.6, 1],
-        initialBreakpoint: 0.6,
-        backdropDismiss: true,
-        backdropBreakpoint: 0,
-      });
-      await modal.present().then(() => {
-        this.loaderService.hideLoader();
-      })
+    this.watchedEp = [];
+    this.listForEp.forEach((data: any) => {
+      if (data.title == value.title) {
+        this.watchedEp.push(data.epNumber);
+      }
+    })
+    value['watchedEp'] = this.watchedEp;
+
+    console.log(value)
+    const modal = await this.modalCtrl.create({
+      component: DetailsModalComponent,
+      componentProps: {state: value},
+      breakpoints: [0, 0.6, 1],
+      initialBreakpoint: 0.6,
+      backdropDismiss: true,
+      backdropBreakpoint: 0,
+    });
+    await modal.present().then(() => {
+      this.loaderService.hideLoader();
+    })
     // })
   }
 

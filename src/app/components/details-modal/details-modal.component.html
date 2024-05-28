@@ -7,8 +7,8 @@
       <ion-col size="6">
         <img src="{{state.image}}">
         <p>{{state.title}} ({{state.releaseDate}})</p>
-        <p *ngFor="let genre of state.genres">{{genre}}</p>
-        <p>{{state.status}}</p>
+        <p>Genres: {{genres}}</p>
+        <p>Status: {{state.status}}</p>
         <p>Total Episodes: {{state.totalEpisodes}}</p>
       </ion-col>
       <ion-col size="6">
@@ -22,9 +22,31 @@
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
-        {{episode.number}}
-      </ion-col>
+      @if(!state.watchedEp) {
+        <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
+          {{episode.number}}
+        </ion-col>
+      }
+
+      @else {
+        @for(ep of epList; track ep) {
+          @if(ep.isWatched) {
+            <ion-col size="2" class="watchedEpisode" (click)="playEpisode(ep.ep)">
+              {{ep.ep.number}}
+            </ion-col>
+          }
+  
+          @else {
+            <ion-col size="2" (click)="playEpisode(ep.ep)">
+              {{ep.ep.number}}
+            </ion-col>
+          }
+        }
+      }
     </ion-row>
   </ion-grid>
 </ion-content>
+
+<!-- <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
+  {{episode.number}}
+</ion-col> -->

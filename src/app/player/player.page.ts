@@ -1,11 +1,11 @@
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
-import { check, whilePlaying, nextAvailable, updateDb, dismissInterval } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
@@ -37,6 +37,7 @@ export class PlayerPage implements OnInit {
 
   timeoutDelay: any;
   data: any = [];
+  newData: any = [];
   trustedVideoUrl: SafeResourceUrl | undefined;
   value: any;
   sub: any;
@@ -51,17 +52,18 @@ export class PlayerPage implements OnInit {
   btn: any;
   fsUpdate: any;
   i = 0;
+  isLoaded: boolean = false;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
               public navCtrl: NavController,
               private loaderService: LoaderService,
               private apiService: ApiService,
+              private router: Router
   ) { }
 
   ngOnInit() {
     this.btn = document.getElementById('playNext');
-
     this.currentVideo = document.getElementById("video");
     this.currentVideo.removeAttribute('src');
     const value = this.activatedRoute.snapshot.queryParamMap.get('value');
@@ -77,21 +79,25 @@ export class PlayerPage implements OnInit {
       }  
     }, 2000);
 
-    if (value) {
-      this.data = JSON.parse(value);
-      this.setLink();
+    if (!this.isLoaded) {
+      if (value) {
+        this.data = JSON.parse(value);
+        console.log(this.data)
+        this.setLink();
+      }
+      else {
+        console.error('No data');
+        this.goBack();
+      }
+  
+      this.nextVideo().then(() => {
+        nextAvailable();
+      })
     }
-    else {
-      console.error('No data');
-      this.goBack();
-    }
-
-    this.nextVideo().then(() => {
-      nextAvailable();
-    })
   }
 
   setLink() {
+    this.isLoaded = true;
     this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
     this.playVideo(this.data.id).then((result: any) => {
       console.log(result)
@@ -170,9 +176,9 @@ export class PlayerPage implements OnInit {
   }
 
   playPauseVideo() {
+    console.log(this.data)
     this.currentVideo = document.getElementById("video");
     if (!this.isPlaying) {
-      updateDb(this.data);
       this.loaderPanel.classList.add("loaderHidden");
       this.isPlaying = true;
     }
@@ -226,27 +232,68 @@ export class PlayerPage implements OnInit {
     clearInterval(this.interval);
   }
 
-  playNext() {
-    this.loaderService.showLoader();
-    this.i += 1;
+  playNextVid() {
+    // this.loaderService.showLoader();
+    videoEnded(this.data);
     this.btn?.classList.remove('playNext');
     this.btn?.classList.add('playNextHidden');
     const no = this.data.number + this.i;
     var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-    this.playVideo(newVid).then((result: any) => {
-      if (result) {
-        result.sources.forEach((data: any) => {
-          if (data.quality == 'default') {
-            this.trustedVideoUrl = data.url;
-            check(this.trustedVideoUrl);
-            whilePlaying();
-            this.displayTitle = this.data.title + ' | Episode ' + no;
-            this.loaderService.hideLoader();
-            this.currentVideo.play();
-          }
-        })
-      }
+    this.newData = {
+      title: this.data.title,
+      id: newVid,
+      number: no,
+      image: this.data.image,
+      url: this.data.url.substr(0, this.data.url.lastIndexOf("-") + 1) + no
+    }
+
+//     id: "kimetsu-no-yaiba-hashira-geiko-hen-episode-1"
+// ​
+// image: "https://gogocdn.net/cover/kimetsu-no-yaiba-hashira-geiko-hen.png"
+// ​
+// number: 1
+// ​
+// title: "Kimetsu no Yaiba: Hashira Geiko-hen"
+// ​
+// url: "https://anitaku.so//kimetsu-no-yaiba-hashira-geiko-hen-episode-1"
+    // this.data = [];
+    // this.data = this.newData;
+
+    // console.log(this.data)
+
+    // updateDb(this.data)
+
+    this.currentVideo = document.getElementById("video");
+    this.currentVideo.pause();
+    this.currentVideo.removeAttribute('src');
+
+    const queryParams: any = {};
+
+    queryParams.value = JSON.stringify(this.newData);
+    console.log(queryParams)
+
+    const navigationExtras: NavigationExtras = {queryParams}
+
+    console.log(navigationExtras)
+
+    this.router.navigateByUrl('/player?value=' + JSON.stringify(this.newData)).then(() => {
+      window.location.reload();
     })
+    // this.playVideo(newVid).then((result: any) => {
+    //   if (result) {
+    //     result.sources.forEach((data: any) => {
+    //       if (data.quality == 'default') {
+    //         this.trustedVideoUrl = data.url;
+    //         check(this.trustedVideoUrl);
+    //         whilePlaying();
+    //         this.displayTitle = this.data.title + ' | Episode ' + no;
+    //         this.loaderService.hideLoader();
+    //         this.currentVideo.play();
+    //         this.newData = [];
+    //       }
+    //     })
+    //   }
+    // })
   }
 
   nextVideo() {
@@ -268,7 +315,7 @@ export class PlayerPage implements OnInit {
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     StatusBar.setOverlaysWebView({ overlay: false });
     StatusBar.show();
-    this.navCtrl.back();
+    this.router.navigate(['tabs']);
   }
   
   playVideo(value: string) {

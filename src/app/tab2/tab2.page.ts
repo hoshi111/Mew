@@ -132,26 +132,4 @@ export class Tab2Page {
       )
     })
   }
-
-  // showDetailsPage(movieDetail: any) {
-  //   console.log(movieDetail)
-  //   movieDetail.url = 'https://consumet-beige.vercel.app/anime/gogoanime/watch/' + movieDetail.id + '-episode-1'
-  //   // const link = {
-  //   //   link: 'https://vidsrc.to/embed/movie/' + movieDetail.id
-  //   // }
-
-  //   // movieDetail.push(link);
-
-  //   // this.getVideo(movieDetail.id).then((result: any) => {
-  //   //   movieDetail.push(link);
-  //   // })
-
-  //   const queryParams: any = {};
-
-  //   queryParams.value = JSON.stringify(movieDetail);
-
-  //   const navigationExtras: NavigationExtras = {queryParams}
-
-  //   this.router.navigate(['details'], navigationExtras);
-  // }
 }

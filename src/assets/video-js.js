@@ -148,34 +148,68 @@ export var nextAvailable = function() {
     const video = document.getElementById("video");
     console.log(video.currentTime)
     video.addEventListener("timeupdate", () => { 
-        console.log(video.currentTime)
     if (video.currentTime >= video.duration - 100) {
         playNext.classList.remove('playNextHidden');
         playNext.classList.add('playNext');
         }
 
         else {
-            playNext.classList.remove('playnext');
+            playNext.classList.remove('playNext');
         playNext.classList.add('playNextHidden');
         }
     })
+}
+
+export var videoEnded = async function(data) {
+    console.log(data);
+    const video = document.getElementById("video");
+    let time = 0;
+    if (video.duration <= video.currentTime + 20) {
+        time = video.currentTime
+    }
+
+    if (uid) {
+        await setDoc(doc(db, uid, data.id), {
+            details: {
+                title: data.title,
+                id: data.id,
+                epNumber: data.number,
+                lastTimestamp: time,
+                isFinished: true
+            }
+        })
+    } 
 }
 
 export var updateDb = function(data) {
     setVideocurrentTime(data);
     const video = document.getElementById("video");
     console.log(video.currentTime)
-    console.log(uid)
-    console.log(data)
 
     video.addEventListener('pause', async() => {
+        if (uid) {
+            console.log(data)
+            await setDoc(doc(db, uid, data.id), {
+                details: {
+                    title: data.title,
+                    id: data.id,
+                    epNumber: data.number,
+                    lastTimestamp: video.currentTime,
+                    isFinished: false
+                }
+            })
+        } 
+    })
+
+    video.addEventListener('ended', async() => {
         if (uid) {
             await setDoc(doc(db, uid, data.id), {
                 details: {
                     title: data.title,
                     id: data.id,
                     epNumber: data.number,
-                    lastTimestamp: video.currentTime
+                    lastTimestamp: video.currentTime,
+                    isFinished: true
                 }
             })
         } 

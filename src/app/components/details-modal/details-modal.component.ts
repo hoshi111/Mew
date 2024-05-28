@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
@@ -10,13 +10,45 @@ import { ModalController } from '@ionic/angular';
 export class DetailsModalComponent  implements OnInit {
   @Input() state: any;
   data: any = [];
+  genres: string = '';
+  epList: any = [];
 
   constructor(private router: Router,
               private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {
-    console.log(this.state)
+    console.log(this.state);
+    this.epList = [];
+    let flag = false;
+    this.state.episodes.forEach((ep: any) => {
+      this.state.watchedEp.forEach((watchedEp: any) => {
+        if (ep.number == watchedEp) {
+          console.log('true');
+          this.epList.push({
+            ep: ep,
+            isWatched: true
+          })
+          flag = true;
+        }
+      })
+      if (!flag) {
+        this.epList.push({
+          ep: ep,
+          isWatched: false
+        })
+      }
+      
+      flag = false;
+    })
+
+    console.log(this.epList);
+
+    this.state.genres.forEach((genre: any) => {
+      this.genres = this.genres + genre + ', ';
+    })
+    this.genres = this.genres.slice(0, -2)
+    console.log(this.genres)
   }
 
   playEpisode(episode: any) {
