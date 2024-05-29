@@ -6,6 +6,7 @@ import { LoaderService } from 'src/app/api/loader.service';
 import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
+import { windowResize } from 'src/assets/video-js';
 
 @Component({
   selector: 'app-tab1',
@@ -16,6 +17,7 @@ export class Tab1Page implements OnInit{
   public subscription: any = Subscription;
   list: any = [];
   movieDetails: any = [];
+  colSize: any;
   // categories: any = [{name: 'Movies', pressed: true}, 
   //                    {name: 'TV Shows', pressed: false},
   //                    {name: 'Episodes', pressed: false},
@@ -49,8 +51,35 @@ export class Tab1Page implements OnInit{
   }
 
   ngOnInit() {
+    if (window.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (window.innerWidth > 480 && window.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(window.innerWidth > 1024) {
+      this.colSize = 2;
+    }
+
     this.generateItems(this.categories[0].code);
     // this.animeRecentEpisodes();
+  }
+
+  onResize(e: any) {
+    console.log(e);
+    if (e.target.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (e.target.innerWidth > 480 && e.target.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(e.target.innerWidth > 1024) {
+      this.colSize = 2;
+    }
   }
 
   test() {

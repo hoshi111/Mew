@@ -7,7 +7,7 @@ ion-content {
 }
 
 #icon-wrapper-booking {
-    background: white;
+    background: var(--mainColor);
     height: 45px;
     width: 45px;
     border-radius:50%;
@@ -17,11 +17,12 @@ ion-content {
     position: absolute;
     margin-top: 15px;
     z-index: 99999;
-
-     ion-icon {
-      font-size: 40px; 
-      padding:2px;
-      color: black;
+    align-items: center;
+    color: white;
+    ion-icon {
+      height: 80%;
+      width: 80%;
+      margin-left: 1px;
     }
  }
 
@@ -39,7 +40,7 @@ ion-content {
 }
 
 #title {
-  font-size: 3vmax;
+  font-size: calc(1vw + 12px);
 }
 
 .fadeOut

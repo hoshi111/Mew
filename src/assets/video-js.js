@@ -6,26 +6,21 @@ var dbSavingInterval;
 var localstorage = localStorage;
 var uid = localstorage.getItem('uid');
 
-// import { FFmpeg } from "/assets/ffmpeg/package/dist/esm/index.js";
-// import { fetchFile } from "/assets/util/package/dist/esm/index.js";
-// let ffmpeg = null;
-
-// export const transcode = async (value) => {
-// if (ffmpeg === null) {
-//     ffmpeg = new FFmpeg();
-//     await ffmpeg.load({
-//     coreURL: "/assets/core/package/dist/esm/ffmpeg-core.js",
-//     });
-// }
-// const name = value;
-// await ffmpeg.writeFile(name, await fetchFile(value));
-// message.innerHTML = 'Start transcoding';
-// await ffmpeg.exec(['-i', name,  'output.mp4']);
-// message.innerHTML = 'Complete transcoding';
-// const data = await ffmpeg.readFile('output.mp4');
-
-// console.log(URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' })));
-// }
+export var windowResize = function() {
+    window.addEventListener("resize",() => {
+        if (window.innerWidth <= 480) {
+            return 6;
+          }
+      
+          else if (window.innerWidth > 480 && e.target.innerWidth <= 1024) {
+            return 3;
+          }
+      
+          else if(window.innerWidth > 1024) {
+            return 2;
+          }
+    })
+}
 
 export var check = function(value) {
     if (Hls.isSupported()) {
