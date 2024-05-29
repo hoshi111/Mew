@@ -163,12 +163,13 @@ export var nextAvailable = function() {
 export var videoEnded = async function(data) {
     console.log(data);
     const video = document.getElementById("video");
-    let time = 0;
-    if (video.duration <= video.currentTime + 20) {
-        time = video.currentTime
+    let time = video.currentTime;
+    if ((video.duration - video.currentTime) <= 60) {
+        time = 0;
     }
 
     if (uid) {
+        alert('true');
         await setDoc(doc(db, uid, data.id), {
             details: {
                 title: data.title,
@@ -178,7 +179,8 @@ export var videoEnded = async function(data) {
                 isFinished: true
             }
         })
-    } 
+    }
+    alert('true');
 }
 
 export var updateDb = function(data) {

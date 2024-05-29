@@ -7,10 +7,12 @@
     <ion-row>
       <ion-col size="6" *ngFor="let movieDetail of movieDetails">
         <ion-card (click)="openDetailsModal(movieDetail)">
-          <img src= "{{movieDetail.image}}" />
-          <ion-card-header>
-            <ion-card-title>{{movieDetail.title}}</ion-card-title>
-          </ion-card-header>
+          <div class="img">
+            <img src= "{{movieDetail.image}}" />
+          </div>
+            <div class="titleContainer">
+              <ion-card-title >{{movieDetail.title}}</ion-card-title>
+            </div>
         </ion-card>
       </ion-col>
       <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">

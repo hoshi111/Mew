@@ -6,6 +6,7 @@ import { LoaderService } from '../api/loader.service';
 import { ModalController, NavController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import { db } from 'src/environments/environment';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -25,7 +26,8 @@ export class WatchListPage implements OnInit {
   constructor(private apiService: ApiService,
               private loaderService: LoaderService,
               private modalCtrl: ModalController,
-              private navCtrl: NavController
+              private navCtrl: NavController,
+              private router: Router
 
   ) { }
 
@@ -69,18 +71,21 @@ export class WatchListPage implements OnInit {
   }
 
   goBack() {
-    this.navCtrl.back();
+    this.router.navigate(['tabs/tab3'])
   }
 
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
-    this.watchedEp = [];
-    this.listForEp.forEach((data: any) => {
-      if (data.title == value.title) {
-        this.watchedEp.push(data.epNumber);
-      }
-    })
-    value['watchedEp'] = this.watchedEp;
+    // this.watchedEp = [];
+    // this.listForEp.forEach((data: any) => {
+    //   if (data.title == value.title) {
+    //     this.watchedEp.push(data.epNumber);
+    //   }
+    // })
+    // value['watchedEp'] = this.watchedEp;
+
+    value['listForEp'] = this.listForEp;
+    value['isFrom'] = 'watchList';
 
     console.log(value)
     const modal = await this.modalCtrl.create({

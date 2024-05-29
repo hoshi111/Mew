@@ -38,6 +38,10 @@ ion-content {
     text-align: center;
 }
 
+#title {
+  font-size: 3vmax;
+}
+
 .fadeOut
 {
   visibility: hidden;
@@ -188,10 +192,6 @@ ion-grid {
 
 .alwaysHide {
   visibility: hidden;
-}
-
-#title {
-  font-size: 24px;
 }
 
 .hidePlayBtn {

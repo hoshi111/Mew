@@ -4,9 +4,7 @@
 </ion-header>
 
 <div class="chip-container">
-  <div class="chips">
-    <ion-chip [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</ion-chip>
-  </div>
+    <button class="button-chip" [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</button>
 </div>
 
 <ion-content>
@@ -18,12 +16,9 @@
       <ion-row>
         <ion-col size="6" *ngFor="let movieDetail of movieDetails">
           <ion-card (click)="showDetailsPage(movieDetail)">
-          <!-- <ion-card (click)="openModal(movieDetail)"> -->
-            <!-- <img *ngIf="!isAnime" src= "https://image.tmdb.org/t/p/w500{{movieDetail.poster_path}}" /> -->
             <div class="img">
               <img src= "{{movieDetail.image}}" />
             </div>
-            
               <div class="titleContainer">
                 <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>
               </div>

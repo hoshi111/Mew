@@ -5,6 +5,8 @@ import { NavigationExtras, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import { LoaderService } from '../api/loader.service';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tab2',
@@ -18,6 +20,9 @@ export class Tab2Page {
   query: any;
   movieDetails: any = [];
   i = 1;
+  uid: any;
+  localstorage = localStorage;
+  listForEp: any = [];
 
   constructor(private apiService: ApiService,
               private router: Router,
@@ -66,7 +71,18 @@ export class Tab2Page {
 
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
+
+    this.uid = this.localstorage.getItem('uid');
+
+    const querySnapshot = await getDocs(collection(db, this.uid));
+     querySnapshot.forEach((doc: any) => {
+      this.listForEp.push(doc.data().details);
+     })
+
+     console.log(value)
     this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
+      result['listForEp'] = this.listForEp;
+      result['isFrom'] = 'search';
       const modal = await this.modalCtrl.create({
         component: DetailsModalComponent,
         componentProps: {state: result},

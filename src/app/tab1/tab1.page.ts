@@ -321,6 +321,7 @@ export class Tab1Page implements OnInit{
         const ep = result.episodes[(result.episodes.length) - 1];
         ep['title'] = result.title;
         ep['image'] = result.image;
+        ep['isFrom'] = 'home';
         console.log(ep)
   
         const queryParams: any = {};
@@ -337,6 +338,7 @@ export class Tab1Page implements OnInit{
 
     else {
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
+        result['isFrom'] = 'home';
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},

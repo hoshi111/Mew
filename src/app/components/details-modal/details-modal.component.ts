@@ -12,6 +12,7 @@ export class DetailsModalComponent  implements OnInit {
   data: any = [];
   genres: string = '';
   epList: any = [];
+  watchedEp: any = [];
 
   constructor(private router: Router,
               private modalCtrl: ModalController
@@ -19,28 +20,49 @@ export class DetailsModalComponent  implements OnInit {
 
   ngOnInit() {
     console.log(this.state);
+
+
+    this.watchedEp = [];
+    this.state.listForEp.forEach((data: any) => {
+      if (data.title == this.state.title) {
+        this.watchedEp.push({
+          number: data.epNumber,
+          isFinished: data.isFinished
+        });
+      }
+    })
+    this.state['watchedEp'] = this.watchedEp;
+
+    console.log(this.state)
+
+
+
+
     this.epList = [];
     let flag = false;
-    this.state.episodes.forEach((ep: any) => {
-      this.state.watchedEp.forEach((watchedEp: any) => {
-        if (ep.number == watchedEp) {
-          console.log('true');
+    if(this.state.watchedEp) {
+      this.state.episodes.forEach((ep: any) => {
+        this.state.watchedEp.forEach((watchedEp: any) => {
+          if (ep.number == watchedEp.number) {
+            console.log('true');
+            this.epList.push({
+              ep: ep,
+              isWatched: true,
+              isFinished: watchedEp.isFinished
+            })
+            flag = true;
+          }
+        })
+        if (!flag) {
           this.epList.push({
             ep: ep,
-            isWatched: true
+            isWatched: false
           })
-          flag = true;
         }
+        
+        flag = false;
       })
-      if (!flag) {
-        this.epList.push({
-          ep: ep,
-          isWatched: false
-        })
-      }
-      
-      flag = false;
-    })
+    }
 
     console.log(this.epList);
 
@@ -54,6 +76,7 @@ export class DetailsModalComponent  implements OnInit {
   playEpisode(episode: any) {
     episode['title'] = this.state.title;
     episode['image'] = this.state.image;
+    episode['isFrom'] = this.state.isFrom;
     console.log(this.data)
     
 

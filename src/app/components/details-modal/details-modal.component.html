@@ -31,9 +31,17 @@
       @else {
         @for(ep of epList; track ep) {
           @if(ep.isWatched) {
-            <ion-col size="2" class="watchedEpisode" (click)="playEpisode(ep.ep)">
-              {{ep.ep.number}}
-            </ion-col>
+            @if(ep.isFinished) {
+              <ion-col size="2" class="finishedEpisode" (click)="playEpisode(ep.ep)">
+                {{ep.ep.number}}
+              </ion-col>
+            }
+
+            @else {
+              <ion-col size="2" class="continueEpisode" (click)="playEpisode(ep.ep)">
+                {{ep.ep.number}}
+              </ion-col>
+            }
           }
   
           @else {
