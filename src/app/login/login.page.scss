@@ -10,8 +10,8 @@ ion-input {
 }
 
 .welcome {
-    margin-top: 20vh;
-    margin-bottom: 10%;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
     font-size: 40px;
     font-weight: 900;
 }
@@ -48,6 +48,8 @@ ion-input {
 .signupLbl {
     margin-top: 50px;
     text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .error {

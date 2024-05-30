@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { getAuth, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { Router } from '@angular/router';
 import { GoogleAuthProvider } from "firebase/auth";
-
+import { LoaderService } from '../api/loader.service';
 
 @Component({
   selector: 'app-login',
@@ -16,8 +16,8 @@ export class LoginPage{
   private error: HTMLDivElement | undefined;
   provider = new GoogleAuthProvider();
 
-  constructor(private router: Router
-  ) {  }
+  constructor(private router: Router,
+              private loaderService: LoaderService) { }
 
   ngOnInit() {
     this.auth = getAuth();
@@ -26,12 +26,12 @@ export class LoginPage{
   }
 
   login() {
+    this.loaderService.showLoader();
     signInWithEmailAndPassword(this.auth, this.email, this.password).then((userCredential: any) => {
       var localstorage = localStorage;
       localstorage.setItem('uid', userCredential.user.uid)
       console.log(localstorage.getItem('uid'));
       localstorage.setItem('name', userCredential.user.displayName);
-      console.log('success')
 
       this.router.navigate(['tabs']);
     })
@@ -40,10 +40,13 @@ export class LoginPage{
       this.password = ''
       this.error?.classList.remove('errorHidden');
       this.error?.classList.add('error')
+    }).then(() => {
+      this.loaderService.hideLoader();
     });
   }
 
   loginGoogle() {
+    this.loaderService.showLoader();
     signInWithPopup(this.auth, this.provider).then((result: any) => {
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -58,7 +61,9 @@ export class LoginPage{
       localstorage.setItem('profileImg', user.photoURL);
       console.log(localstorage.getItem('uid'));
 
-      this.router.navigate(['tabs']);
+      this.router.navigate(['tabs']).then(() => {
+        this.loaderService.hideLoader();
+      });
     }
     // IdP data available using getAdditionalUserInfo(result)
     // ...
@@ -71,6 +76,8 @@ export class LoginPage{
       // The AuthCredential type that was used.
       const credential = GoogleAuthProvider.credentialFromError(error);
       // ...
+    }).then(() => {
+      this.loaderService.hideLoader();
     });
   }
 

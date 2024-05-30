@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { LoaderService } from '../api/loader.service';
 
 @Component({
   selector: 'app-signup',
@@ -17,13 +18,15 @@ export class SignupPage implements OnInit {
 
 
   constructor(private router: Router,
-              private navCtrl: NavController
+              private navCtrl: NavController,
+              private loaderService: LoaderService
   ) { }
 
   ngOnInit() {
   }
 
   submit() {
+    this.loaderService.showLoader();
     const name = this.firstName + ' ' + this.lastName;
     createUserWithEmailAndPassword(this.auth, this.email, this.password)
       .then((userCredential) => {
@@ -44,6 +47,8 @@ export class SignupPage implements OnInit {
         const errorMessage = error.message;
         alert("Email already used!");
         // ..
+      }).then(() => {
+        this.loaderService.hideLoader();
       });
   }
 
