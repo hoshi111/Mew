@@ -35,6 +35,7 @@ export class PlayerPage implements OnInit {
   progressMain!: HTMLElement;
   loaderPanel!: HTMLElement;
 
+  isFullscreen: boolean = false;
   timeoutDelay: any;
   data: any = [];
   newData: any = [];
@@ -153,7 +154,6 @@ export class PlayerPage implements OnInit {
   }
 
   public ngAfterViewInit() {
-
     this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
     this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
     this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
@@ -179,9 +179,12 @@ export class PlayerPage implements OnInit {
     console.log(this.data)
     this.currentVideo = document.getElementById("video");
     if (!this.isPlaying) {
-      await setVideocurrentTime(this.data);
-      this.loaderPanel.classList.add("loaderHidden");
-      this.isPlaying = true;
+      this.loaderPanel.classList.remove("loaderHidden");
+      await setVideocurrentTime(this.data).then(() => {
+        this.loaderPanel.classList.add("loaderHidden");
+        this.isPlaying = true;
+      })
+      
     }
 
     if (this.currentVideo.paused) {
@@ -202,10 +205,6 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  updateFS() {
-    console.log(this.currentVideo)
-  }
-
   rewindVideo() {
     dismissInterval();
     this.toggleOverlayByUser();
@@ -219,18 +218,6 @@ export class PlayerPage implements OnInit {
   videoEnded() {
     this.icon_name = 'play';
     
-    // this.topOverlayElements?.classList.remove('top-overlay-hidden');
-    // this.topOverlayElements?.classList.add('fadeIn');
-    // this.bottomOverlayElements?.classList.remove('bottom-overlay-hidden');
-    // this.bottomOverlayElements?.classList.add('fadeIn');
-    // this.buttonsVideoControl?.classList.remove('buttonsVideoControl-hidden');
-    // this.buttonsVideoControl?.classList.add('fadeIn');
-    // this.progressBarElements?.classList.remove('progressHidden');
-    // this.progressBarElements?.classList.add('fadeIn');
-    // this.buttonRewind?.classList.remove('rewindHidden');
-    // this.buttonRewind?.classList.add('fadeIn');
-    // this.buttonForward?.classList.remove('forwardHidden');
-    // this.buttonForward?.classList.add('fadeIn');
     clearInterval(this.interval);
   }
 
@@ -278,6 +265,33 @@ export class PlayerPage implements OnInit {
     })
   }
 
+  toggleFullscreen() {
+    if (this.isFullscreen) {
+      this.isFullscreen = false;
+    }
+
+    else {
+      this.isFullscreen = true;
+    }
+
+    this.fullscreenEvent();
+  }
+
+  fullscreenEvent() {
+    const vid: any = document.getElementById("videoContainer");
+
+    if (this.isFullscreen) {
+      if (vid.requestFullscreen) {
+        vid.requestFullscreen();
+      } 
+    }
+      else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+    }
+  }
+
   goBack() {
     updateDb(this.data);
     this.currentVideo = document.getElementById("video");
@@ -288,6 +302,20 @@ export class PlayerPage implements OnInit {
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     StatusBar.setOverlaysWebView({ overlay: false });
     StatusBar.show();
+    
+    const vid: any = document.getElementById("videoContainer");
+    if (vid.exitFullscreen) {
+      vid.exitFullscreen();
+    }
+
+    else if (vid.webkitExitFullscreen) { /* Safari */
+    vid.webkitExitFullscreen();
+  } 
+
+  else if (vid.msRExitFullscreen) { /* IE11 */
+  vid.msRExitFullscreen();
+  }
+
     if (this.data.isFrom == 'home') {
       this.router.navigate(['tabs']);
     }

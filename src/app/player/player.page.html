@@ -1,7 +1,8 @@
 <ion-content [fullscreen]="true">
-  <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()">
+  <div id="videoContainer">
     <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
-    <a href="{{trustedVideoUrl}}" download="video.mp4">test download</a>
+  
+  <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
     <div class="overlay-visible main-overlay-visible" id="overlay">
       <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
       <div class="overlayElements">
@@ -43,5 +44,5 @@
     <div class="loader" id="loader"></div>
   </div>
   <ion-button class="playNextHidden" id="playNext" (click)="playNextVid()">Play Next</ion-button>
-
+</div>
 </ion-content>

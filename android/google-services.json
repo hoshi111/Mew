@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "882043916804",
+    "firebase_url": "https://mew-4b389-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "mew-4b389",
+    "storage_bucket": "mew-4b389.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:882043916804:android:5b5930fb234cb29303db51",
+        "android_client_info": {
+          "package_name": "com.mew.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "882043916804-at5j5fr3cpsa6c5trfpcei7uh31nb4a6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mew.app",
+            "certificate_hash": "ae2d60fd85ab30b0772061707e719016d144783c"
+          }
+        },
+        {
+          "client_id": "882043916804-a14lgpdlcbrphiait2hu9ushk82d4rc5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBZ1IzVpX7WFTSF65TuBiKEsvd4LXZKh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "882043916804-a14lgpdlcbrphiait2hu9ushk82d4rc5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
