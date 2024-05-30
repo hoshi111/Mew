@@ -7,6 +7,8 @@ import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
 import { windowResize } from 'src/assets/video-js';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tab1',
@@ -15,6 +17,7 @@ import { windowResize } from 'src/assets/video-js';
 })
 export class Tab1Page implements OnInit{
   public subscription: any = Subscription;
+  localstorage = localStorage;
   list: any = [];
   movieDetails: any = [];
   colSize: any;
@@ -32,6 +35,9 @@ export class Tab1Page implements OnInit{
   i = 1;
   isAnime: boolean = false;
   animeResults: any = [];
+  uid: any;
+  listForEp: any = [];
+  tempList: any = [];
 
   constructor(private apiService: ApiService,
               private router: Router,
@@ -51,6 +57,8 @@ export class Tab1Page implements OnInit{
   }
 
   ngOnInit() {
+    this.uid = this.localstorage.getItem('uid');
+
     if (window.innerWidth <= 480) {
       this.colSize = 6;
     }
@@ -68,7 +76,6 @@ export class Tab1Page implements OnInit{
   }
 
   onResize(e: any) {
-    console.log(e);
     if (e.target.innerWidth <= 480) {
       this.colSize = 6;
     }
@@ -81,11 +88,6 @@ export class Tab1Page implements OnInit{
       this.colSize = 2;
     }
   }
-
-  test() {
-    console.log('test')
-  }
-
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
@@ -341,8 +343,20 @@ export class Tab1Page implements OnInit{
     })
   }
 
+  searchKeyword(query: string, page: number) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.searchAnime(query, page).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
   showDetailsPage(movieDetail: any) {
-    console.log(movieDetail)
     this.loaderService.showLoader();
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
@@ -366,7 +380,10 @@ export class Tab1Page implements OnInit{
     }
 
     else {
+      this.fetchData();
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
+        result['listForEp'] = this.listForEp;
+        result['isFrom'] = 'watchList';
         result['isFrom'] = 'home';
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
@@ -381,5 +398,36 @@ export class Tab1Page implements OnInit{
         });
       })
     }
+  }
+
+  async fetchData() {
+    let flag = false;
+    const querySnapshot = await getDocs(collection(db, this.uid));
+     querySnapshot.forEach((doc: any) => {
+      this.listForEp.push(doc.data().details);
+      this.tempList.forEach((t: any | undefined) => {
+        if (t.title == doc.data().details.title) {
+          flag = true;
+        }
+      })
+      
+      if(!flag) {
+        this.tempList.push(doc.data().details);
+        
+      }
+
+      else {
+        flag = false;
+      }
+    })
+    console.log(this.tempList)
+
+    this.tempList.forEach(async (data: any) => {
+      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+          this.list.push(data2);
+        })
+      })
+    });
   }
 }

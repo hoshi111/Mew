@@ -23,12 +23,41 @@ export class Tab2Page {
   uid: any;
   localstorage = localStorage;
   listForEp: any = [];
+  colSize: any;
 
   constructor(private apiService: ApiService,
               private router: Router,
               private modalCtrl: ModalController,
               private loaderService: LoaderService
   ) {}
+
+  ngOnInit() {
+    if (window.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (window.innerWidth > 480 && window.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(window.innerWidth > 1024) {
+      this.colSize = 2;
+    }
+  }
+
+  onResize(e: any) {
+    if (e.target.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (e.target.innerWidth > 480 && e.target.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(e.target.innerWidth > 1024) {
+      this.colSize = 2;
+    }
+  }
 
   handleInput(e: any) {
     this.movieDetails = [];

@@ -9,29 +9,29 @@ ion-searchbar {
 }
 
 ion-card {
-    height: 30vh;
-    font-size: 0.8em;
-    position: relative;
+  height: 100%;
+  font-size: calc(1vw + 12px);
+  position: relative;
+  margin-top: 0;
 
-    .img {
+  .img {
+    height: 100%;
+    background-size: 100% 100%;
+    img {
+      width: 500px;
       height: 100%;
-      background-size: 100% 100%;
-
-      img {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    .titleContainer {
-      display: flex;
-      width: 100%;
-      bottom: 0;
-      position: absolute;
-      min-height: 30%;
-      background-color: #1e1e1eaf;
     }
   }
+
+  .titleContainer {
+    display: flex;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+    min-height: 30%;
+    background-color: #1e1e1eaf;
+  }
+}
 
 
 // .label {

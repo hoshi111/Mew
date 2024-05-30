@@ -22,6 +22,7 @@ export class WatchListPage implements OnInit {
   list: any = [];
   watchedEp: any = [];
   listForEp: any = [];
+  colSize: any;
 
   constructor(private apiService: ApiService,
               private loaderService: LoaderService,
@@ -32,11 +33,37 @@ export class WatchListPage implements OnInit {
   ) { }
 
   async ngOnInit() {
+    if (window.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (window.innerWidth > 480 && window.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(window.innerWidth > 1024) {
+      this.colSize = 2;
+    }
+
     this.loaderService.showLoader();
     this.uid = this.localstorage.getItem('uid');
     await this.fetchData().then(() => {
       this.loaderService.hideLoader();
     });
+  }
+
+  onResize(e: any) {
+    if (e.target.innerWidth <= 480) {
+      this.colSize = 6;
+    }
+
+    else if (e.target.innerWidth > 480 && e.target.innerWidth <= 1024) {
+      this.colSize = 3;
+    }
+
+    else if(e.target.innerWidth > 1024) {
+      this.colSize = 2;
+    }
   }
 
   async fetchData() {
@@ -76,14 +103,6 @@ export class WatchListPage implements OnInit {
 
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
-    // this.watchedEp = [];
-    // this.listForEp.forEach((data: any) => {
-    //   if (data.title == value.title) {
-    //     this.watchedEp.push(data.epNumber);
-    //   }
-    // })
-    // value['watchedEp'] = this.watchedEp;
-
     value['listForEp'] = this.listForEp;
     value['isFrom'] = 'watchList';
 

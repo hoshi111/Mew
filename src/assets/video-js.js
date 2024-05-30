@@ -62,13 +62,13 @@ export var whilePlaying = function() {
         return `${minute}:${second}`; 
     };
 
-    video.onwaiting = function() {
+    video.addEventListener("waiting", () => {
         loaderPanel.classList.remove("loaderHidden");
-    }
+    })
 
-    video.onplaying = function() {
+    video.addEventListener("playing", () => {
         loaderPanel.classList.add("loaderHidden");
-    }
+    })
 
     video.addEventListener("timeupdate", () => { 
         const currentTime = video.currentTime;
@@ -82,45 +82,45 @@ export var whilePlaying = function() {
         progressBar.value = video.currentTime;
     }
 
-    // for mobile
-    progressBar.ontouchmove = function() {
-        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
-        overlayElements.classList.add("fadeIn");
-        btnID.classList.add("hidePlayBtn");
-        if (video.paused) {
-            loaderPanel.classList.remove("loaderHidden");
-        }
-    }
+    // // for mobile
+    // progressBar.ontouchmove = function() {
+    //     overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+    //     overlayElements.classList.add("fadeIn");
+    //     btnID.classList.add("hidePlayBtn");
+    //     if (video.paused) {
+    //         loaderPanel.classList.remove("loaderHidden");
+    //     }
+    // }
 
-    progressBar.ontouchend = function() {
-        btnID.classList.remove("hidePlayBtn");
-        overlayElements.classList.remove("fadeIn");
-        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+    // progressBar.ontouchend = function() {
+    //     btnID.classList.remove("hidePlayBtn");
+    //     overlayElements.classList.remove("fadeIn");
+    //     overlayElements.classList.add("main-overlay-hidden", "fadeOut");
 
-        if (video.paused) {
-            loaderPanel.classList.add("loaderHidden");
-        }
-    }
+    //     if (video.paused) {
+    //         loaderPanel.classList.add("loaderHidden");
+    //     }
+    // }
 
-    // for PC
-    progressBar.onmousemove = function() {
-        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
-        overlayElements.classList.add("fadeIn");
-        btnID.classList.add("hidePlayBtn");
-        if (video.paused) {
-            loaderPanel.classList.remove("loaderHidden");
-        }
-    }
+    // // for PC
+    // progressBar.onmousemove = function() {
+    //     overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+    //     overlayElements.classList.add("fadeIn");
+    //     btnID.classList.add("hidePlayBtn");
+    //     if (video.paused) {
+    //         loaderPanel.classList.remove("loaderHidden");
+    //     }   
+    // }
 
-    progressBar.onmouseout = function() {
-        btnID.classList.remove("hidePlayBtn");
-        overlayElements.classList.remove("fadeIn");
-        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+    // progressBar.onmouseout = function() {
+    //     btnID.classList.remove("hidePlayBtn");
+    //     overlayElements.classList.remove("fadeIn");
+    //     overlayElements.classList.add("main-overlay-hidden", "fadeOut");
 
-        if (video.paused) {
-            loaderPanel.classList.add("loaderHidden");
-        }
-    }
+    //     if (video.paused) {
+    //         loaderPanel.classList.add("loaderHidden");
+    //     }
+    // }
 
     forward.onclick = function() {
         video.currentTime = video.currentTime + 20;
@@ -157,25 +157,18 @@ export var nextAvailable = function() {
 
 export var videoEnded = async function(data) {
     console.log(data);
-    const video = document.getElementById("video");
-    let time = video.currentTime;
-    if ((video.duration - video.currentTime) <= 60) {
-        time = 0;
-    }
 
     if (uid) {
-        alert('true');
         await setDoc(doc(db, uid, data.id), {
             details: {
                 title: data.title,
                 id: data.id,
                 epNumber: data.number,
-                lastTimestamp: time,
+                lastTimestamp: 0,
                 isFinished: true
             }
         })
     }
-    alert('true');
 }
 
 export var updateDb = function(data) {

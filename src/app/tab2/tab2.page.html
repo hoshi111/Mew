@@ -5,7 +5,7 @@
   <p class="label" *ngIf="query"><i>Search result for"{{query}}"</i></p>
   <ion-grid [fixed]="true">
     <ion-row>
-      <ion-col size="6" *ngFor="let movieDetail of movieDetails">
+      <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
         <ion-card (click)="openDetailsModal(movieDetail)">
           <div class="img">
             <img src= "{{movieDetail.image}}" />

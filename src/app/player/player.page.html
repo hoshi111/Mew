@@ -6,10 +6,6 @@
       <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
       <div class="overlayElements">
         <p id="title">{{displayTitle}}</p>
-        
-      <div class="showLoader loaderHidden" id="loaderContainer">
-        <div class="loader" id="loader"></div>
-      </div>
     
       <ion-button class="rewindBtn alwaysHide" id="rewindBtn" shape="round" (click)="rewindVideo()">
         <ion-icon slot="icon-only" id="icon" name="play-skip-back"></ion-icon>
@@ -43,7 +39,9 @@
       </div>
     </div>
   </div>
-
+  <div class="showLoader loaderHidden" id="loaderContainer" (click)="toggleOverlayByUser()">
+    <div class="loader" id="loader"></div>
+  </div>
   <ion-button class="playNextHidden" id="playNext" (click)="playNextVid()">Play Next</ion-button>
 
 </ion-content>
