@@ -5,10 +5,9 @@ import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
 import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
-import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
-import { windowResize } from 'src/assets/video-js';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
 
 @Component({
   selector: 'app-tab1',
@@ -57,6 +56,8 @@ export class Tab1Page implements OnInit{
   }
 
   ngOnInit() {
+    ScreenOrientation.lock({ orientation: "portrait-primary" });
+
     this.uid = this.localstorage.getItem('uid');
 
     if (window.innerWidth <= 480) {
