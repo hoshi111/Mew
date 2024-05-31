@@ -45,7 +45,7 @@ export class SignupPage implements OnInit {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        alert("Email already used!");
+        alert("Please fill-up check all fields. Enter a proper email and set aleast 6-character password.");
         // ..
       }).then(() => {
         this.loaderService.hideLoader();

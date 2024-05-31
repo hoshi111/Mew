@@ -56,6 +56,7 @@ export class PlayerPage implements OnInit {
   fsUpdate: any;
   i = 0;
   isLoaded: boolean = false;
+  isNextVideo: boolean = false;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -232,8 +233,11 @@ export class PlayerPage implements OnInit {
 
   videoEnded() {
     this.icon_name = 'play';
-    
     clearInterval(this.interval);
+
+    if (this.isNextVideo) {
+      this.playNextVid();
+    }
   }
 
   playNextVid() {
@@ -276,7 +280,8 @@ export class PlayerPage implements OnInit {
     var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
 
     return this.playVideo(newVid).then(() => {
-      console.log('Next Episode Available!')
+      alert('Next Episode Available!');
+      this.isNextVideo = true;
     })
   }
 

@@ -261,9 +261,7 @@ export class Tab1Page implements OnInit{
   animeTopAiring() {
     this.isAnimeLatest = false;
     this.isAnimeTop = true;
-    console.log(this.isAnimeLatest, this.isAnimeTop)
     this.animeGetTopAiring(this.i).then((result: any) => {
-      console.log(result)
       result.results.forEach((item: any) => {
         this.animeResults = {
           id: item.id,
@@ -274,8 +272,6 @@ export class Tab1Page implements OnInit{
 
         this.movieDetails.push(this.animeResults)
       })
-
-      console.log(this.movieDetails)
     })
   }
 
@@ -384,7 +380,6 @@ export class Tab1Page implements OnInit{
       this.fetchData();
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
-        result['isFrom'] = 'watchList';
         result['isFrom'] = 'home';
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,

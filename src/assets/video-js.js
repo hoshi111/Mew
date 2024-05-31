@@ -82,45 +82,45 @@ export var whilePlaying = function() {
         progressBar.value = video.currentTime;
     }
 
-    // // for mobile
-    // progressBar.ontouchmove = function() {
-    //     overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
-    //     overlayElements.classList.add("fadeIn");
-    //     btnID.classList.add("hidePlayBtn");
-    //     if (video.paused) {
-    //         loaderPanel.classList.remove("loaderHidden");
-    //     }
-    // }
+    // for mobile
+    progressBar.ontouchmove = function() {
+        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+        overlayElements.classList.add("fadeIn");
+        btnID.classList.add("hidePlayBtn");
+        if (video.paused) {
+            loaderPanel.classList.remove("loaderHidden");
+        }
+    }
 
-    // progressBar.ontouchend = function() {
-    //     btnID.classList.remove("hidePlayBtn");
-    //     overlayElements.classList.remove("fadeIn");
-    //     overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+    progressBar.ontouchend = function() {
+        btnID.classList.remove("hidePlayBtn");
+        overlayElements.classList.remove("fadeIn");
+        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
 
-    //     if (video.paused) {
-    //         loaderPanel.classList.add("loaderHidden");
-    //     }
-    // }
+        if (video.paused) {
+            loaderPanel.classList.add("loaderHidden");
+        }
+    }
 
-    // // for PC
-    // progressBar.onmousemove = function() {
-    //     overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
-    //     overlayElements.classList.add("fadeIn");
-    //     btnID.classList.add("hidePlayBtn");
-    //     if (video.paused) {
-    //         loaderPanel.classList.remove("loaderHidden");
-    //     }   
-    // }
+    // for PC
+    progressBar.onmousemove = function() {
+        overlayElements.classList.remove("main-overlay-hidden", "fadeOut");
+        overlayElements.classList.add("fadeIn");
+        btnID.classList.add("hidePlayBtn");
+        if (video.paused) {
+            loaderPanel.classList.remove("loaderHidden");
+        }   
+    }
 
-    // progressBar.onmouseout = function() {
-    //     btnID.classList.remove("hidePlayBtn");
-    //     overlayElements.classList.remove("fadeIn");
-    //     overlayElements.classList.add("main-overlay-hidden", "fadeOut");
+    progressBar.onmouseout = function() {
+        btnID.classList.remove("hidePlayBtn");
+        overlayElements.classList.remove("fadeIn");
+        overlayElements.classList.add("main-overlay-hidden", "fadeOut");
 
-    //     if (video.paused) {
-    //         loaderPanel.classList.add("loaderHidden");
-    //     }
-    // }
+        if (video.paused) {
+            loaderPanel.classList.add("loaderHidden");
+        }
+    }
 
     forward.onclick = function() {
         video.currentTime = video.currentTime + 20;
