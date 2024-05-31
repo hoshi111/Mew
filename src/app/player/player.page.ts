@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
@@ -10,6 +10,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
+
 
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
 // import { fetchFile, toBlobURL } from '@ffmpeg/util';
@@ -34,6 +35,7 @@ export class PlayerPage implements OnInit {
   forwardBtn!: HTMLElement;
   progressMain!: HTMLElement;
   loaderPanel!: HTMLElement;
+  videoContainer!: HTMLElement;
 
   isFullscreen: boolean = false;
   timeoutDelay: any;
@@ -60,7 +62,8 @@ export class PlayerPage implements OnInit {
               public navCtrl: NavController,
               private loaderService: LoaderService,
               private apiService: ApiService,
-              private router: Router
+              private router: Router,
+              // private hostListener: HostListener
   ) { }
 
   ngOnInit() {
@@ -95,6 +98,15 @@ export class PlayerPage implements OnInit {
         nextAvailable();
       })
     }
+  }
+
+  // @HostListener('mousemove', ['$event'])
+  onMouseMove(e: any) {
+   if (e) {
+    this.overlayElements?.classList.remove('fadeIn');
+    this.overlayElements?.classList.add('main-overlay-hidden', 'fadeOut');
+    this.toggleOverlayByUser();
+   }
   }
 
   setLink() {
@@ -145,6 +157,7 @@ export class PlayerPage implements OnInit {
     if (this.overlayElements?.classList.contains('main-overlay-hidden')) {
         this.overlayElements?.classList.remove('main-overlay-hidden');
         this.overlayElements?.classList.add('fadeIn');
+        
 
     }
     else {
@@ -158,7 +171,9 @@ export class PlayerPage implements OnInit {
     this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
     this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
     this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
-    this.loaderPanel  = document.getElementById("loaderContainer") as HTMLDivElement;
+    this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
+    this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
+
 
     this.resetIdleTimer();
   }
@@ -175,12 +190,12 @@ export class PlayerPage implements OnInit {
     }, 3000);
   }
 
-  async playPauseVideo() {
+  playPauseVideo() {
     console.log(this.data)
     this.currentVideo = document.getElementById("video");
     if (!this.isPlaying) {
       this.loaderPanel.classList.remove("loaderHidden");
-      await setVideocurrentTime(this.data).then(() => {
+      setVideocurrentTime(this.data).then(() => {
         this.loaderPanel.classList.add("loaderHidden");
         this.isPlaying = true;
       })

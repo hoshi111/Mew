@@ -44,7 +44,7 @@ ion-content {
     bottom: 0;
     overflow: hidden ;
     text-align: center;
-    z-index: 99999999;
+    
 }
 
 #title {
@@ -74,6 +74,7 @@ ion-content {
   transform: translate(-50%, -50%);
   --background: rgba(124, 111, 178, 0.8);
   font-size: 90px;
+
 }
 
 .rewindBtn {
@@ -140,6 +141,7 @@ ion-grid {
   right: 10%;
   bottom: 20%;
   --background: var(--mainColor);
+  z-index: 99999999;
 }
 
 .loaderHidden {
@@ -183,6 +185,10 @@ ion-grid {
 }
 @keyframes l15{ 
   100%{transform: rotate(1turn)}
+}
+
+.cursorHidden {
+  cursor: none;
 }
 
 .main-overlay-visible {

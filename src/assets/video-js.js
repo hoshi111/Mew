@@ -143,7 +143,7 @@ export var nextAvailable = function() {
     const video = document.getElementById("video");
     console.log(video.currentTime)
     video.addEventListener("timeupdate", () => { 
-    if (video.currentTime >= video.duration - 100) {
+    if (video.currentTime >= video.duration - 60) {
         playNext.classList.remove('playNextHidden');
         playNext.classList.add('playNext');
         }

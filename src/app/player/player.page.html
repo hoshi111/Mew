@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true">
-  <div id="videoContainer">
+  <div (document:mousemove)="onMouseMove($event)" id="videoContainer">
     <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
   
   <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
