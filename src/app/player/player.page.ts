@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
@@ -10,6 +10,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
+
 
 
 // import { FFmpeg } from '@ffmpeg/ffmpeg';
@@ -57,6 +58,7 @@ export class PlayerPage implements OnInit {
   i = 0;
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
+  isAndroid = false;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -64,40 +66,13 @@ export class PlayerPage implements OnInit {
               private loaderService: LoaderService,
               private apiService: ApiService,
               private router: Router,
+              private platform: Platform
               // private hostListener: HostListener
   ) { }
 
   ngOnInit() {
-    this.btn = document.getElementById('playNext');
-    this.currentVideo = document.getElementById("video");
-    this.currentVideo.removeAttribute('src');
-    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
-    ScreenOrientation.lock({ orientation: "landscape-primary" });
-    StatusBar.setOverlaysWebView({ overlay: true });
-    StatusBar.hide();
-
-    this.interval = setInterval(async () => {
-      if (this.info = await StatusBar.getInfo()) {
-        if (this.info.visible) { 
-          await StatusBar.hide(); 
-        }
-      }  
-    }, 2000);
-
-    if (!this.isLoaded) {
-      if (value) {
-        this.data = JSON.parse(value);
-        console.log(this.data)
-        this.setLink();
-      }
-      else {
-        console.error('No data');
-        this.goBack();
-      }
-  
-      this.nextVideo().then(() => {
-        nextAvailable();
-      })
+    if (this.platform.is('android')) {
+      this.isAndroid = true;
     }
   }
 
@@ -168,6 +143,39 @@ export class PlayerPage implements OnInit {
   }
 
   public ngAfterViewInit() {
+    
+    this.btn = document.getElementById('playNext');
+    this.currentVideo = document.getElementById("video");
+    this.currentVideo.removeAttribute('src');
+    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
+    ScreenOrientation.lock({ orientation: "landscape-primary" });
+    StatusBar.setOverlaysWebView({ overlay: true });
+    StatusBar.hide();
+    if (this.platform)
+    this.interval = setInterval(async () => {
+      if (this.info = await StatusBar.getInfo()) {
+        if (this.info.visible) { 
+          await StatusBar.hide(); 
+        }
+      }  
+    }, 2000);
+
+    if (!this.isLoaded) {
+      if (value) {
+        this.data = JSON.parse(value);
+        console.log(this.data)
+        this.setLink();
+      }
+      else {
+        console.error('No data');
+        this.goBack();
+      }
+  
+      this.nextVideo().then(() => {
+        nextAvailable();
+      })
+    }
+    
     this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
     this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
     this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
@@ -280,7 +288,6 @@ export class PlayerPage implements OnInit {
     var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
 
     return this.playVideo(newVid).then(() => {
-      alert('Next Episode Available!');
       this.isNextVideo = true;
     })
   }
