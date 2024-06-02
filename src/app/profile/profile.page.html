@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true">
   <ion-icon class="profileImage" size="large" (click)="selectImage()" >
-    <img src="{{profileImg}}">
+    <img draggable="false" src="{{profileImg}}">
   </ion-icon>
   <span>{{name}}</span>
   <ion-button class="watchList" (click)="showWatchList()">Watchlist</ion-button>

@@ -17,7 +17,7 @@
         <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
           <ion-card (click)="showDetailsPage(movieDetail)">
             <div class="img">
-              <img src= "{{movieDetail.image}}" />
+              <img draggable="false" src= "{{movieDetail.image}}" />
             </div>
               <div class="titleContainer">
                 <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>

@@ -11,7 +11,7 @@
         <ion-col size={{colSize}} *ngFor="let data of list">
           <ion-card (click)="openDetailsModal(data)">
             <div class="img">
-              <img src="{{data.image}}" />
+              <img draggable="false" src="{{data.image}}" />
             </div>
             
               <div class="titleContainer">

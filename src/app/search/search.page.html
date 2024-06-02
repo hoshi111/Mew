@@ -8,7 +8,7 @@
       <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
         <ion-card (click)="openDetailsModal(movieDetail)">
           <div class="img">
-            <img src= "{{movieDetail.image}}" />
+            <img draggable="false" src= "{{movieDetail.image}}" />
           </div>
             <div class="titleContainer">
               <ion-card-title >{{movieDetail.title}}</ion-card-title>
