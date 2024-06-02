@@ -147,7 +147,7 @@ export class SearchPage {
         component: DetailsModalComponent,
         componentProps: {state: result},
         breakpoints: [0, 0.6, 1],
-        initialBreakpoint: 0.6,
+        initialBreakpoint: 1,
         backdropDismiss: true,
         backdropBreakpoint: 0,
       });
