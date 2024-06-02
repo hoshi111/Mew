@@ -121,22 +121,22 @@ export var whilePlaying = function() {
             loaderPanel.classList.add("loaderHidden");
         }
     }
-
-    forward.onclick = function() {
-        video.currentTime = video.currentTime + 20;
-        progressBar.value = video.currentTime;
-    }
-
-    rewind.onclick = function() {
-        video.currentTime = video.currentTime - 10;
-        progressBar.value = video.currentTime;
-    }
     
     setInterval(() => { 
         currentTimeRef.innerHTML = timeFormatter(video.currentTime); 
         maxDuration.innerText = timeFormatter(video.duration); 
     }, 1);
     
+}
+
+export var forward = function() {
+    video.currentTime = video.currentTime + 20;
+    progressBar.value = video.currentTime;
+}
+
+export var rewind = function() {
+    video.currentTime = video.currentTime - 10;
+    progressBar.value = video.currentTime;
 }
 
 export var nextAvailable = function() {

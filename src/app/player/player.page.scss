@@ -225,3 +225,11 @@ input[type=range]::-moz-range-thumb{/*Firefox*/
 input[type=range]::-ms-thumb{/*Internet Explorer*/
   pointer-events: auto;
 }
+
+.fsIcon {
+  color: white;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}

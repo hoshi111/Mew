@@ -85,6 +85,10 @@
               <ion-col class="ion-text-start">
                 <p id="max-duration" class="max-duration">00:00</p>
               </ion-col>
+
+              <ion-col class="fsIcon" (click)="toggleFullscreen()">
+                <ion-icon id="fs" name="{{fsIcon}}"></ion-icon>
+              </ion-col>
             </ion-row>
           </ion-grid>
           </div>

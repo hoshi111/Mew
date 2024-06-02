@@ -5,7 +5,7 @@ import { NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
-import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
@@ -49,7 +49,7 @@ export class PlayerPage implements OnInit {
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
   isAndroid = false;
-  isNew = false;
+  fsIcon = 'expand';
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -68,7 +68,28 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  // @HostListener('mousemove', ['$event'])
+  @HostListener('document:keydown', ['$event'])
+
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if(event.key == ' ') {
+      this.playPauseVideo();
+    }
+    
+    else if (event.key == 'ArrowLeft') {
+      this.rewindVideo();
+    }
+
+    else if (event.key == 'ArrowRight') {
+      this.forwardVideo();
+    }
+
+    else if (event.key == 'Escape') {
+      if (this.isFullscreen) {
+        this.fullscreenEvent();
+      }
+    }
+  }
+
   onMouseMove(e: any) {
    if (e) {
     this.overlayElements?.classList.remove('fadeIn');
@@ -190,7 +211,7 @@ export class PlayerPage implements OnInit {
           this.overlayElements?.classList.add('fadeOut', 'main-overlay-hidden');
           this.overlayElements?.classList.remove('fadeIn');
       }
-    }, 3000);
+    }, 30000000);
   }
 
   playPauseVideo() {
@@ -225,11 +246,13 @@ export class PlayerPage implements OnInit {
 
   rewindVideo() {
     dismissInterval();
+    rewind();
     this.toggleOverlayByUser();
   }
 
   forwardVideo() {
     dismissInterval();
+    forward();
     this.toggleOverlayByUser();
   }
 
@@ -297,14 +320,18 @@ export class PlayerPage implements OnInit {
     if (this.isFullscreen) {
       if (vid.requestFullscreen) {
         vid.requestFullscreen();
+        this.fsIcon = 'contract';
       } 
     }
       else {
         if (document.exitFullscreen) {
           document.exitFullscreen();
+          this.fsIcon = 'expand';
         }
     }
   }
+
+
 
   goBack() {
     updateDb(this.data);
