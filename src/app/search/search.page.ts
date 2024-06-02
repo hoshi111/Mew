@@ -9,11 +9,11 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-tab2',
-  templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss']
+  selector: 'app-search',
+  templateUrl: 'search.page.html',
+  styleUrls: ['search.page.scss']
 })
-export class Tab2Page {
+export class SearchPage {
   public subscription: any = Subscription;
   data: any = [];
   public results = [...this.data];
@@ -24,14 +24,16 @@ export class Tab2Page {
   localstorage = localStorage;
   listForEp: any = [];
   colSize: any;
-
+  tempList: any = [];
+  list: any = [];
+  
   constructor(private apiService: ApiService,
               private router: Router,
               private modalCtrl: ModalController,
               private loaderService: LoaderService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     if (window.innerWidth <= 480) {
       this.colSize = 6;
     }
@@ -43,6 +45,11 @@ export class Tab2Page {
     else if(window.innerWidth > 1024) {
       this.colSize = 2;
     }
+
+    this.uid = this.localstorage.getItem('uid');
+    await this.fetchData().then(() => {
+      this.loaderService.hideLoader();
+    });
   }
 
   onResize(e: any) {
@@ -98,20 +105,44 @@ export class Tab2Page {
     }, 500);
   }
 
-  async openDetailsModal(value: any) {
-    this.loaderService.showLoader();
-
-    this.uid = this.localstorage.getItem('uid');
-
+  async fetchData() {
+    let flag = false;
     const querySnapshot = await getDocs(collection(db, this.uid));
      querySnapshot.forEach((doc: any) => {
       this.listForEp.push(doc.data().details);
-     })
+      this.tempList.forEach((t: any | undefined) => {
+        if (t.title == doc.data().details.title) {
+          flag = true;
+        }
+      })
+      
+      if(!flag) {
+        this.tempList.push(doc.data().details);
+        
+      }
+
+      else {
+        flag = false;
+      }
+    })
+    console.log(this.tempList)
+
+    this.tempList.forEach(async (data: any) => {
+      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+          this.list.push(data2);
+        })
+      })
+    });
+  }
+
+  async openDetailsModal(value: any) {
+    this.loaderService.showLoader();
 
      console.log(value)
     this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
       result['listForEp'] = this.listForEp;
-      result['isFrom'] = 'search';
+      this.localstorage.setItem('isFrom', 'search');
       const modal = await this.modalCtrl.create({
         component: DetailsModalComponent,
         componentProps: {state: result},

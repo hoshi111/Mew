@@ -98,13 +98,13 @@ export class WatchListPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['tabs/tab3'])
+    this.router.navigate(['tabs/profile'])
   }
 
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
     value['listForEp'] = this.listForEp;
-    value['isFrom'] = 'watchList';
+    this.localstorage.setItem('isFrom', 'watchList');
 
     console.log(value)
     const modal = await this.modalCtrl.create({

@@ -3,18 +3,18 @@ import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
-import { InfiniteScrollCustomEvent, ModalController } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, ModalController, NavController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 
 @Component({
-  selector: 'app-tab1',
-  templateUrl: 'tab1.page.html',
-  styleUrls: ['tab1.page.scss']
+  selector: 'app-home',
+  templateUrl: 'home.page.html',
+  styleUrls: ['home.page.scss']
 })
-export class Tab1Page implements OnInit{
+export class HomePage implements OnInit{
   public subscription: any = Subscription;
   localstorage = localStorage;
   list: any = [];
@@ -31,7 +31,7 @@ export class Tab1Page implements OnInit{
   
   isAnimeLatest:boolean = true;
   isAnimeTop: boolean = false;
-  i = 1;
+  i = 4;
   isAnime: boolean = false;
   animeResults: any = [];
   uid: any;
@@ -41,7 +41,8 @@ export class Tab1Page implements OnInit{
   constructor(private apiService: ApiService,
               private router: Router,
               private loaderService: LoaderService,
-              private modalCtrl: ModalController
+              private modalCtrl: ModalController,
+              private navCtrl: NavController
 
 
   ) {}
@@ -49,7 +50,7 @@ export class Tab1Page implements OnInit{
   handleRefresh(event: any) {
     setTimeout(() => {
       this.movieDetails = [];
-      this.i = 1;
+      this.i = 4;
       this.ngOnInit();
       event.target.complete();
     }, 2000);
@@ -154,7 +155,7 @@ export class Tab1Page implements OnInit{
   onIonInfinite(ev: Event) {
     this.categories.forEach((category: any) => {
       if(category.pressed) {
-        this.i += 1;
+        this.i += 4;
         if (category.code == 'anime-latest') {
           this.animeRecentEpisodes();
         }
@@ -188,7 +189,7 @@ export class Tab1Page implements OnInit{
       this.isAnime = true;
       this.animeResults = [];
       this.movieDetails = [];
-      this.i = 1;
+      this.i = 4;
       this.animeRecentEpisodes();
     }
 
@@ -196,7 +197,7 @@ export class Tab1Page implements OnInit{
       this.isAnime = true;
       this.animeResults = [];
       this.movieDetails = [];
-      this.i = 1;
+      this.i = 4;
       this.animeTopAiring();
     }
 
@@ -240,39 +241,41 @@ export class Tab1Page implements OnInit{
   animeRecentEpisodes() {
     this.isAnimeLatest = true;
     this.isAnimeTop = false;
-    console.log(this.isAnimeLatest, this.isAnimeTop)
-    this.animeGetRecent(this.i).then((result: any) => {
-      console.log(result)
-      result.results.forEach((item: any) => {
-        this.animeResults = {
-          id: item.id,
-          displayTitle: item.title,
-          image: item.image,
-          link: item.url,
-        }
 
-        this.movieDetails.push(this.animeResults)
+    for (let x = 0; x < this.i; x ++) {
+      this.animeGetRecent(x + 1).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.animeResults = {
+            id: item.id,
+            displayTitle: item.title,
+            image: item.image,
+            link: item.url,
+          }
+  
+          this.movieDetails.push(this.animeResults)
+        })
       })
-
-      console.log(this.movieDetails)
-    })
+    }
   }
 
   animeTopAiring() {
     this.isAnimeLatest = false;
     this.isAnimeTop = true;
-    this.animeGetTopAiring(this.i).then((result: any) => {
-      result.results.forEach((item: any) => {
-        this.animeResults = {
-          id: item.id,
-          displayTitle: item.title,
-          image: item.image,
-          link: item.url,
-        }
 
-        this.movieDetails.push(this.animeResults)
+    for (let x = 0; x < this.i; x ++) {
+      this.animeGetTopAiring(x + 1).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.animeResults = {
+            id: item.id,
+            displayTitle: item.title,
+            image: item.image,
+            link: item.url,
+          }
+  
+          this.movieDetails.push(this.animeResults)
+        })
       })
-    })
+    }
   }
 
   getList(vid: string, type: string, page: any) {
@@ -354,25 +357,33 @@ export class Tab1Page implements OnInit{
   }
 
   showDetailsPage(movieDetail: any) {
+    console.log(movieDetail)
     this.loaderService.showLoader();
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
         console.log(result);
         const ep = result.episodes[(result.episodes.length) - 1];
-        ep['title'] = result.title;
-        ep['image'] = result.image;
-        ep['isFrom'] = 'home';
-        console.log(ep)
+        // console.log(ep.id.split("-"));
+      //   ep['title'] = result.title;
+      //   ep['image'] = result.image;
+      //   ep['isFrom'] = 'home';
+      //   console.log(ep)
   
         const queryParams: any = {};
   
-      queryParams.value = JSON.stringify(ep);
-  
-      const navigationExtras: NavigationExtras = {queryParams}
-      
-      this.router.navigate(['player'], navigationExtras).then(() => {
-        this.loaderService.hideLoader();
-      });
+        queryParams.value = JSON.stringify(ep.id);
+    
+        const navigationExtras: NavigationExtras = {queryParams}
+
+        // this.navCtrl.navigateForward('player', { state: ep }).then(() => {
+        //   this.loaderService.hideLoader();
+        // });
+
+        this.localstorage.setItem('isFrom', 'home');
+        
+        this.router.navigate(['player'], navigationExtras).then(() => {
+          this.loaderService.hideLoader();
+        });
       })
     }
 
@@ -380,7 +391,7 @@ export class Tab1Page implements OnInit{
       this.fetchData();
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
-        result['isFrom'] = 'home';
+        this.localstorage.setItem('isFrom', 'home');
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},

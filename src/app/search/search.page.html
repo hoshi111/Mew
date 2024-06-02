@@ -2,7 +2,7 @@
 
 
 <ion-content>
-  <p class="label" *ngIf="query"><i>Search result for"{{query}}"</i></p>
+  <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
   <ion-grid [fixed]="true">
     <ion-row>
       <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">

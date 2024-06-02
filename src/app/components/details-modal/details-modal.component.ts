@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
+import { LoaderService } from 'src/app/api/loader.service';
 
 @Component({
   selector: 'app-details-modal',
@@ -15,7 +16,9 @@ export class DetailsModalComponent  implements OnInit {
   watchedEp: any = [];
 
   constructor(private router: Router,
-              private modalCtrl: ModalController
+              private modalCtrl: ModalController,
+              private navCtrl: NavController,
+              private loaderService: LoaderService
   ) { }
 
   ngOnInit() {
@@ -79,10 +82,10 @@ export class DetailsModalComponent  implements OnInit {
     episode['isFrom'] = this.state.isFrom;
     console.log(this.data)
     
-
+    // this.navCtrl.navigateForward('player', { state: episode });
     const queryParams: any = {};
 
-    queryParams.value = JSON.stringify(episode);
+    queryParams.value = JSON.stringify(episode.id);
     console.log(queryParams)
 
     const navigationExtras: NavigationExtras = {queryParams}

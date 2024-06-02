@@ -7,11 +7,11 @@ import { ActionSheetController } from '@ionic/angular';
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 
 @Component({
-  selector: 'app-tab3',
-  templateUrl: 'tab3.page.html',
-  styleUrls: ['tab3.page.scss']
+  selector: 'app-profile',
+  templateUrl: 'profile.page.html',
+  styleUrls: ['profile.page.scss']
 })
-export class Tab3Page {
+export class ProfilePage {
   localstorage = localStorage;
   name: any;
   profileImg: any;

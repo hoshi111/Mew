@@ -8,15 +8,7 @@ import { Subscription, interval } from 'rxjs';
 import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-
-
-
-// import { FFmpeg } from '@ffmpeg/ffmpeg';
-// import { fetchFile, toBlobURL } from '@ffmpeg/util';
-
-const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
+import { Location } from "@angular/common";
 
 @Component({
   selector: 'app-player',
@@ -26,9 +18,7 @@ const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
 export class PlayerPage implements OnInit {
   @Input() state: any;
   public subscription: any = Subscription;
-
-  
-  ffmpeg = new FFmpeg();
+  localstorage = localStorage
   videoURL: any;
 
   overlayElements!: HTMLElement;
@@ -59,6 +49,7 @@ export class PlayerPage implements OnInit {
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
   isAndroid = false;
+  isNew = false;
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -66,7 +57,8 @@ export class PlayerPage implements OnInit {
               private loaderService: LoaderService,
               private apiService: ApiService,
               private router: Router,
-              private platform: Platform
+              private platform: Platform,
+              private location: Location
               // private hostListener: HostListener
   ) { }
 
@@ -93,7 +85,6 @@ export class PlayerPage implements OnInit {
       result.sources.forEach((value: any) => {
           if (value.quality == 'default') {
             this.videoURL = value.url;
-            this.load();
             this.trustedVideoUrl = value.url;
             check(this.trustedVideoUrl);
             whilePlaying();
@@ -101,29 +92,6 @@ export class PlayerPage implements OnInit {
         })
     })
   }
-
-  async load() {
-    await this.ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      workerURL: await toBlobURL(
-        `${baseURL}/ffmpeg-core.worker.js`,
-        "text/javascript"
-      ),
-    })
-    this.transcode();
-  };
-
-  async transcode() {
-    await this.ffmpeg.writeFile("input.m3u8", await fetchFile(this.videoURL));
-    await this.ffmpeg.exec(["-i", "input.m3u8", "output.mp4"]);
-    const fileData = await this.ffmpeg.readFile('output.mp4');
-    const data = new Uint8Array(fileData as ArrayBuffer);
-    this.videoURL = URL.createObjectURL(
-      new Blob([data.buffer], { type: 'video/mp4' })
-    );
-    console.log(this.videoURL)
-  };
 
   public toggleOverlayByUser() {
     this.overlayElements?.classList.remove('fadeOut');
@@ -148,32 +116,58 @@ export class PlayerPage implements OnInit {
     this.currentVideo = document.getElementById("video");
     this.currentVideo.removeAttribute('src');
     const value = this.activatedRoute.snapshot.queryParamMap.get('value');
-    ScreenOrientation.lock({ orientation: "landscape-primary" });
-    StatusBar.setOverlaysWebView({ overlay: true });
-    StatusBar.hide();
-    if (this.platform)
-    this.interval = setInterval(async () => {
-      if (this.info = await StatusBar.getInfo()) {
-        if (this.info.visible) { 
-          await StatusBar.hide(); 
-        }
-      }  
-    }, 2000);
+    if (this.isAndroid) {
+      ScreenOrientation.lock({ orientation: "landscape-primary" });
+      StatusBar.setOverlaysWebView({ overlay: true });
+      StatusBar.hide();
+      this.interval = setInterval(async () => {
+        if (this.info = await StatusBar.getInfo()) {
+          if (this.info.visible) { 
+            await StatusBar.hide(); 
+          }
+        }  
+      }, 2000);
+    }
 
     if (!this.isLoaded) {
       if (value) {
-        this.data = JSON.parse(value);
-        console.log(this.data)
-        this.setLink();
+        const idSplitted = (JSON.parse(value)).split("-");
+        console.log(idSplitted);
+
+        let videoId = '';
+
+        for (let i = 0; i < idSplitted.length; i++) {
+          if (idSplitted[i] != 'episode') {
+            videoId = videoId + idSplitted[i] + '-';
+          }
+
+          if (idSplitted[i] == 'episode') {
+            i = idSplitted.length
+          }
+        }
+
+        videoId = videoId?.slice(0, -1);
+
+        console.log(videoId)
+
+        this.gogoAnimeGetDetails(videoId).then((result: any) => {
+          console.log(idSplitted[idSplitted.length-1])
+          this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
+          console.log(this.data)
+          this.data['title'] = result.title;
+          this.data['image'] = result.image;
+
+          this.setLink();
+
+          this.nextVideo().then(() => {
+            nextAvailable();
+          })
+        })
       }
       else {
         console.error('No data');
         this.goBack();
       }
-  
-      this.nextVideo().then(() => {
-        nextAvailable();
-      })
     }
     
     this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
@@ -250,18 +244,11 @@ export class PlayerPage implements OnInit {
 
   playNextVid() {
     this.loaderService.showLoader();
+    this.btn.classList.remove('playNext');
+    this.btn.classList.add('playNextHidden');
     videoEnded(this.data).then(() => {
-      this.btn?.classList.remove('playNext');
-      this.btn?.classList.add('playNextHidden');
       const no = this.data.number + this.i;
       var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-      this.newData = {
-        title: this.data.title,
-        id: newVid,
-        number: no,
-        image: this.data.image,
-        url: this.data.url.substr(0, this.data.url.lastIndexOf("-") + 1) + no
-      }
 
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
@@ -269,16 +256,16 @@ export class PlayerPage implements OnInit {
 
       const queryParams: any = {};
 
-      queryParams.value = JSON.stringify(this.newData);
+      queryParams.value = JSON.stringify(newVid);
       console.log(queryParams)
 
       const navigationExtras: NavigationExtras = {queryParams}
 
-      console.log(navigationExtras)
-      this.loaderService.hideLoader();
-      this.router.navigateByUrl('/player?value=' + JSON.stringify(this.newData)).then(() => {
-        window.location.reload();
-      })
+      this.router.navigate(['player'], navigationExtras).then(() => {
+        this.loaderService.hideLoader();
+        window.location.reload(); 
+      });
+
     })
   }
 
@@ -343,15 +330,15 @@ export class PlayerPage implements OnInit {
   vid.msRExitFullscreen();
   }
 
-    if (this.data.isFrom == 'home') {
+    if (this.localstorage.getItem('isFrom') == 'home') {
       this.router.navigate(['tabs']);
     }
 
-    else if (this.data.isFrom == 'search') {
-      this.router.navigate(['tabs/tab2']);
+    else if (this.localstorage.getItem('isFrom')== 'search') {
+      this.router.navigate(['tabs/search']);
     }
 
-    else {
+    else if (this.localstorage.getItem('isFrom') == 'watchList') {
       this.router.navigate(['watch-list']);
     }
   }
@@ -372,6 +359,19 @@ export class PlayerPage implements OnInit {
   animeGetVideoServer(id: number) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.getAnimeVideoServer(id).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  gogoAnimeGetDetails(query: any) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
         (result: any) => {
           resolve(result)
         },
