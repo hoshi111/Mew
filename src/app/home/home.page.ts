@@ -373,11 +373,9 @@ export class HomePage implements OnInit{
   
         queryParams.value = JSON.stringify(ep.id);
     
-        const navigationExtras: NavigationExtras = {queryParams}
+        let navigationExtras: NavigationExtras = {};
 
-        // this.navCtrl.navigateForward('player', { state: ep }).then(() => {
-        //   this.loaderService.hideLoader();
-        // });
+        navigationExtras = {queryParams};
 
         this.localstorage.setItem('isFrom', 'home');
         

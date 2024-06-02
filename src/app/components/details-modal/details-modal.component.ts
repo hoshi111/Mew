@@ -14,6 +14,7 @@ export class DetailsModalComponent  implements OnInit {
   genres: string = '';
   epList: any = [];
   watchedEp: any = [];
+  localstorage = localStorage;
 
   constructor(private router: Router,
               private modalCtrl: ModalController,
@@ -88,7 +89,9 @@ export class DetailsModalComponent  implements OnInit {
     queryParams.value = JSON.stringify(episode.id);
     console.log(queryParams)
 
-    const navigationExtras: NavigationExtras = {queryParams}
+    let navigationExtras: NavigationExtras = {};
+
+    navigationExtras = {queryParams};
 
     this.router.navigate(['player'], navigationExtras);
 
