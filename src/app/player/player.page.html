@@ -4,13 +4,36 @@
       <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
     
       <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
+
+        <div class="qualityContainer qualityContainerHidden" id="qualityContainer">
+          <div class="dismissQualityContainer" (click)="hideQualityContainer()">
+          </div>
+          <div class="qualityList">
+            <p class="qualityLbl">Select Quality</p>
+            <label class="perQuality" *ngFor="let quality of alertInputs.values; let i = index">
+              @if (i == 0) {
+                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" checked (change)="onItemChange(quality.value)">
+                <p>{{quality.value}}</p>
+              }
+  
+              @else {
+                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" (change)="onItemChange(quality.value)">
+                <p>{{quality.value}}</p>
+              }
+            </label>
+            <div class="closeQuality" (click)="hideQualityContainer()">
+              Close
+            </div>
+          </div>
+        </div>
+
         <div class="overlay-visible main-overlay-visible" id="overlay">
           <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
           <div class="overlayElements">
             <p id="title">{{displayTitle}}</p>
         
           <ion-button class="rewindBtn alwaysHide" id="rewindBtn" shape="round" (click)="rewindVideo()">
-            <ion-icon slot="icon-only" id="icon" name="play-skip-back"></ion-icon>
+            <ion-icon slot="icon-only" id="icon" name="play-back"></ion-icon>
           </ion-button>
     
           <ion-button class="playBtn" id="btnID" shape="round" (click)="playPauseVideo()">
@@ -18,11 +41,11 @@
           </ion-button>
         
           <ion-button class="forwardBtn alwaysHide" id="forwardBtn" shape="round" (click)="forwardVideo()">
-            <ion-icon slot="icon-only" id="icon" name="play-skip-forward"></ion-icon>
+            <ion-icon slot="icon-only" id="icon" name="play-forward"></ion-icon>
           </ion-button>
           
           <ion-grid class="progressBar alwaysHide" id="progressMain">
-            <ion-row>
+            <ion-row size="auto">
               <ion-col class="ion-text-end">
                 <p id="current-time" class="current-time">00:00</p>
               </ion-col>
@@ -33,9 +56,18 @@
                 </div>
               </ion-col>
     
-              <ion-col class="ion-text-start">
+              <ion-col size="auto" class="ion-text-start">
                 <p id="max-duration" class="max-duration">00:00</p>
               </ion-col>
+
+              <ion-col size="auto"></ion-col>
+
+              <ion-col size="auto" class="vidQuality" (click)="showQualityContainer()">
+                <ion-icon name="settings-sharp"></ion-icon>
+              </ion-col>
+
+              <ion-col size="auto"></ion-col>
+              <ion-col size="1"></ion-col>
             </ion-row>
           </ion-grid>
           </div>
@@ -51,15 +83,36 @@
   @else {
     <div (document:mousemove)="onMouseMove($event)" id="videoContainer">
       <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
-    
       <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
+        <div class="qualityContainer qualityContainerHidden" id="qualityContainer">
+          <div class="dismissQualityContainer" (click)="hideQualityContainer()">
+          </div>
+          <div class="qualityList">
+            <p class="qualityLbl">Select Quality</p>
+            <label class="perQuality" *ngFor="let quality of alertInputs.values; let i = index">
+              @if (i == 0) {
+                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" checked (change)="onItemChange(quality.value)">
+                <p>{{quality.value}}</p>
+              }
+  
+              @else {
+                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" (change)="onItemChange(quality.value)">
+                <p>{{quality.value}}</p>
+              }
+            </label>
+            <div class="closeQuality" (click)="hideQualityContainer()">
+              Close
+            </div>
+          </div>
+        </div>
+
         <div class="overlay-visible main-overlay-visible" id="overlay">
           <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
           <div class="overlayElements">
             <p id="title">{{displayTitle}}</p>
         
           <ion-button class="rewindBtn alwaysHide" id="rewindBtn" shape="round" (click)="rewindVideo()">
-            <ion-icon slot="icon-only" id="icon" name="play-skip-back"></ion-icon>
+            <ion-icon slot="icon-only" id="icon" name="play-back"></ion-icon>
           </ion-button>
     
           <ion-button class="playBtn" id="btnID" shape="round" (click)="playPauseVideo()">
@@ -67,12 +120,11 @@
           </ion-button>
         
           <ion-button class="forwardBtn alwaysHide" id="forwardBtn" shape="round" (click)="forwardVideo()">
-            <ion-icon slot="icon-only" id="icon" name="play-skip-forward"></ion-icon>
+            <ion-icon slot="icon-only" id="icon" name="play-forward"></ion-icon>
           </ion-button>
           
           <ion-grid class="progressBar alwaysHide" id="progressMain">
-            <ion-row>
-              <ion-col></ion-col>
+            <ion-row size="auto">
               <ion-col class="ion-text-end">
                 <p id="current-time" class="current-time">00:00</p>
               </ion-col>
@@ -83,13 +135,20 @@
                 </div>
               </ion-col>
     
-              <ion-col class="ion-text-start">
+              <ion-col size="auto" class="ion-text-start">
                 <p id="max-duration" class="max-duration">00:00</p>
               </ion-col>
 
-              <ion-col class="fsIcon" (click)="toggleFullscreen()">
+              <ion-col size="auto"></ion-col>
+
+              <ion-col size="auto" class="vidQuality" (click)="showQualityContainer()">
+                <ion-icon name="settings-sharp"></ion-icon>
+              </ion-col>
+
+              <ion-col size="auto"class="fsIcon" (click)="toggleFullscreen()">
                 <ion-icon id="fs" name="{{fsIcon}}"></ion-icon>
               </ion-col>
+              <ion-col size="1"></ion-col>
             </ion-row>
           </ion-grid>
           </div>
