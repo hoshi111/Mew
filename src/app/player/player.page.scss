@@ -1,12 +1,18 @@
 ion-content {
     --background: black;
+    position: relative;
 }
 
 #videoContainer {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  position: relative;
+  position: fixed;
+  z-index: 2147483647 ;
+
+  .qualityAlertContainer {
+    position: absolute;
+  }
 }
 
 #video {
@@ -254,7 +260,65 @@ ion-row {
   margin: 0 auto;
 }
 
-.qualityAlertContainer {
+.qualityContainer {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 9999999;
+  // background-color: rgba(0, 0, 0, 0.4);
+
+
+  .qualityLbl {
+    margin: 5px auto;
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .closeQuality {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    border-radius: 10px;
+    background-color: var(--secColor);
+    padding: 10px;
+    cursor: pointer;
+  }
+}
+
+.qualityList {
+  width: 200px;
+  height: 330px;
+  border-radius: 15px;
+  background-color: var(--mainColor);
+  color: white;
   position: absolute;
-  z-index: 100000;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  // right: 85px;
+  // bottom: 0;
+  // top: 0;
+  text-align: center;
+}
+
+.perQuality {
+  display: flex;
+  margin-left: 30px;
+  cursor: pointer;
+  p {
+    margin-left: 20px;
+  }
+}
+
+.qualityContainerHidden {
+  visibility: hidden;
+}
+
+.dismissQualityContainer {
+  height: 100%;
+  width: 100%;
+}
+
+input {
+  accent-color: var(--secColor);
 }

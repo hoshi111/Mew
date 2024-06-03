@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
+import { Attribute, Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild, } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { NavController, Platform } from '@ionic/angular';
@@ -28,6 +28,7 @@ export class PlayerPage implements OnInit {
   loaderPanel!: HTMLElement;
   videoContainer!: HTMLElement;
   maxDuration!: HTMLElement;
+  qualityContainer!: HTMLElement;
   progressBar: any;
 
 
@@ -53,10 +54,10 @@ export class PlayerPage implements OnInit {
   isNextVideo: boolean = false;
   isAndroid = false;
   fsIcon = 'expand';
-  quality = 'default';
+  quality = 'Auto';
   lastTime: number = 0;
 
-  alertInputs: any = [];
+  alertInputs: any = {values: []};
 
   @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
@@ -138,7 +139,8 @@ export class PlayerPage implements OnInit {
     this.isLoaded = true;
     this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
     let i = 1;
-    let tempInputs: { label: any; type: string; value: any; checked: boolean; }[] = [];
+    let tempInputs: any = {values: []}
+
     this.playVideo(this.data.id).then((result: any) => {
       result.sources.forEach((value: any) => {
         console.log(value.quality)
@@ -146,27 +148,25 @@ export class PlayerPage implements OnInit {
           if (value.quality != 'backup') {
             let q = value.quality;
             if (q == 'default') {
-              tempInputs.push({
-                label: 'Auto',
-                type: 'radio',
-                value: 'Auto',
-                checked: true
-              })
+              this.alertInputs.values.push({'value': 'Auto'})
             }
             // alert('true')
             else {
-              tempInputs.push({
-                label: q,
-                type: 'radio',
-                value: q,
-                checked: false
-              })
+              this.alertInputs.values.push({'value': q})
             }
           }
 
         if (value.quality == 'default') {
-          this.alertInputs = tempInputs.reverse();
+          this.alertInputs.values = this.alertInputs.values.reverse();
           console.log(this.alertInputs)
+
+          this.alertInputs.values.forEach((value: any) => {
+            if (value == 'Auto') {
+              const quality = document.getElementById(value) as HTMLElement;
+              quality?.setAttribute('checked','true')
+            }
+          })
+
           this.videoURL = value.url;
           this.trustedVideoUrl = value.url;
           check(this.trustedVideoUrl);
@@ -261,6 +261,7 @@ export class PlayerPage implements OnInit {
     this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
     this.maxDuration = document.getElementById('max-duration') as HTMLElement;
     this.progressBar = document.querySelector('#myRange');
+    this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
 
 
     this.resetIdleTimer();
@@ -511,7 +512,62 @@ export class PlayerPage implements OnInit {
                             }
                           }
   }, 'Cancel'];
+
+  hideQualityContainer() {
+    this.qualityContainer.classList.add('qualityContainerHidden');
+    this.resetIdleTimer();
+  }
+
+  showQualityContainer() {
+    this.qualityContainer.classList.remove('qualityContainerHidden');
+    dismissInterval();
+    this.toggleOverlayByUser();
+  }
+
+  async onItemChange(value: any) {
+    dismissInterval();
+    if (this.quality != value) {
+      let playing = false;
+      let newQuality = '';
+      if (value == 'Auto') {
+        newQuality = 'default';
+      }
+
+      else {
+        newQuality = value
+      }
+
+      if (!this.currentVideo.paused) {
+        playing = true;
+      }
+
+      this.isPlaying = false;
+      this.currentVideo.pause();
+      await this.playVideo(this.data.id).then((result: any) => {
+        this.lastTime = this.currentVideo.currentTime;
+        result.sources.forEach((value: any) => {
+            if (value.quality == newQuality) {
+              console.log(value.url);
+              this.videoURL = value.url;
+              this.trustedVideoUrl = value.url;
+              changeQuality(this.trustedVideoUrl, this.lastTime);
+              this.quality = value;
+            }
+            this.loaderPanel.classList.add("loaderHidden");
+          })
+      })
+      if (playing) {
+        this.currentVideo.play().then(() => {
+          this.rewindBtn.classList.remove("alwaysHide");
+          this.forwardBtn.classList.remove("alwaysHide");
+          this.progressMain.classList.remove("alwaysHide");
+        })
+      }
+    }
+  }
 }
+
+
 
 
 // ,
