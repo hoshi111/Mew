@@ -42,14 +42,46 @@ export var check = function(value) {
     console.log('ready to play')
 }
 
+export var changeQuality = function(value, currentTime) {
+    // ('#video').replaceWith($('#video').clone());
+    if (Hls.isSupported()) {
+        const maxDuration = document.getElementById("max-duration"); 
+        const progressBar = document.querySelector("#myRange");
+        const video = document.getElementById('video');
+
+        const rewind = document.getElementById("rewindBtn");
+        const forward = document.getElementById("forwardBtn");
+        const loaderPanel = document.getElementById("loaderContainer");
+        const progressMain = document.getElementById("progressMain")
+
+        rewind.classList.add("alwaysHide");
+        forward.classList.add("alwaysHide");
+        progressMain.classList.add("alwaysHide");
+        loaderPanel.classList.remove("loaderHidden");
+
+        var hls = new Hls();
+        hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+            // console.log('video and hls.js are now bound together !');
+        });
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            // console.log(
+            // 'manifest loaded, found ' + data.levels.length + ' quality level',
+            // );
+        });
+        video.removeAttribute('src');
+        hls.loadSource(value);
+        hls.attachMedia(video);
+        video.currentTime = currentTime;
+
+    }
+}
+
 
 export var whilePlaying = function() {
     const video = document.getElementById("video");
     const progressBar = document.querySelector("#myRange");
     const currentTimeRef = document.getElementById("current-time"); 
     const maxDuration = document.getElementById("max-duration"); 
-    const rewind = document.getElementById("rewindBtn");
-    const forward = document.getElementById("forwardBtn");
     const loaderPanel = document.getElementById("loaderContainer");
     const overlayElements = document.getElementById("overlay");
     const btnID = document.getElementById("btnID");
@@ -73,8 +105,8 @@ export var whilePlaying = function() {
     video.addEventListener("timeupdate", () => { 
         const currentTime = video.currentTime;
         const percentage = currentTime;
-        progressBar.value = percentage; 
         progressBar.max = video.duration;
+        progressBar.value = percentage; 
     });
 
     progressBar.oninput = function() {

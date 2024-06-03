@@ -40,7 +40,7 @@ ion-content {
     position: absolute;
     left: 0;
     right: 0;
-    top: 0px;
+    top: 0;
     bottom: 0;
     overflow: hidden ;
     text-align: center;
@@ -104,7 +104,7 @@ ion-grid {
 }
 
 .progressProperty {
-  width: 100%;
+  width: 60vw;
   justify-content: center;
   height: 100%;
 }
@@ -125,11 +125,11 @@ ion-grid {
 }
 
 #current-time {
-  font-size: 16px;
+  font-size: 1.5vw;
 }
 
 #max-duration {
-  font-size: 16px;
+  font-size: 1.5vw;
 }
 
 .playNextHidden {
@@ -226,10 +226,35 @@ input[type=range]::-ms-thumb{/*Internet Explorer*/
   pointer-events: auto;
 }
 
-.fsIcon {
+.vidQuality {
   color: white;
-  font-size: 40px;
+  font-size: 2vw;
   display: flex;
   align-items: center;
   cursor: pointer;
+  text-align: center;
+  width: 50px;
+
+  ion-icon {
+    margin: auto;
+  }
+}
+
+.fsIcon {
+  color: white;
+  font-size: 2vw;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 0;
+  width: 50px;
+}
+
+ion-row {
+  margin: 0 auto;
+}
+
+.qualityAlertContainer {
+  position: absolute;
+  z-index: 100000;
 }
