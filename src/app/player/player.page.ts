@@ -276,7 +276,7 @@ export class PlayerPage implements OnInit {
           this.overlayElements?.classList.add('fadeOut', 'main-overlay-hidden');
           this.overlayElements?.classList.remove('fadeIn');
       }
-    }, 300000000);
+    }, 3000);
   }
 
   playPauseVideo() {
