@@ -1,17 +1,19 @@
 <ion-header>
     <p>Mew</p>
-    <ion-icon name="person-circle"></ion-icon>
+    <ion-icon name="person-circle" (click)="openProfile()"></ion-icon>
 </ion-header>
 
-<div class="chip-container">
-    <button class="button-chip" [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</button>
-</div>
-
-<ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+<ion-content [fullscreen]="true">
+  <div class="chips">
+    <div class="chip-container">
+      <button class="button-chip" [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</button>
+    </div>
+  </div>
   <div class="mid">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    
     <ion-grid [fixed]="true">
       <ion-row>
         <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">

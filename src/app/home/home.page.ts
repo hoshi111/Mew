@@ -3,11 +3,12 @@ import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
-import { InfiniteScrollCustomEvent, ModalController, NavController } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, ModalController, NavController, Platform } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-home',
@@ -42,10 +43,9 @@ export class HomePage implements OnInit{
               private router: Router,
               private loaderService: LoaderService,
               private modalCtrl: ModalController,
-              private navCtrl: NavController
-
-
-  ) {}
+              private navCtrl: NavController,
+              private platform: Platform
+  ) { }
 
   handleRefresh(event: any) {
     setTimeout(() => {
@@ -434,5 +434,9 @@ export class HomePage implements OnInit{
         })
       })
     });
+  }
+
+  openProfile() {
+    this.navCtrl.navigateForward('tabs/profile')
   }
 }

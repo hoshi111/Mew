@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { AuthGuardService } from 'src/app/api/auth-guard.service';
 
 const routes: Routes = [
   {
@@ -13,7 +14,8 @@ const routes: Routes = [
   },
   {
     path: 'player',
-    loadChildren: () => import('./player/player.module').then( m => m.PlayerPageModule)
+    loadChildren: () => import('./player/player.module').then( m => m.PlayerPageModule),
+    canActivate: [AuthGuardService]
   },
   {
     path: 'login',
@@ -25,7 +27,8 @@ const routes: Routes = [
   },
   {
     path: 'watch-list',
-    loadChildren: () => import('./watch-list/watch-list.module').then( m => m.WatchListPageModule)
+    loadChildren: () => import('./watch-list/watch-list.module').then( m => m.WatchListPageModule),
+    canActivate: [AuthGuardService]
   },
   {
     path: 'signup',
@@ -38,7 +41,7 @@ const routes: Routes = [
 ];
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, onSameUrlNavigation: 'reload' })
   ],
   exports: [RouterModule]
 })

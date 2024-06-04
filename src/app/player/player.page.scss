@@ -3,6 +3,10 @@ ion-content {
     position: relative;
 }
 
+ion-icon {
+  color: white;
+}
+
 #videoContainer {
   height: 100%;
   width: 100%;
@@ -131,11 +135,11 @@ ion-grid {
 }
 
 #current-time {
-  font-size: 1.5vw;
+  font-size: 18px;
 }
 
 #max-duration {
-  font-size: 1.5vw;
+  font-size: 18px;
 }
 
 .playNextHidden {
@@ -234,7 +238,7 @@ input[type=range]::-ms-thumb{/*Internet Explorer*/
 
 .vidQuality {
   color: white;
-  font-size: 2vw;
+  font-size: 28px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -248,7 +252,7 @@ input[type=range]::-ms-thumb{/*Internet Explorer*/
 
 .fsIcon {
   color: white;
-  font-size: 2vw;
+  font-size: 28px;
   display: flex;
   align-items: center;
   cursor: pointer;

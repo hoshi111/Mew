@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import { App } from '@capacitor/app';
+import { ModalController, NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 
 @Component({
@@ -19,8 +20,13 @@ export class DetailsModalComponent  implements OnInit {
   constructor(private router: Router,
               private modalCtrl: ModalController,
               private navCtrl: NavController,
-              private loaderService: LoaderService
-  ) { }
+              private loaderService: LoaderService,
+              private platform: Platform
+  ) {
+    // this.platform.backButton.subscribe(() => {
+    //   this.modalCtrl.dismiss();
+    // });
+  }
 
   ngOnInit() {
     console.log(this.state);

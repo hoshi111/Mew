@@ -67,12 +67,89 @@ export class PlayerPage implements OnInit {
               private router: Router,
               private platform: Platform,
               private location: Location
-  ) { }
+  ) {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      this.goBack();
+    });
+  }
 
   ngOnInit() {
     if (this.platform.is('android')) {
       this.isAndroid = true;
     }
+  }
+
+  ionViewWillEnter() {
+    this.btn = document.getElementById('playNext');
+    this.currentVideo = document.getElementById("video");
+    this.currentVideo.removeAttribute('src');
+    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
+    if (this.isAndroid) {
+      ScreenOrientation.lock({ orientation: "landscape-primary" });
+      StatusBar.setOverlaysWebView({ overlay: true });
+      StatusBar.hide();
+      this.interval = setInterval(async () => {
+        if (this.info = await StatusBar.getInfo()) {
+          if (this.info.visible) { 
+            await StatusBar.hide(); 
+          }
+        }  
+      }, 2000);
+    }
+
+    if (!this.isLoaded) {
+      if (value) {
+        const idSplitted = (JSON.parse(value)).split("-");
+        console.log(idSplitted);
+
+        let videoId = '';
+
+        for (let i = 0; i < idSplitted.length; i++) {
+          if (idSplitted[i] != 'episode') {
+            videoId = videoId + idSplitted[i] + '-';
+          }
+
+          if (idSplitted[i] == 'episode') {
+            i = idSplitted.length
+          }
+        }
+
+        videoId = videoId?.slice(0, -1);
+
+        console.log(videoId)
+
+        this.gogoAnimeGetDetails(videoId).then((result: any) => {
+          console.log(idSplitted[idSplitted.length-1])
+          this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
+          console.log(this.data)
+          this.data['title'] = result.title;
+          this.data['image'] = result.image;
+
+          this.setLink();
+
+          this.nextVideo().then(() => {
+            nextAvailable();
+          })
+        })
+      }
+      else {
+        console.error('No data');
+        this.goBack();
+      }
+    }
+    
+    this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
+    this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
+    this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
+    this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
+    this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
+    this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
+    this.maxDuration = document.getElementById('max-duration') as HTMLElement;
+    this.progressBar = document.querySelector('#myRange');
+    this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
+
+
+    this.resetIdleTimer();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -193,79 +270,79 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  public ngAfterViewInit() {
+  // public ngAfterViewInit() {
     
-    this.btn = document.getElementById('playNext');
-    this.currentVideo = document.getElementById("video");
-    this.currentVideo.removeAttribute('src');
-    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
-    if (this.isAndroid) {
-      ScreenOrientation.lock({ orientation: "landscape-primary" });
-      StatusBar.setOverlaysWebView({ overlay: true });
-      StatusBar.hide();
-      this.interval = setInterval(async () => {
-        if (this.info = await StatusBar.getInfo()) {
-          if (this.info.visible) { 
-            await StatusBar.hide(); 
-          }
-        }  
-      }, 2000);
-    }
+  //   this.btn = document.getElementById('playNext');
+  //   this.currentVideo = document.getElementById("video");
+  //   this.currentVideo.removeAttribute('src');
+  //   const value = this.activatedRoute.snapshot.queryParamMap.get('value');
+  //   if (this.isAndroid) {
+  //     ScreenOrientation.lock({ orientation: "landscape-primary" });
+  //     StatusBar.setOverlaysWebView({ overlay: true });
+  //     StatusBar.hide();
+  //     this.interval = setInterval(async () => {
+  //       if (this.info = await StatusBar.getInfo()) {
+  //         if (this.info.visible) { 
+  //           await StatusBar.hide(); 
+  //         }
+  //       }  
+  //     }, 2000);
+  //   }
 
-    if (!this.isLoaded) {
-      if (value) {
-        const idSplitted = (JSON.parse(value)).split("-");
-        console.log(idSplitted);
+  //   if (!this.isLoaded) {
+  //     if (value) {
+  //       const idSplitted = (JSON.parse(value)).split("-");
+  //       console.log(idSplitted);
 
-        let videoId = '';
+  //       let videoId = '';
 
-        for (let i = 0; i < idSplitted.length; i++) {
-          if (idSplitted[i] != 'episode') {
-            videoId = videoId + idSplitted[i] + '-';
-          }
+  //       for (let i = 0; i < idSplitted.length; i++) {
+  //         if (idSplitted[i] != 'episode') {
+  //           videoId = videoId + idSplitted[i] + '-';
+  //         }
 
-          if (idSplitted[i] == 'episode') {
-            i = idSplitted.length
-          }
-        }
+  //         if (idSplitted[i] == 'episode') {
+  //           i = idSplitted.length
+  //         }
+  //       }
 
-        videoId = videoId?.slice(0, -1);
+  //       videoId = videoId?.slice(0, -1);
 
-        console.log(videoId)
+  //       console.log(videoId)
 
-        this.gogoAnimeGetDetails(videoId).then((result: any) => {
-          console.log(idSplitted[idSplitted.length-1])
-          this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
-          console.log(this.data)
-          this.data['title'] = result.title;
-          this.data['image'] = result.image;
+  //       this.gogoAnimeGetDetails(videoId).then((result: any) => {
+  //         console.log(idSplitted[idSplitted.length-1])
+  //         this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
+  //         console.log(this.data)
+  //         this.data['title'] = result.title;
+  //         this.data['image'] = result.image;
 
-          this.setLink();
+  //         this.setLink();
 
-          this.nextVideo().then(() => {
-            nextAvailable();
-          })
-        })
-      }
-      else {
-        console.error('No data');
-        this.goBack();
-      }
-    }
+  //         this.nextVideo().then(() => {
+  //           nextAvailable();
+  //         })
+  //       })
+  //     }
+  //     else {
+  //       console.error('No data');
+  //       this.goBack();
+  //     }
+  //   }
     
-    this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
-    this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
-    this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
-    this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
-    this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
-    this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
-    this.maxDuration = document.getElementById('max-duration') as HTMLElement;
-    this.progressBar = document.querySelector('#myRange');
-    this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
+  //   this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
+  //   this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
+  //   this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
+  //   this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
+  //   this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
+  //   this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
+  //   this.maxDuration = document.getElementById('max-duration') as HTMLElement;
+  //   this.progressBar = document.querySelector('#myRange');
+  //   this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
 
 
-    this.resetIdleTimer();
-  }
+  //   this.resetIdleTimer();
+  // }
 
   public resetIdleTimer()
   {

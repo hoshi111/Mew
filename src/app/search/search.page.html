@@ -1,23 +1,27 @@
-<ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+<ion-content  [fullscreen]="true">
+  <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+  
+  <div class="labelContainer">
+    <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
+  </div>
 
-
-<ion-content>
-  <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
-  <ion-grid [fixed]="true">
-    <ion-row>
-      <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
-        <ion-card (click)="openDetailsModal(movieDetail)">
-          <div class="img">
-            <img draggable="false" src= "{{movieDetail.image}}" />
-          </div>
-            <div class="titleContainer">
-              <ion-card-title >{{movieDetail.title}}</ion-card-title>
+  <div class="mid">
+    <ion-grid [fixed]="true">
+      <ion-row>
+        <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
+          <ion-card (click)="openDetailsModal(movieDetail)">
+            <div class="img">
+              <img draggable="false" src= "{{movieDetail.image}}" />
             </div>
-        </ion-card>
-      </ion-col>
-      <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    </ion-row>
-  </ion-grid>
+              <div class="titleContainer">
+                <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>
+              </div>
+          </ion-card>
+        </ion-col>
+        <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>

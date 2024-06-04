@@ -7,6 +7,7 @@ ion-card-title {
 }
 
   ion-header {
+    color: white;
     height: 10%;
     width: 100%;
     display: flex;
@@ -28,6 +29,13 @@ ion-card-title {
       right: 30px;
     }
   }
+
+  .mid {
+    position: relative;
+    z-index: -99999;
+    margin-top: 8vh;
+  }
+
   ion-card {
     height: 100%;
     font-size: calc(1vw + 12px);
@@ -53,6 +61,13 @@ ion-card-title {
     }
   }
 
+  .chips {
+    width: 100%;
+    height: fit-content;
+    background-color: var(--mainColor);
+    position: fixed;
+  }
+
   .chip-container {
     height: 8vh;
     background-color: var(--mainColor);
@@ -64,6 +79,7 @@ ion-card-title {
     -ms-overflow-style: none;
 
     .button-chip {
+      color: white;
       font-size: 16px;
       padding: 10px;
       height: 40px;
@@ -81,4 +97,8 @@ ion-card-title {
   .active {
     background-color: #2e2552 !important;
     border: 2px solid #2e2552 !important;
+  }
+
+  ion-icon {
+    cursor: pointer;
   }

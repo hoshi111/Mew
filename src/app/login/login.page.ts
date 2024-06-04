@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { getAuth, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { Router } from '@angular/router';
 import { GoogleAuthProvider } from "firebase/auth";
@@ -15,6 +15,7 @@ export class LoginPage{
   password: any;
   private error: HTMLDivElement | undefined;
   provider = new GoogleAuthProvider();
+  localstorage = localStorage;
 
   constructor(private router: Router,
               private loaderService: LoaderService) { }
@@ -25,13 +26,27 @@ export class LoginPage{
     this.provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
   }
 
+  ionViewWillEnter() {
+    if (this.localstorage.getItem('uid')) {
+      this.router.navigate(['tabs']);
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if(event.key == 'Enter') {
+      this.login();
+    }
+  }
+
   login() {
     this.loaderService.showLoader();
     signInWithEmailAndPassword(this.auth, this.email, this.password).then((userCredential: any) => {
-      var localstorage = localStorage;
-      localstorage.setItem('uid', userCredential.user.uid)
-      console.log(localstorage.getItem('uid'));
-      localstorage.setItem('name', userCredential.user.displayName);
+      
+      this.localstorage.setItem('uid', userCredential.user.uid)
+      console.log(this.localstorage.getItem('uid'));
+      this.localstorage.setItem('name', userCredential.user.displayName);
 
       this.router.navigate(['tabs']);
     })

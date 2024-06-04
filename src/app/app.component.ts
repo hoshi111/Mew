@@ -9,9 +9,9 @@ import { Router } from '@angular/router';
 export class AppComponent {
   localstorage = localStorage;
   constructor(private router: Router) {
-    if (!this.localstorage.getItem('uid')) {
-      this.router.navigate(['']);
-    }
+    // if (!this.localstorage.getItem('uid')) {
+    //   this.router.navigate(['']);
+    // }
    }
    
 }

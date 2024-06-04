@@ -4,9 +4,10 @@ ion-content {
 }
 
 ion-input {
-    width: 80%;
+    width: 300px;
     margin: 30px auto;
     --background: var(--secColor);
+    color: white;
 }
 
 .welcome {
@@ -14,25 +15,28 @@ ion-input {
     margin-bottom: 10vh;
     font-size: 40px;
     font-weight: 900;
+    color: white;
 }
 
 .loginLbl {
     font-size: 22px;
     margin-top: 40px;
     margin-bottom: 20px;
+    color: white;
 }
 
 .loginBtn {
     margin-top: 20px;
     margin-bottom: 10px;
-    width: 60%;
+    width: 200px;
     --background: var(--secColor);
+    color: white;
 }
 
 .googleBtn {
     // margin-top: 20px;
     // margin-bottom: 20px;
-    width: 30%;
+    width: 100px;
     --background: rgb(99, 59, 59);
     color: black;
     border: 1px solid black;
@@ -50,6 +54,7 @@ ion-input {
     text-decoration: underline;
     font-weight: bold;
     cursor: pointer;
+    color: white;
 }
 
 .error {
@@ -58,4 +63,8 @@ ion-input {
 
 .errorHidden {
     visibility: hidden;
+}
+
+p {
+    color: white;
 }

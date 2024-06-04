@@ -12,14 +12,20 @@ ion-content {
 
 .watchList {
     --background: var(--secColor);
-    width: 80%;
+    width: 300px;
     margin: 20vh auto 0;
     display: flex;
+    color: white;
 }
 
 .logout {
     --background: var(--secColor);
-    width: 80%;
+    width: 300px;
     margin: 20vh auto 0;
     display: flex;
+    color: white;
+}
+
+span {
+    color: white;
 }
