@@ -9,6 +9,7 @@ import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnd
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
+import Hls from 'hls.js';
 
 @Component({
   selector: 'app-player',
@@ -33,6 +34,8 @@ export class PlayerPage implements OnInit {
   volumeContainer!: HTMLElement;
   progressBar: any;
   volumeBar: any;
+
+  hls = new Hls();
 
 
   isFullscreen: boolean = false;
@@ -61,6 +64,8 @@ export class PlayerPage implements OnInit {
   lastTime: number = 0;
   volumeIcon = 'volume-high';
   tempVol: any = 0.5;
+
+  qualityArray: any;
 
   alertInputs: any = {values: []};
 
@@ -158,6 +163,22 @@ export class PlayerPage implements OnInit {
     this.volumeBar.value = this.localstorage.getItem('volumeLevel');
     this.changeVolumeIcon(this.volumeBar.value);
     this.resetIdleTimer();
+    this.hlsFetchData();
+  }
+
+  async hlsFetchData() {
+    if (Hls.isSupported()) {
+      alert('true')
+      this.hls.loadSource('https://ec.netmagcdn.com:2228/hls-playback/53626e0e49f993d52dfaf21a6e975ae08cc1f44c7028f3146bd82b6ffecf9a834f87a8244267424284329845814b3eacb5e123ffe95b65c1715553a891c0c3d8ff4ec471b0f06d028368dd4b323c90304aeeb501457924244b0a5681b90ace8205bb2c5dc2d667d4cce852f20ea9cab7caf3bb240f3f926bd64b7ab2a439f71f92f5d4d52d8c2c4c7b3f2082c0702334/master.m3u8');
+      await this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        console.log(data.levels[0].height);
+        // this.qualityArray = data.levels[0].height;
+        // console.log(this.qualityArray)
+        for (let i = 0; i < data.levels.length; i++) {
+          this.alertInputs.values.push({'value': data.levels[i].height + 'p'});
+        }
+    });
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -230,16 +251,16 @@ export class PlayerPage implements OnInit {
       result.sources.forEach((value: any) => {
         console.log(value.quality)
 
-          if (value.quality != 'backup') {
-            let q = value.quality;
-            if (q == 'default') {
-              this.alertInputs.values.push({'value': 'Auto'})
-            }
-            // alert('true')
-            else {
-              this.alertInputs.values.push({'value': q})
-            }
-          }
+          // if (value.quality != 'backup') {
+          //   let q = value.quality;
+          //   if (q == 'default') {
+          //     this.alertInputs.values.push({'value': 'Auto'})
+          //   }
+          //   // alert('true')
+          //   else {
+          //     this.alertInputs.values.push({'value': q})
+          //   }
+          // }
 
         if (value.quality == 'default') {
           this.alertInputs.values = this.alertInputs.values.reverse();
@@ -253,7 +274,8 @@ export class PlayerPage implements OnInit {
           })
           this.videoURL = value.url;
           this.trustedVideoUrl = value.url;
-          check(this.trustedVideoUrl);
+          const tempUrl = 'https://ec.netmagcdn.com:2228/hls-playback/53626e0e49f993d52dfaf21a6e975ae08cc1f44c7028f3146bd82b6ffecf9a834f87a8244267424284329845814b3eacb5e123ffe95b65c1715553a891c0c3d8ff4ec471b0f06d028368dd4b323c90304aeeb501457924244b0a5681b90ace8205bb2c5dc2d667d4cce852f20ea9cab7caf3bb240f3f926bd64b7ab2a439f71f92f5d4d52d8c2c4c7b3f2082c0702334/master.m3u8'
+          check(tempUrl);
           whilePlaying();
         }
         })
