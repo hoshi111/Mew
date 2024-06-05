@@ -111,16 +111,17 @@ ion-grid {
   position: absolute;
   bottom: 0;
   width: 100%;
+
 }
 
 .progressProperty {
-  width: 60vw;
+  width: 50vw;
   justify-content: center;
-  height: 100%;
+  height: 50px;
 }
 
 .progressBar { 
-  width: 100%; 
+  // width: 100%; 
   accent-color: var(--mainColor); 
   transition: width 0.1s linear;
   border-radius: 10px;
@@ -128,18 +129,26 @@ ion-grid {
 
 #myRange {
   position: absolute;
-  top: 0;
+  top: -5px;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 20px;
+  right: 20px;
 }
 
 #current-time {
-  font-size: 18px;
+  font-size: 14px;
+}
+
+.currentTimeContainer {
+  height: 50px;
 }
 
 #max-duration {
-  font-size: 18px;
+  font-size: 14px;
+}
+
+.durationContainer {
+  height: 50px;
 }
 
 .playNextHidden {
@@ -152,6 +161,7 @@ ion-grid {
   bottom: 20%;
   --background: var(--mainColor);
   z-index: 99999999;
+  color: white;
 }
 
 .loaderHidden {
@@ -198,7 +208,7 @@ ion-grid {
 }
 
 .cursorHidden {
-  cursor: none;
+  cursor: none !important;
 }
 
 .main-overlay-visible {
@@ -217,6 +227,10 @@ ion-grid {
 
 .alwaysHide {
   visibility: hidden;
+}
+
+.alwaysShow {
+  visibility: visible !important;
 }
 
 .hidePlayBtn {
@@ -243,7 +257,8 @@ input[type=range]::-ms-thumb{/*Internet Explorer*/
   align-items: center;
   cursor: pointer;
   text-align: center;
-  width: 50px;
+  width: 100%;
+  height: 50px;
 
   ion-icon {
     margin: auto;
@@ -256,12 +271,18 @@ input[type=range]::-ms-thumb{/*Internet Explorer*/
   display: flex;
   align-items: center;
   cursor: pointer;
-  margin-left: 0;
+  text-align: center;
   width: 50px;
+  height: 50px;
+
+  ion-icon {
+    margin: auto;
+  }
 }
 
+
 ion-row {
-  margin: 0 auto;
+  width: 100%;
 }
 
 .qualityContainer {
@@ -269,13 +290,12 @@ ion-row {
   width: 100%;
   position: relative;
   z-index: 9999999;
-  // background-color: rgba(0, 0, 0, 0.4);
-
 
   .qualityLbl {
     margin: 5px auto;
     font-size: 16px;
     font-weight: 900;
+    color: white;
   }
 
   .closeQuality {
@@ -325,4 +345,62 @@ ion-row {
 
 input {
   accent-color: var(--secColor);
+}
+
+.volumeCol {
+  color: white;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 50px;
+}
+
+.volumeControlHidden {
+  visibility: hidden;
+  position: relative;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  text-align: center;
+}
+
+.volumeControl {
+  position: absolute;
+  height: 100px;
+  left: 0;
+  right: 0;
+  top: 0;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: slider-vertical;
+}
+
+.volumeContainer {
+  position: relative;
+  height: 150px;
+  width: 50px;
+  display: flex;
+  text-align: center;
+}
+
+.volumeIcon {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  bottom: 0;
+  display: flex;
+
+  ion-icon {
+    margin: auto;
+  }
+}
+
+ion-col {
+  padding: 0;
+  min-width: 50px;
+}
+
+.progressCol {
+  height: 50px;
 }

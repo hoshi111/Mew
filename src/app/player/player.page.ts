@@ -29,7 +29,10 @@ export class PlayerPage implements OnInit {
   videoContainer!: HTMLElement;
   maxDuration!: HTMLElement;
   qualityContainer!: HTMLElement;
+  mainContent!: HTMLElement;
+  volumeContainer!: HTMLElement;
   progressBar: any;
+  volumeBar: any;
 
 
   isFullscreen: boolean = false;
@@ -56,10 +59,11 @@ export class PlayerPage implements OnInit {
   fsIcon = 'expand';
   quality = 'Auto';
   lastTime: number = 0;
+  volumeIcon = 'volume-high';
+  tempVol: any = 0.5;
 
   alertInputs: any = {values: []};
 
-  @ViewChild('mainContent') videoPlayer: ElementRef | undefined;
   constructor(private activatedRoute: ActivatedRoute,
               public navCtrl: NavController,
               private loaderService: LoaderService,
@@ -146,9 +150,13 @@ export class PlayerPage implements OnInit {
     this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
     this.maxDuration = document.getElementById('max-duration') as HTMLElement;
     this.progressBar = document.querySelector('#myRange');
+    this.volumeBar = document.querySelector('#volumeRange');
+    this.volumeContainer = document.getElementById('volumeContainer') as HTMLElement;
     this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
+    this.mainContent = document.getElementById('mainContent') as HTMLElement;
 
-
+    this.volumeBar.value = this.localstorage.getItem('volumeLevel');
+    this.changeVolumeIcon(this.volumeBar.value);
     this.resetIdleTimer();
   }
 
@@ -243,7 +251,6 @@ export class PlayerPage implements OnInit {
               quality?.setAttribute('checked','true')
             }
           })
-
           this.videoURL = value.url;
           this.trustedVideoUrl = value.url;
           check(this.trustedVideoUrl);
@@ -261,9 +268,8 @@ export class PlayerPage implements OnInit {
     if (this.overlayElements?.classList.contains('main-overlay-hidden')) {
         this.overlayElements?.classList.remove('main-overlay-hidden');
         this.overlayElements?.classList.add('fadeIn');
-        
-
     }
+
     else {
       this.overlayElements?.classList.remove('fadeIn');
       this.overlayElements?.classList.add('main-overlay-hidden', 'fadeOut');
@@ -353,7 +359,7 @@ export class PlayerPage implements OnInit {
           this.overlayElements?.classList.add('fadeOut', 'main-overlay-hidden');
           this.overlayElements?.classList.remove('fadeIn');
       }
-    }, 3000);
+    }, 2500);
   }
 
   playPauseVideo() {
@@ -386,14 +392,14 @@ export class PlayerPage implements OnInit {
 
   rewindVideo() {
     dismissInterval();
-    rewind();
     this.toggleOverlayByUser();
+    rewind();
   }
 
   forwardVideo() {
     dismissInterval();
-    forward();
     this.toggleOverlayByUser();
+    forward();
   }
 
   videoEnded() {
@@ -601,7 +607,7 @@ export class PlayerPage implements OnInit {
     this.toggleOverlayByUser();
   }
 
-  async onItemChange(value: any) {
+  onItemChange(value: any) {
     dismissInterval();
     if (this.quality != value) {
       let playing = false;
@@ -620,7 +626,7 @@ export class PlayerPage implements OnInit {
 
       this.isPlaying = false;
       this.currentVideo.pause();
-      await this.playVideo(this.data.id).then((result: any) => {
+      this.playVideo(this.data.id).then((result: any) => {
         this.lastTime = this.currentVideo.currentTime;
         result.sources.forEach((value: any) => {
             if (value.quality == newQuality) {
@@ -641,6 +647,68 @@ export class PlayerPage implements OnInit {
         })
       }
     }
+  }
+
+  showVolumeRange() {
+    this.volumeBar.classList.remove('volumeControlHidden');
+    this.volumeBar.classList.remove('fadeOut');
+    this.volumeBar.classList.add('fadeIn');
+  }
+
+  hideVolumeRange() {
+    this.volumeBar.classList.remove('fadeIn');
+    this.volumeBar.classList.add('fadeOut');
+    this.volumeBar.classList.add('volumeControlHidden');
+  }
+
+  adjustVolume(e: any) {
+    this.currentVideo.volume = e.target.value;
+    this.changeVolumeIcon(e.target.value)
+    this.localstorage.setItem('volumeLevel', e.target.value);
+  }
+
+  changeVolumeIcon(value: number) {
+    if (value >= 0.75) {
+      this.volumeIcon = 'volume-high';
+      console.log(this.volumeIcon)
+    }
+
+    else if (value <= 0.74 && value >= 0.5) {
+      this.volumeIcon = 'volume-medium';
+      console.log(this.volumeIcon)
+    }
+
+    else if (value <= 0.49 && value >= 0.25) {
+      this.volumeIcon = 'volume-low';
+      console.log(this.volumeIcon)
+    }
+
+    else if (value <= 0.24 && value >= 0.01) {
+      this.volumeIcon = 'volume-off';
+      console.log(this.volumeIcon)
+    }
+
+    else if (value == 0) {
+      this.volumeIcon = 'volume-mute';
+      console.log(this.volumeIcon)
+    }
+  }
+
+  muteUnmute() {
+    dismissInterval();
+    // this.toggleOverlayByUser();
+    if (this.currentVideo.volume > 0) {
+      this.tempVol = this.currentVideo.volume;
+      this.currentVideo.volume = 0;
+      this.volumeBar.value = 0;
+    }
+
+    else {
+      this.currentVideo.volume = this.tempVol;
+      this.volumeBar.value = this.currentVideo.volume;
+    }
+    this.localstorage.setItem('volumeLevel', this.currentVideo.volume);
+    this.changeVolumeIcon(this.currentVideo.volume);
   }
 }
 

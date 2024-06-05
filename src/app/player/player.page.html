@@ -44,30 +44,27 @@
             <ion-icon slot="icon-only" id="icon" name="play-forward"></ion-icon>
           </ion-button>
           
-          <ion-grid class="progressBar alwaysHide" id="progressMain">
-            <ion-row size="auto">
-              <ion-col class="ion-text-end">
+          <ion-grid [fixed]="true" class="progressBar alwaysHide" id="progressMain">
+            <ion-row class="ion-align-items-end ion-justify-content-center">
+
+              <ion-col size="1" class="ion-text-end currentTimeContainer">
                 <p id="current-time" class="current-time">00:00</p>
               </ion-col>
                 
-              <ion-col size="8">
+              <ion-col class="progressCol" size="6">
                 <div class="progressProperty" id="progressID">
                   <input type="range" max="100" value="0" step="1" class="progressBar" id="myRange">
                 </div>
               </ion-col>
     
-              <ion-col size="auto" class="ion-text-start">
+              <ion-col size="1" class="ion-text-start durationContainer">
                 <p id="max-duration" class="max-duration">00:00</p>
               </ion-col>
 
-              <ion-col size="auto"></ion-col>
 
               <ion-col size="auto" class="vidQuality" (click)="showQualityContainer()">
                 <ion-icon name="settings-sharp"></ion-icon>
               </ion-col>
-
-              <ion-col size="auto"></ion-col>
-              <ion-col size="1"></ion-col>
             </ion-row>
           </ion-grid>
           </div>
@@ -123,23 +120,31 @@
             <ion-icon slot="icon-only" id="icon" name="play-forward"></ion-icon>
           </ion-button>
           
-          <ion-grid class="progressBar alwaysHide" id="progressMain">
-            <ion-row size="auto">
-              <ion-col class="ion-text-end">
+          <ion-grid [fixed]="true" class="progressBar alwaysHide" id="progressMain">
+            <ion-row class="ion-align-items-end ion-justify-content-center">
+
+              <ion-col size="1" class="ion-text-end currentTimeContainer">
                 <p id="current-time" class="current-time">00:00</p>
               </ion-col>
                 
-              <ion-col size="8">
+              <ion-col class="progressCol" size="6">
                 <div class="progressProperty" id="progressID">
                   <input type="range" max="100" value="0" step="1" class="progressBar" id="myRange">
                 </div>
               </ion-col>
     
-              <ion-col size="auto" class="ion-text-start">
+              <ion-col size="1" class="ion-text-start durationContainer">
                 <p id="max-duration" class="max-duration">00:00</p>
               </ion-col>
 
-              <ion-col size="auto"></ion-col>
+              <ion-col size="auto" class="volumeCol">
+                <div class="volumeContainer " id="volumeContainer" (mouseleave)="hideVolumeRange()">
+                  <input class="volumeControl fadeOut volumeControlHidden" id="volumeRange" type="range" max="1" step="0.01" value="1" orient="vertical" (input)="adjustVolume($event)" />
+                  <div class="volumeIcon" (click)="muteUnmute()"  (mouseenter)="showVolumeRange()">
+                    <ion-icon name="{{volumeIcon}}"></ion-icon>
+                  </div>
+                </div>
+              </ion-col>
 
               <ion-col size="auto" class="vidQuality" (click)="showQualityContainer()">
                 <ion-icon name="settings-sharp"></ion-icon>
@@ -148,7 +153,6 @@
               <ion-col size="auto"class="fsIcon" (click)="toggleFullscreen()">
                 <ion-icon id="fs" name="{{fsIcon}}"></ion-icon>
               </ion-col>
-              <ion-col size="1"></ion-col>
             </ion-row>
           </ion-grid>
           </div>
