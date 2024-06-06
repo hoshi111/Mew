@@ -9,6 +9,7 @@ import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnd
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
+import Hls from 'hls.js';
 
 @Component({
   selector: 'app-player',
@@ -34,6 +35,8 @@ export class PlayerPage implements OnInit {
   progressBar: any;
   volumeBar: any;
 
+  hls = new Hls();
+
 
   isFullscreen: boolean = false;
   timeoutDelay: any;
@@ -52,7 +55,7 @@ export class PlayerPage implements OnInit {
   isPlaying: boolean = false;
   btn: any;
   fsUpdate: any;
-  i = 0;
+  i = 0;       
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
   isAndroid = false;
@@ -62,6 +65,11 @@ export class PlayerPage implements OnInit {
   volumeIcon = 'volume-high';
   tempVol: any = 0.5;
 
+  qualityArray: any;
+
+  epData: any = [];
+  streamData: any = [];
+
   alertInputs: any = {values: []};
 
   constructor(private activatedRoute: ActivatedRoute,
@@ -70,7 +78,8 @@ export class PlayerPage implements OnInit {
               private apiService: ApiService,
               private router: Router,
               private platform: Platform,
-              private location: Location
+              private location: Location,
+              private route: ActivatedRoute
   ) {
     this.platform.backButton.subscribeWithPriority(10, () => {
       this.goBack();
@@ -83,81 +92,92 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     this.btn = document.getElementById('playNext');
     this.currentVideo = document.getElementById("video");
     this.currentVideo.removeAttribute('src');
-    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
-    if (this.isAndroid) {
-      ScreenOrientation.lock({ orientation: "landscape-primary" });
-      StatusBar.setOverlaysWebView({ overlay: true });
-      StatusBar.hide();
-      this.interval = setInterval(async () => {
-        if (this.info = await StatusBar.getInfo()) {
-          if (this.info.visible) { 
-            await StatusBar.hide(); 
-          }
-        }  
-      }, 2000);
-    }
-
-    if (!this.isLoaded) {
-      if (value) {
-        const idSplitted = (JSON.parse(value)).split("-");
-        console.log(idSplitted);
-
-        let videoId = '';
-
-        for (let i = 0; i < idSplitted.length; i++) {
-          if (idSplitted[i] != 'episode') {
-            videoId = videoId + idSplitted[i] + '-';
-          }
-
-          if (idSplitted[i] == 'episode') {
-            i = idSplitted.length
-          }
+    let value = this.activatedRoute.snapshot.queryParamMap.get('value');
+    
+    if (value) {
+      if (!this.isLoaded) {
+        const tempVal = value.split('"');
+        value = tempVal[1];
+        if (this.isAndroid) {
+          ScreenOrientation.lock({ orientation: "landscape-primary" });
+          StatusBar.setOverlaysWebView({ overlay: true });
+          StatusBar.hide();
+          this.interval = setInterval(async () => {
+            if (this.info = await StatusBar.getInfo()) {
+              if (this.info.visible) { 
+                await StatusBar.hide(); 
+              }
+            }  
+          }, 2000);
         }
 
-        videoId = videoId?.slice(0, -1);
+        
+        const idSplitted = value.split("$");
 
-        console.log(videoId)
+        await this.zoroGetInfo(idSplitted[0]).then((result: any) => {
+          console.log(result)
 
-        this.gogoAnimeGetDetails(videoId).then((result: any) => {
-          console.log(idSplitted[idSplitted.length-1])
-          this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
-          console.log(this.data)
-          this.data['title'] = result.title;
-          this.data['image'] = result.image;
-
-          this.setLink();
-
-          this.nextVideo().then(() => {
-            nextAvailable();
+          result.episodes.forEach((ep: any) => {
+            if (ep.id.toString() == value) {
+              this.displayTitle = result.title + ' | Episode ' + ep.number;
+            }
           })
         })
-      }
-      else {
-        console.error('No data');
-        this.goBack();
+        console.log(this.displayTitle)
+        await this.getStreamingLink(value).then((data: any) => {
+          this.streamData = data;
+          console.log(this.streamData)
+        })
+
+
+        this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
+        this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
+        this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
+        this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
+        this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
+        this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
+        this.maxDuration = document.getElementById('max-duration') as HTMLElement;
+        this.progressBar = document.querySelector('#myRange');
+        this.volumeBar = document.querySelector('#volumeRange');
+        this.volumeContainer = document.getElementById('volumeContainer') as HTMLElement;
+        this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
+        this.mainContent = document.getElementById('mainContent') as HTMLElement;
+        this.currentVideo = document.getElementById("video");
+
+        this.volumeBar.value = this.localstorage.getItem('volumeLevel');
+        this.changeVolumeIcon(this.volumeBar.value);
+        this.resetIdleTimer();
+        
+        this.isLoaded = true;
+        this.trustedVideoUrl = this.streamData.sources[0].url;
+        this.hlsFetchData();
+        check(this.streamData.sources[0].url);
+        whilePlaying();
       }
     }
-    
-    this.overlayElements = document.getElementById('overlay') as HTMLDivElement;
-    this.rewindBtn = document.getElementById('rewindBtn') as HTMLDivElement;
-    this.forwardBtn = document.getElementById('forwardBtn') as HTMLDivElement;
-    this.progressMain = document.getElementById('progressMain') as HTMLDivElement;
-    this.loaderPanel  = document.getElementById('loaderContainer') as HTMLDivElement;
-    this.videoContainer = document.getElementById('videoContainer') as HTMLDivElement;
-    this.maxDuration = document.getElementById('max-duration') as HTMLElement;
-    this.progressBar = document.querySelector('#myRange');
-    this.volumeBar = document.querySelector('#volumeRange');
-    this.volumeContainer = document.getElementById('volumeContainer') as HTMLElement;
-    this.qualityContainer = document.getElementById('qualityContainer') as HTMLElement;
-    this.mainContent = document.getElementById('mainContent') as HTMLElement;
+    // else {
+      // console.error('No data');
+      // this.goBack();
+    // }
+  }
 
-    this.volumeBar.value = this.localstorage.getItem('volumeLevel');
-    this.changeVolumeIcon(this.volumeBar.value);
-    this.resetIdleTimer();
+  async hlsFetchData() {
+    if (Hls.isSupported()) {
+      this.hls.loadSource(this.streamData.sources[0].url);
+      await this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        console.log(data.levels);
+        // this.qualityArray = data.levels[0].height;
+        // console.log(this.qualityArray)
+        for (let i = 0; i < data.levels.length; i++) {
+          this.alertInputs.values.push({'value': data.levels[i].height, id: data.levels[i].id});
+        }
+        this.alertInputs.values = this.alertInputs.values.reverse();
+    });
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -221,8 +241,7 @@ export class PlayerPage implements OnInit {
   }
 
   setLink() {
-    this.isLoaded = true;
-    this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
+    // this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
     let i = 1;
     let tempInputs: any = {values: []}
 
@@ -230,16 +249,16 @@ export class PlayerPage implements OnInit {
       result.sources.forEach((value: any) => {
         console.log(value.quality)
 
-          if (value.quality != 'backup') {
-            let q = value.quality;
-            if (q == 'default') {
-              this.alertInputs.values.push({'value': 'Auto'})
-            }
-            // alert('true')
-            else {
-              this.alertInputs.values.push({'value': q})
-            }
-          }
+          // if (value.quality != 'backup') {
+          //   let q = value.quality;
+          //   if (q == 'default') {
+          //     this.alertInputs.values.push({'value': 'Auto'})
+          //   }
+          //   // alert('true')
+          //   else {
+          //     this.alertInputs.values.push({'value': q})
+          //   }
+          // }
 
         if (value.quality == 'default') {
           this.alertInputs.values = this.alertInputs.values.reverse();
@@ -251,12 +270,12 @@ export class PlayerPage implements OnInit {
               quality?.setAttribute('checked','true')
             }
           })
-          this.videoURL = value.url;
+          this.videoURL = this.streamData.sources.url;
           this.trustedVideoUrl = value.url;
           check(this.trustedVideoUrl);
           whilePlaying();
         }
-        })
+      })
     })
   }
 
@@ -316,7 +335,7 @@ export class PlayerPage implements OnInit {
 
   //       console.log(videoId)
 
-  //       this.gogoAnimeGetDetails(videoId).then((result: any) => {
+  //       this.animeGetDetails(videoId).then((result: any) => {
   //         console.log(idSplitted[idSplitted.length-1])
   //         this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
   //         console.log(this.data)
@@ -363,7 +382,6 @@ export class PlayerPage implements OnInit {
   }
 
   playPauseVideo() {
-    this.currentVideo = document.getElementById("video");
     if (!this.isPlaying) {
       this.loaderPanel.classList.remove("loaderHidden");
       setVideocurrentTime(this.data).then(() => {
@@ -383,7 +401,7 @@ export class PlayerPage implements OnInit {
 
     else {
       this.currentVideo.pause(); 
-      updateDb(this.data);
+      // updateDb(this.data);
       this.icon_name = 'play';
       dismissInterval();
       this.toggleOverlayByUser();
@@ -515,6 +533,19 @@ export class PlayerPage implements OnInit {
       this.router.navigate(['watch-list']);
     }
   }
+
+  getStreamingLink(value: any) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.getStreamingLink(value).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
   
   playVideo(value: string) {
     return new Promise((resolve, reject) => {
@@ -529,9 +560,9 @@ export class PlayerPage implements OnInit {
     })
   }
 
-  animeGetVideoServer(id: number) {
+  animeGetDetails(query: any) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.getAnimeVideoServer(id).subscribe(
+      this.subscription = this.apiService.animeGetDetails(query).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -542,9 +573,22 @@ export class PlayerPage implements OnInit {
     })
   }
 
-  gogoAnimeGetDetails(query: any) {
+  zoroSearch(query: any) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+      this.subscription = this.apiService.zoroSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  zoroGetInfo(query: any) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.zoroGetInfo(query).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -609,44 +653,55 @@ export class PlayerPage implements OnInit {
 
   onItemChange(value: any) {
     dismissInterval();
-    if (this.quality != value) {
-      let playing = false;
-      let newQuality = '';
-      if (value == 'Auto') {
-        newQuality = 'default';
-      }
+    console.log(value)
 
-      else {
-        newQuality = value
+    this.alertInputs.values.forEach((result: any) => {
+      if (result.value == value + 'p') {
+        this.hls.currentLevel = result.value.id;
       }
+    })
+    
+      // let playing = false;
+      // let newQuality = '';
+      // if (value == 'Auto') {
+      //   newQuality = 'default';
+      // }
 
-      if (!this.currentVideo.paused) {
-        playing = true;
-      }
+      // else {
+      //   this.alertInputs.values.forEach((result: any) => {
+      //     if (result.value == value + 'p') {
+      //       this.hls.currentLevel = result.value.id;
+      //     }
+      //   })
+      // }
 
-      this.isPlaying = false;
-      this.currentVideo.pause();
-      this.playVideo(this.data.id).then((result: any) => {
-        this.lastTime = this.currentVideo.currentTime;
-        result.sources.forEach((value: any) => {
-            if (value.quality == newQuality) {
-              console.log(value.url);
-              this.videoURL = value.url;
-              this.trustedVideoUrl = value.url;
-              changeQuality(this.trustedVideoUrl, this.lastTime);
-              this.quality = value;
-            }
-            this.loaderPanel.classList.add("loaderHidden");
-          })
-      })
-      if (playing) {
-        this.currentVideo.play().then(() => {
-          this.rewindBtn.classList.remove("alwaysHide");
-          this.forwardBtn.classList.remove("alwaysHide");
-          this.progressMain.classList.remove("alwaysHide");
-        })
-      }
-    }
+      // if (!this.currentVideo.paused) {
+      //   playing = true;
+      // }
+
+      // this.isPlaying = false;
+      // this.currentVideo.pause();
+      // this.playVideo(this.data.id).then((result: any) => {
+      //   this.lastTime = this.currentVideo.currentTime;
+      //   result.sources.forEach((value: any) => {
+      //       if (value.quality == newQuality) {
+      //         console.log(value.url);
+      //         this.videoURL = value.url;
+      //         this.trustedVideoUrl = value.url;
+      //         changeQuality(this.trustedVideoUrl, this.lastTime);
+      //         this.quality = value;
+      //       }
+      //       this.loaderPanel.classList.add("loaderHidden");
+      //     })
+      // })
+      // if (playing) {
+      //   this.currentVideo.play().then(() => {
+      //     this.rewindBtn.classList.remove("alwaysHide");
+      //     this.forwardBtn.classList.remove("alwaysHide");
+      //     this.progressMain.classList.remove("alwaysHide");
+      //   })
+      // }
+
   }
 
   showVolumeRange() {

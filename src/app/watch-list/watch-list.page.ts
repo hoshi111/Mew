@@ -90,7 +90,7 @@ export class WatchListPage implements OnInit {
 
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+        await this.animeGetDetails(data1.results[0].id).then((data2: any) => {
           this.list.push(data2);
         })
       })
@@ -121,9 +121,9 @@ export class WatchListPage implements OnInit {
     // })
   }
 
-  gogoAnimeGetDetails(query: any) {
+  animeGetDetails(query: any) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+      this.subscription = this.apiService.animeGetDetails(query).subscribe(
         (result: any) => {
           resolve(result)
         },

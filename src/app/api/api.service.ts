@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { throwError } from "rxjs";
+import { environment } from "src/environments/environment";
 
 @Injectable({
     providedIn: 'root'
@@ -38,28 +39,40 @@ export class ApiService {
         })
     }
 
-    gogoAnimeRecentEp(page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/recent-episodes?page=' + page);
+    animeRecentEp(page: number) {
+        return this.http.get(environment.api + 'recent-episodes?page=' + page);
     }
 
-    gogoAnimeTopAiring(page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/top-airing?page=' + page)
-    }
-
-    getAnimeVideoServer(id: any) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + id)
+    animeTopAiring(page: number) {
+        return this.http.get(environment.api + 'top-airing?page=' + page)
     }
 
     searchAnime(query: string, page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/' + query + '?page=' + page)
+        return this.http.get(environment.api + query + '?page=' + page)
     }
 
-    gogoAnimeGetDetails(query: string) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + query)
+    animeGetDetails(query: string) {
+        return this.http.get(environment.api + 'info?id=' + query)
+    }
+
+    getStreamingLink(id: any) {
+        return this.http.get(environment.api + 'watch?episodeId=' + id + '&server=vidcloud')
     }
 
     gogoAnimePlayVideo(query: any) {
         return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + query)
+    }
+
+    zoroSearch(query: any) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/' + query + '?page=1')
+    }
+
+    zoroGetInfo(id: any) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/info?id=' + id)
+    }
+
+    zoroGetLink(id: any) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/watch/' + id + '?server=vidcloud')
     }
 
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'

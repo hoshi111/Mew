@@ -129,7 +129,7 @@ export class SearchPage {
 
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+        await this.animeGetDetails(data1.results[0].id).then((data2: any) => {
           this.list.push(data2);
         })
       })
@@ -140,7 +140,7 @@ export class SearchPage {
     this.loaderService.showLoader();
 
      console.log(value)
-    this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
+    this.animeGetDetails(value.id).then(async(result: any) => {
       result['listForEp'] = this.listForEp;
       this.localstorage.setItem('isFrom', 'search');
       const modal = await this.modalCtrl.create({
@@ -157,9 +157,9 @@ export class SearchPage {
     })
   }
 
-  gogoAnimeGetDetails(query: any) {
+  animeGetDetails(query: any) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+      this.subscription = this.apiService.animeGetDetails(query).subscribe(
         (result: any) => {
           resolve(result)
         },

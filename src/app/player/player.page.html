@@ -13,7 +13,7 @@
             <label class="perQuality" *ngFor="let quality of alertInputs.values; let i = index">
               @if (i == 0) {
                 <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" checked (change)="onItemChange(quality.value)">
-                <p>{{quality.value}}</p>
+                <p>{{quality.value}}p</p>
               }
   
               @else {
