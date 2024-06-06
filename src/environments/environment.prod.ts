@@ -1,8 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
+const host = 'zoro';
+
 export const environment = {
   production: true,
+
+  api: 'https://consumet-beige.vercel.app/anime/' + host + '/',
+
   firebaseConfig: {
     apiKey: "AIzaSyDfzDYhDv43vzN97UtL6y9IimsLuj29vBk",
     authDomain: "mew-4b389.firebaseapp.com",
