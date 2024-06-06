@@ -256,6 +256,7 @@ export class HomePage implements OnInit{
         })
       })
     }
+    console.log(this.movieDetails)
   }
 
   animeTopAiring() {
@@ -306,7 +307,7 @@ export class HomePage implements OnInit{
 
   animeGetRecent(page: number) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeRecentEp(page).subscribe(
+      this.subscription = this.apiService.animeRecentEp(page).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -319,7 +320,7 @@ export class HomePage implements OnInit{
 
   animeGetTopAiring(page: number) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeTopAiring(page).subscribe(
+      this.subscription = this.apiService.animeTopAiring(page).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -330,9 +331,9 @@ export class HomePage implements OnInit{
     })
   }
 
-  gogoAnimeGetDetails(query: any) {
+  animeGetDetails(query: any) {
     return new Promise((resolve, reject) => {
-      this.subscription = this.apiService.gogoAnimeGetDetails(query).subscribe(
+      this.subscription = this.apiService.animeGetDetails(query).subscribe(
         (result: any) => {
           resolve(result)
         },
@@ -360,7 +361,7 @@ export class HomePage implements OnInit{
     console.log(movieDetail)
     this.loaderService.showLoader();
     if (this.isAnimeLatest) {
-      this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
+      this.animeGetDetails(movieDetail.id).then((result: any) => {
         console.log(result);
         const ep = result.episodes[(result.episodes.length) - 1];
         // console.log(ep.id.split("-"));
@@ -368,7 +369,6 @@ export class HomePage implements OnInit{
       //   ep['image'] = result.image;
       //   ep['isFrom'] = 'home';
       //   console.log(ep)
-  
         const queryParams: any = {};
   
         queryParams.value = JSON.stringify(ep.id);
@@ -387,7 +387,7 @@ export class HomePage implements OnInit{
 
     else {
       this.fetchData();
-      this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
+      this.animeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
         this.localstorage.setItem('isFrom', 'home');
         const modal = await this.modalCtrl.create({
@@ -429,7 +429,7 @@ export class HomePage implements OnInit{
 
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+        await this.animeGetDetails(data1.results[0].id).then((data2: any) => {
           this.list.push(data2);
         })
       })
