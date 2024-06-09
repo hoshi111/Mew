@@ -5,6 +5,7 @@ var dbSavingInterval;
 
 var localstorage = localStorage;
 var uid = localstorage.getItem('uid');
+var hls = new Hls();
 
 export var windowResize = function() {
     window.addEventListener("resize",() => {
@@ -25,19 +26,14 @@ export var windowResize = function() {
 export var check = function(value) {
     if (Hls.isSupported()) {
         var video = document.getElementById('video');
-        var hls = new Hls();
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
             // console.log('video and hls.js are now bound together !');
         });
-        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-            // console.log(
-            // 'manifest loaded, found ' + data.levels.length + ' quality level',
-            // );
-        });
+        
+        detachMedia();
         video.removeAttribute('src');
         hls.loadSource(value);
         hls.attachMedia(video);
-        console.log(video);
     }
     console.log('ready to play')
 }
@@ -63,17 +59,26 @@ export var changeQuality = function(value, currentTime) {
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
             // console.log('video and hls.js are now bound together !');
         });
+        hls.on(Hls.Events.MEDIA_DETACHED, function () {
+            console.log('Media Detatched');
+        })
         hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
             // console.log(
             // 'manifest loaded, found ' + data.levels.length + ' quality level',
             // );
         });
-        video.removeAttribute('src');
+        hls.detachMedia();
         hls.loadSource(value);
         hls.attachMedia(video);
         video.currentTime = currentTime;
 
     }
+}
+
+export var detachMedia = function() {
+    hls.on(Hls.Events.MEDIA_DETACHED, function () {
+    })
+    hls.detachMedia();
 }
 
 
@@ -173,7 +178,6 @@ export var rewind = function() {
 
 export var nextAvailable = function() {
     const video = document.getElementById("video");
-    console.log(video.currentTime)
     video.addEventListener("timeupdate", () => { 
     if (video.currentTime >= video.duration - 60 && video.currentTime > 0) {
         playNext.classList.remove('playNextHidden');
@@ -188,7 +192,6 @@ export var nextAvailable = function() {
 }
 
 export var videoEnded = async function(data) {
-    console.log(data);
 
     if (uid) {
         await setDoc(doc(db, uid, data.id), {
@@ -206,11 +209,9 @@ export var videoEnded = async function(data) {
 export var updateDb = function(data) {
     setVideocurrentTime(data);
     const video = document.getElementById("video");
-    console.log(video.currentTime)
 
     video.addEventListener('pause', async() => {
         if (uid) {
-            console.log(data)
             await setDoc(doc(db, uid, data.id), {
                 details: {
                     title: data.title,

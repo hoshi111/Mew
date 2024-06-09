@@ -45,7 +45,6 @@ export class LoginPage{
     signInWithEmailAndPassword(this.auth, this.email, this.password).then((userCredential: any) => {
       
       this.localstorage.setItem('uid', userCredential.user.uid)
-      console.log(this.localstorage.getItem('uid'));
       this.localstorage.setItem('name', userCredential.user.displayName);
 
       this.router.navigate(['tabs']);
@@ -68,13 +67,11 @@ export class LoginPage{
     const token = credential?.accessToken;
     // The signed-in user info.
     const user = result.user;
-    console.log(user)
     if(user) {
       var localstorage = localStorage;
       localstorage.setItem('uid', user.uid);
       localstorage.setItem('name', user.displayName);
       localstorage.setItem('profileImg', user.photoURL);
-      console.log(localstorage.getItem('uid'));
 
       this.router.navigate(['tabs']).then(() => {
         this.loaderService.hideLoader();

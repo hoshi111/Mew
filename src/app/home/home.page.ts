@@ -58,9 +58,10 @@ export class HomePage implements OnInit{
 
   ngOnInit() {
     ScreenOrientation.lock({ orientation: "portrait-primary" });
-
+    this.localstorage.setItem('isFullscreen', 'false');
     this.uid = this.localstorage.getItem('uid');
-
+    this.fetchData();
+    
     if (window.innerWidth <= 480) {
       this.colSize = 6;
     }
@@ -142,7 +143,6 @@ export class HomePage implements OnInit{
   // }
 
   generateItems(vid: any) {
-    console.log(vid)
     if (vid == 'anime-latest') {
       this.animeRecentEpisodes();
     }
@@ -357,11 +357,9 @@ export class HomePage implements OnInit{
   }
 
   showDetailsPage(movieDetail: any) {
-    console.log(movieDetail)
     this.loaderService.showLoader();
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
-        console.log(result);
         const ep = result.episodes[(result.episodes.length) - 1];
         // console.log(ep.id.split("-"));
       //   ep['title'] = result.title;
@@ -386,7 +384,6 @@ export class HomePage implements OnInit{
     }
 
     else {
-      this.fetchData();
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
         this.localstorage.setItem('isFrom', 'home');
@@ -425,7 +422,6 @@ export class HomePage implements OnInit{
         flag = false;
       }
     })
-    console.log(this.tempList)
 
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {

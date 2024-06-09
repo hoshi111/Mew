@@ -77,28 +77,14 @@ export class SearchPage {
 
   findItems() {
     this.searchKeyword(this.query, this.i).then((result: any) => {
-      if(!result) {
-        console.log('true')
-      }
-
-      else {
-        console.log(result.results)
-      }
       result.results.forEach((item: any) => {
         this.movieDetails.push(item);
       })
-      // console.log(result.results)
-      // this.movieDetails = result.results
-      // result.results.forEach((item: any) => {
-      //   console.log(item)
-      // })
     })
-    console.log(this.movieDetails)
   }
 
   onIonInfinite(ev: Event) {
     this.i += 1;
-    console.log(this.i, this.query)
     this.findItems();
     setTimeout(() => {
       (ev as InfiniteScrollCustomEvent).target.complete();
@@ -125,8 +111,6 @@ export class SearchPage {
         flag = false;
       }
     })
-    console.log(this.tempList)
-
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
         await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
@@ -139,7 +123,6 @@ export class SearchPage {
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
 
-     console.log(value)
     this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
       result['listForEp'] = this.listForEp;
       this.localstorage.setItem('isFrom', 'search');

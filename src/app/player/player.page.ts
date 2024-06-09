@@ -104,7 +104,6 @@ export class PlayerPage implements OnInit {
     if (!this.isLoaded) {
       if (value) {
         const idSplitted = (JSON.parse(value)).split("-");
-        console.log(idSplitted);
 
         let videoId = '';
 
@@ -120,12 +119,8 @@ export class PlayerPage implements OnInit {
 
         videoId = videoId?.slice(0, -1);
 
-        console.log(videoId)
-
         this.gogoAnimeGetDetails(videoId).then((result: any) => {
-          console.log(idSplitted[idSplitted.length-1])
           this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
-          console.log(this.data)
           this.data['title'] = result.title;
           this.data['image'] = result.image;
 
@@ -203,7 +198,6 @@ export class PlayerPage implements OnInit {
       this.lastTime = this.currentVideo.currentTime;
       result.sources.forEach((value: any) => {
           if (value.quality == this.quality) {
-            console.log(value.url);
             this.videoURL = value.url;
             this.trustedVideoUrl = value.url;
             changeQuality(this.trustedVideoUrl, this.lastTime);
@@ -223,12 +217,9 @@ export class PlayerPage implements OnInit {
   setLink() {
     this.isLoaded = true;
     this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
-    let i = 1;
-    let tempInputs: any = {values: []}
 
     this.playVideo(this.data.id).then((result: any) => {
       result.sources.forEach((value: any) => {
-        console.log(value.quality)
 
           if (value.quality != 'backup') {
             let q = value.quality;
@@ -243,7 +234,6 @@ export class PlayerPage implements OnInit {
 
         if (value.quality == 'default') {
           this.alertInputs.values = this.alertInputs.values.reverse();
-          console.log(this.alertInputs)
 
           this.alertInputs.values.forEach((value: any) => {
             if (value == 'Auto') {
@@ -256,7 +246,13 @@ export class PlayerPage implements OnInit {
           check(this.trustedVideoUrl);
           whilePlaying();
         }
-        })
+      })
+    }).then(() => {
+      let created = false;
+      if (this.localstorage.getItem('isFullscreen') == 'true') {
+        this.playPauseVideo();
+        this.toggleFullscreen();
+      }
     })
   }
 
@@ -423,10 +419,11 @@ export class PlayerPage implements OnInit {
       this.currentVideo.pause();
       this.currentVideo.removeAttribute('src');
 
+      this.localstorage.setItem('isFullscreen', 'true');
+
       const queryParams: any = {};
 
       queryParams.value = JSON.stringify(newVid);
-      console.log(queryParams)
 
       const navigationExtras: NavigationExtras = {queryParams}
 
@@ -464,10 +461,23 @@ export class PlayerPage implements OnInit {
     const vid: any = document.getElementById("videoContainer");
 
     if (this.isFullscreen) {
-      if (vid.requestFullscreen) {
+      if (vid.requestFullscreen)
+      {
         vid.requestFullscreen();
-        this.fsIcon = 'contract';
-      } 
+      }
+
+      else if (vid.msRequestFullscreen)
+      {
+        vid.msRequestFullscreen();
+      }
+      else if (vid.mozRequestFullScreen) {
+        vid.mozRequestFullScreen();
+      }
+      else if (vid.webkitRequestFullScreen) {
+        vid.webkitRequestFullScreen();
+      }
+
+      this.fsIcon = 'contract';
     }
       else {
         if (document.exitFullscreen) {
@@ -481,6 +491,7 @@ export class PlayerPage implements OnInit {
 
   goBack() {
     updateDb(this.data);
+    this.localstorage.setItem('isFullscreen', 'false');
     this.currentVideo = document.getElementById("video");
     this.currentVideo.pause();
     this.currentVideo.removeAttribute('src');
@@ -555,46 +566,6 @@ export class PlayerPage implements OnInit {
     })
   }
 
-  public alertButtons = [{text: 'OK',
-                          handler: (data: any) => {
-                            console.log(data);
-
-                            if (data == 'default') {
-                              if (this.quality != 'default') {
-                                this.quality = 'default';
-                                this.changeQuality();
-                              }
-                            }
-
-                            else if (data == '1080p') {
-                              if (this.quality != '1080p') {
-                                this.quality = '1080p';
-                                this.changeQuality();
-                              }
-                            }
-
-                            else if (data == '720p') {
-                              if (this.quality != '720p') {
-                                this.quality = '720p';
-                                this.changeQuality();
-                              }
-                            }
-
-                            else if (data == '480p') {
-                              if (this.quality != '480p') {
-                                this.quality = '480p';
-                                this.changeQuality();
-                              }
-                            }
-
-                            else if (data == '360p') {
-                              if (this.quality != '360p') {
-                                this.quality = '360p';
-                                this.changeQuality();
-                              }
-                            }
-                          }
-  }, 'Cancel'];
 
   hideQualityContainer() {
     this.qualityContainer.classList.add('qualityContainerHidden');
@@ -630,7 +601,6 @@ export class PlayerPage implements OnInit {
         this.lastTime = this.currentVideo.currentTime;
         result.sources.forEach((value: any) => {
             if (value.quality == newQuality) {
-              console.log(value.url);
               this.videoURL = value.url;
               this.trustedVideoUrl = value.url;
               changeQuality(this.trustedVideoUrl, this.lastTime);
@@ -670,27 +640,22 @@ export class PlayerPage implements OnInit {
   changeVolumeIcon(value: number) {
     if (value >= 0.75) {
       this.volumeIcon = 'volume-high';
-      console.log(this.volumeIcon)
     }
 
     else if (value <= 0.74 && value >= 0.5) {
       this.volumeIcon = 'volume-medium';
-      console.log(this.volumeIcon)
     }
 
     else if (value <= 0.49 && value >= 0.25) {
       this.volumeIcon = 'volume-low';
-      console.log(this.volumeIcon)
     }
 
     else if (value <= 0.24 && value >= 0.01) {
       this.volumeIcon = 'volume-off';
-      console.log(this.volumeIcon)
     }
 
     else if (value == 0) {
       this.volumeIcon = 'volume-mute';
-      console.log(this.volumeIcon)
     }
   }
 
@@ -711,28 +676,3 @@ export class PlayerPage implements OnInit {
     this.changeVolumeIcon(this.currentVideo.volume);
   }
 }
-
-
-
-
-// ,
-//     {
-//       label: '1080p',
-//       type: 'radio',
-//       value: '1080p',
-//     },
-//     {
-//       label: '720p',
-//       type: 'radio',
-//       value: '720p',
-//     },
-//     {
-//       label: '480p',
-//       type: 'radio',
-//       value: '480p',
-//     },
-//     {
-//       label: '360p',
-//       type: 'radio',
-//       value: '360p',
-//     }

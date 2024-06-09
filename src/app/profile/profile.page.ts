@@ -30,12 +30,8 @@ export class ProfilePage {
   ngOnInit() {
     this.name = this.localstorage.getItem('name');
     this.profileImg = this.localstorage.getItem('profileImg');
-    console.log(this.name);
-    console.log(this.profileImg);
-    console.log(this.localstorage.getItem('uid'));
 
     this.loadFiles().then(() => {
-      console.log("Image: ", this.images)
     })
   }
 

@@ -86,7 +86,6 @@ export class WatchListPage implements OnInit {
         flag = false;
       }
     })
-    console.log(this.tempList)
 
     this.tempList.forEach(async (data: any) => {
       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
@@ -106,7 +105,6 @@ export class WatchListPage implements OnInit {
     value['listForEp'] = this.listForEp;
     this.localstorage.setItem('isFrom', 'watchList');
 
-    console.log(value)
     const modal = await this.modalCtrl.create({
       component: DetailsModalComponent,
       componentProps: {state: value},
@@ -118,7 +116,6 @@ export class WatchListPage implements OnInit {
     await modal.present().then(() => {
       this.loaderService.hideLoader();
     })
-    // })
   }
 
   gogoAnimeGetDetails(query: any) {
