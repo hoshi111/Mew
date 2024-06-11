@@ -26,6 +26,7 @@ export class SearchPage {
   colSize: any;
   tempList: any = [];
   list: any = [];
+  isKdrama: boolean = false;
   
   constructor(private apiService: ApiService,
               private router: Router,
@@ -76,11 +77,21 @@ export class SearchPage {
   }
 
   findItems() {
-    this.searchKeyword(this.query, this.i).then((result: any) => {
-      result.results.forEach((item: any) => {
-        this.movieDetails.push(item);
+    if (this.isKdrama) {
+      this.kdramaSearch(this.query).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.movieDetails.push(item);
+        })
       })
-    })
+    }
+
+    else {
+      this.searchKeyword(this.query, this.i).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.movieDetails.push(item);
+        })
+      })
+    }
   }
 
   onIonInfinite(ev: Event) {
@@ -123,21 +134,61 @@ export class SearchPage {
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
 
-    this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
-      result['listForEp'] = this.listForEp;
-      this.localstorage.setItem('isFrom', 'search');
-      const modal = await this.modalCtrl.create({
-        component: DetailsModalComponent,
-        componentProps: {state: result},
-        breakpoints: [0, 0.6, 1],
-        initialBreakpoint: 1,
-        backdropDismiss: true,
-        backdropBreakpoint: 0,
-      });
-      await modal.present().then(() => {
-        this.loaderService.hideLoader();
+    if (this.isKdrama) {
+      this.kdramaInfo(value.id).then(async(result: any) => {
+        console.log(result)
+        this.localstorage.setItem('kdramaId', value.id);
+        result['listForEp'] = this.listForEp;
+        result['isKdrama'] = true;
+        this.localstorage.setItem('isFrom', 'search');
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
+          componentProps: {state: result},
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 1,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        })
       })
-    })
+    }
+
+    else {
+      this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
+        result['listForEp'] = this.listForEp;
+        result['isKdrama'] = false;
+        this.localstorage.setItem('isFrom', 'search');
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
+          componentProps: {state: result},
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 1,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        })
+      })
+    }
+  }
+
+  kdramaChecked(event: any) {
+    if (event.currentTarget.checked) {
+      this.isKdrama = true;
+      if (this.query) {
+      }
+    }
+
+    else {
+      this.isKdrama = false;
+    }
+
+    this.movieDetails = [];
+    this.i = 1;
+    this.findItems();
   }
 
   gogoAnimeGetDetails(query: any) {
@@ -156,6 +207,32 @@ export class SearchPage {
   searchKeyword(query: string, page: number) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.searchAnime(query, page).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  kdramaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.kdramaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  kdramaInfo(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.kdramaInfo(query).subscribe(
         (result: any) => {
           resolve(result)
         },

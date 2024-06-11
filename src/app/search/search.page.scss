@@ -51,13 +51,21 @@ ion-card {
   margin-top: 50px;
   position: fixed;
   align-items: center;
-    display: flex;
-    background-color: var(--mainColor);
+  display: flex;
+  background-color: var(--mainColor);
 }
 
 
 .label {
   color: white;
   font-size: 24px;
+  margin-left: 100px;
+}
+
+.kdramaLbl {
+  font-size: 18px;
+}
+
+#kdrama {
   margin-left: 10px;
 }

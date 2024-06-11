@@ -43,27 +43,61 @@ export class DetailsModalComponent  implements OnInit {
     this.epList = [];
     let flag = false;
     if(this.state.watchedEp) {
-      this.state.episodes.forEach((ep: any) => {
-        this.state.watchedEp.forEach((watchedEp: any) => {
-          if (ep.number == watchedEp.number) {
+      if (this.state.isKdrama) {
+        this.localstorage.setItem('isKdrama', 'true');
+        this.state.episodes.forEach((ep: any) => {
+          this.state.watchedEp.forEach((watchedEp: any) => {
+            if (ep.episode == watchedEp.number) {
+              this.epList.push({
+                ep: {
+                  id: ep.id,
+                  number: ep.episode
+                },
+                isWatched: true,
+                isFinished: watchedEp.isFinished
+              })
+              flag = true;
+            }
+          })
+          if (!flag) {
+            this.epList.push({
+              ep: {
+                id: ep.id,
+                number: ep.episode
+              },
+              isWatched: false
+            })
+          }
+          
+          flag = false;
+        })
+      }
+      
+      else {
+        this.localstorage.setItem('isKdrama', 'false');
+        this.state.episodes.forEach((ep: any) => {
+          this.state.watchedEp.forEach((watchedEp: any) => {
+            if (ep.number == watchedEp.number) {
+              this.epList.push({
+                ep: ep,
+                isWatched: true,
+                isFinished: watchedEp.isFinished
+              })
+              flag = true;
+            }
+          })
+          if (!flag) {
             this.epList.push({
               ep: ep,
-              isWatched: true,
-              isFinished: watchedEp.isFinished
+              isWatched: false
             })
-            flag = true;
           }
+          
+          flag = false;
         })
-        if (!flag) {
-          this.epList.push({
-            ep: ep,
-            isWatched: false
-          })
-        }
-        
-        flag = false;
-      })
+      }
     }
+
 
     this.state.genres.forEach((genre: any) => {
       this.genres = this.genres + genre + ', ';
@@ -75,6 +109,7 @@ export class DetailsModalComponent  implements OnInit {
     episode['title'] = this.state.title;
     episode['image'] = this.state.image;
     episode['isFrom'] = this.state.isFrom;
+    episode['dramaId'] = this.state.id
     
     // this.navCtrl.navigateForward('player', { state: episode });
     const queryParams: any = {};

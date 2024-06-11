@@ -2,6 +2,7 @@
   <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
   
   <div class="labelContainer">
+    <input type="checkbox" id="kdrama" value="kdrama" (change)="kdramaChecked($event)"><p class="kdramaLbl">Drama</p>
     <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
   </div>
 

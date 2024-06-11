@@ -61,6 +61,7 @@ export class HomePage implements OnInit{
     this.localstorage.setItem('isFullscreen', 'false');
     this.uid = this.localstorage.getItem('uid');
     this.fetchData();
+    this.localstorage.setItem('isKdrama', 'false');
     
     if (window.innerWidth <= 480) {
       this.colSize = 6;

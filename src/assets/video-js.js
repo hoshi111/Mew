@@ -6,6 +6,7 @@ var dbSavingInterval;
 var localstorage = localStorage;
 var uid = localstorage.getItem('uid');
 var hls = new Hls();
+export let levels;
 
 export var windowResize = function() {
     window.addEventListener("resize",() => {
@@ -29,6 +30,12 @@ export var check = function(value) {
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
             // console.log('video and hls.js are now bound together !');
         });
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+        });
+        hls.on(Hls.Events.LEVEL_SWITCHING, function (event, data) {
+            // console.log(data);
+        })
         
         detachMedia();
         video.removeAttribute('src');
@@ -55,12 +62,11 @@ export var changeQuality = function(value, currentTime) {
         progressMain.classList.add("alwaysHide");
         loaderPanel.classList.remove("loaderHidden");
 
-        var hls = new Hls();
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
             // console.log('video and hls.js are now bound together !');
         });
         hls.on(Hls.Events.MEDIA_DETACHED, function () {
-            console.log('Media Detatched');
+            // console.log('Media Detatched');
         })
         hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
             // console.log(
@@ -168,12 +174,12 @@ export var whilePlaying = function() {
 
 export var forward = function() {
     video.currentTime = video.currentTime + 20;
-    progressBar.value = video.currentTime;
+    hls.currentLevel = 3;
 }
 
 export var rewind = function() {
     video.currentTime = video.currentTime - 10;
-    progressBar.value = video.currentTime;
+    hls.currentLevel = 0;
 }
 
 export var nextAvailable = function() {
