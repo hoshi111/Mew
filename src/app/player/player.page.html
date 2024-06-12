@@ -12,12 +12,12 @@
             <p class="qualityLbl">Select Quality</p>
             <label class="perQuality" *ngFor="let quality of alertInputs.values; let i = index">
               @if (i == 0) {
-                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" checked (change)="onItemChange(quality.value)">
+                <input type="radio" id="{{quality.id}}" name="quality" value="{{quality.value}}" checked (change)="onItemChange($event)">
                 <p>{{quality.value}}</p>
               }
   
               @else {
-                <input type="radio" id="{{quality.value}}" name="quality" value="{{quality.value}}" (change)="onItemChange(quality.value)">
+                <input type="radio" id="{{quality.id}}" name="quality" value="{{quality.value}}" (change)="onItemChange($event)">
                 <p>{{quality.value}}</p>
               }
             </label>
