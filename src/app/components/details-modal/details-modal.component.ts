@@ -3,6 +3,9 @@ import { NavigationExtras, Router } from '@angular/router';
 import { App } from '@capacitor/app';
 import { ModalController, NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
+import { Filesystem, Directory, Encoding, DownloadFileResult, ProgressStatus } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
+import { DownloadModalComponent } from '../download-modal/download-modal.component';
 
 @Component({
   selector: 'app-details-modal',
@@ -16,6 +19,7 @@ export class DetailsModalComponent  implements OnInit {
   epList: any = [];
   watchedEp: any = [];
   localstorage = localStorage;
+  isNativePlatform = false;
 
   constructor(private router: Router,
               private modalCtrl: ModalController,
@@ -29,6 +33,9 @@ export class DetailsModalComponent  implements OnInit {
   }
 
   ngOnInit() {
+    if (Capacitor.isNativePlatform()) {
+      this.isNativePlatform = true;
+    }
     this.watchedEp = [];
     this.state.listForEp.forEach((data: any) => {
       if (data.title == this.state.title) {
@@ -123,6 +130,21 @@ export class DetailsModalComponent  implements OnInit {
     this.router.navigate(['player'], navigationExtras);
 
     this.modalCtrl.dismiss();
+  }
+
+  async downloadEpisodes() {
+    this.loaderService.showLoader();
+    const modal = await this.modalCtrl.create({
+      component: DownloadModalComponent,
+      componentProps: {state: this.state.episodes},
+      breakpoints: [0, 0.6, 1],
+      initialBreakpoint: 1,
+      backdropDismiss: true,
+      backdropBreakpoint: 0,
+    });
+    await modal.present().then(() => {
+      this.loaderService.hideLoader();
+    });
   }
 
 }

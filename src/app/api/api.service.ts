@@ -62,6 +62,10 @@ export class ApiService {
         return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + query)
     }
 
+    gogoAnimeDownload(id: any) {
+        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/download?link=' + id)
+    }
+
     kdramaSearch(query: any) {
         return this.http.get('https://consumet-beige.vercel.app/movies/dramacool/' + query)
     }
