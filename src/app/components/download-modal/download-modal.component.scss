@@ -8,3 +8,36 @@ ion-header {
 ion-content {
     --background: var(--mainColor);
 }
+
+ion-list {
+    background: none !important;
+}
+
+ion-item {
+    --background: var(--mainColor);
+}
+
+ion-label {
+    padding: 0 30px;
+    position: relative;
+}
+
+.downloadIcon {
+    position: absolute;
+    right: 30px;
+    font-size: 25px;
+}
+
+.progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.progressHidden {
+    visibility: hidden;
+}
+  

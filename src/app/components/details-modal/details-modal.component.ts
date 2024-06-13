@@ -19,6 +19,7 @@ export class DetailsModalComponent  implements OnInit {
   epList: any = [];
   watchedEp: any = [];
   localstorage = localStorage;
+  isNativePlatform = false;
 
   constructor(private router: Router,
               private modalCtrl: ModalController,
@@ -32,6 +33,9 @@ export class DetailsModalComponent  implements OnInit {
   }
 
   ngOnInit() {
+    if (Capacitor.isNativePlatform()) {
+      this.isNativePlatform = true;
+    }
     this.watchedEp = [];
     this.state.listForEp.forEach((data: any) => {
       if (data.title == this.state.title) {
