@@ -1,16 +1,16 @@
 <ion-header>
   <p>Title</p>
-  <progress class="progress progresHidden" id="progress" max="{{max}}" value="{{current}}"></progress>
+  <progress class="progress progressHidden" id="progress" max="{{max}}" value="{{current}}"></progress>
 </ion-header>
 
 <ion-content>
   
   
   <ion-list>
-    <ion-item *ngFor="let episode of state">
+    <ion-item *ngFor="let episode of state; let i = index">
       <ion-label>
         Episode {{episode.number}}
-        <ion-icon id="icon" class="downloadIcon" name="{{iconName}}" (click)="downloadEpisode(episode)"></ion-icon>
+        <ion-icon id="{{i}}" class="downloadIcon" name="{{icons[i]}}" (click)="downloadEpisode(episode, i)"></ion-icon>
       </ion-label>
     </ion-item>
   </ion-list>

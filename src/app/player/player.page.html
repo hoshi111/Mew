@@ -3,7 +3,7 @@
     <div id="videoContainer">
       <video id="video" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()"></video>
     
-      <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
+      <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()">
 
         <div class="qualityContainer qualityContainerHidden" id="qualityContainer">
           <div class="dismissQualityContainer" (click)="hideQualityContainer()">
