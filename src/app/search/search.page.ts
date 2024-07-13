@@ -7,6 +7,7 @@ import { DetailsModalComponent } from '../components/details-modal/details-modal
 import { LoaderService } from '../api/loader.service';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
+import { GlobalVariable } from '../api/global';
 
 @Component({
   selector: 'app-search',
@@ -27,11 +28,13 @@ export class SearchPage {
   tempList: any = [];
   list: any = [];
   isKdrama: boolean = false;
+  isManga: boolean = false;
   
   constructor(private apiService: ApiService,
               private router: Router,
               private modalCtrl: ModalController,
-              private loaderService: LoaderService
+              private loaderService: LoaderService,
+              public global: GlobalVariable
   ) {}
 
   async ngOnInit() {
@@ -79,6 +82,15 @@ export class SearchPage {
   findItems() {
     if (this.isKdrama) {
       this.kdramaSearch(this.query).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.movieDetails.push(item);
+        })
+      })
+    }
+
+    else if (this.isManga) {
+      this.mangaSearch(this.query).then((result: any) => {
+        console.log(result)
         result.results.forEach((item: any) => {
           this.movieDetails.push(item);
         })
@@ -140,10 +152,34 @@ export class SearchPage {
         this.localstorage.setItem('kdramaId', value.id);
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = true;
+        result['isManga'] = false;
         this.localstorage.setItem('isFrom', 'search');
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 1,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        })
+      })
+    }
+
+    else if (this.isManga) {
+
+      this.mangaInfo(value.id).then(async(result: any) => {
+        console.log(result)
+        this.localstorage.setItem('mangaId', value.id);
+        result['listForEp'] = this.listForEp;
+        result['isKdrama'] = false;
+        result['isManga'] = true;
+        this.localstorage.setItem('isFrom', 'search');
+        this.global.data = result;
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
           breakpoints: [0, 0.6, 1],
           initialBreakpoint: 1,
           backdropDismiss: true,
@@ -175,15 +211,20 @@ export class SearchPage {
     }
   }
 
-  kdramaChecked(event: any) {
-    if (event.currentTarget.checked) {
+  checkboxChecked(event: any) {
+    if (event.target.value == 'kdrama') {
       this.isKdrama = true;
-      if (this.query) {
-      }
+      this.isManga = false;
+    }
+
+    else if(event.target.value == 'manga') {
+      this.isKdrama = false;
+      this.isManga = true;
     }
 
     else {
       this.isKdrama = false;
+      this.isManga = false;
     }
 
     this.movieDetails = [];
@@ -233,6 +274,32 @@ export class SearchPage {
   kdramaInfo(query: string) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.kdramaInfo(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaInfo(id: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaInfo(id).subscribe(
         (result: any) => {
           resolve(result)
         },

@@ -6,7 +6,6 @@ ion-searchbar {
     background-color: var(--secColor);
     color: white;
     --background: var(--mainColor);
-    position: fixed;
     height: 50px;
 }
 
@@ -68,4 +67,8 @@ ion-card {
 
 #kdrama {
   margin-left: 10px;
+}
+
+.checkbox {
+  display: flex;
 }

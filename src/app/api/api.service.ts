@@ -74,6 +74,18 @@ export class ApiService {
         return this.http.get('https://consumet-beige.vercel.app/movies/dramacool/info?id=' + id)
     }
 
+    mangaSearch(query: any) {
+        return this.http.get('https://consumet-beige.vercel.app/meta/anilist-manga/' + query)
+    }
+
+    mangaInfo(id: any) {
+        return this.http.get('https://consumet-beige.vercel.app/meta/anilist-manga/info/' + id + '?provider=mangahere')
+    }
+    
+    mangaGetPages(id: any) {
+        return this.http.get('https://consumet-beige.vercel.app/manga/mangahere/read?chapterId=' + id)
+    }
+
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'
     
 }
