@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from '../api/loader.service';
+import { IonContent } from '@ionic/angular';
 
 @Component({
   selector: 'app-reader',
@@ -12,6 +13,7 @@ import { LoaderService } from '../api/loader.service';
 export class ReaderPage implements OnInit {
   public subscription: any = Subscription;
   localstorage = localStorage;
+  @ViewChild(IonContent) content: IonContent | undefined;
 
   title: any = '';
   pages: any;
@@ -78,6 +80,10 @@ export class ReaderPage implements OnInit {
       //     })
       //   }
       // })
+    }).then(() => {
+      if (!this.currentId) {
+        this.content?.scrollToTop(0);
+      }
     })
 
     
