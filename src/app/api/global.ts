@@ -4,4 +4,6 @@ import { Injectable } from '@angular/core';
 
 export class GlobalVariable {
     public data: any;
+    isAnime: boolean = false;
+    mangaId: any;
 }

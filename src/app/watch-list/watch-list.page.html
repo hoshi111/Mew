@@ -1,7 +1,12 @@
 <ion-header>
   <div id="icon-wrapper-booking" (click)="goBack()"><ion-icon name="chevron-back-outline"></ion-icon></div>
   <div class="pageTitle">
-    <span>Your Watchlist</span>
+    @if(global.isAnime) {
+      <span>Your Watchlist</span>
+    }
+    @else {
+      <span>Your Manga List</span>
+    }
   </div>
 </ion-header>
   <ion-content [fullscreen]="true">
@@ -15,7 +20,19 @@
             </div>
             
               <div class="titleContainer">
-                <ion-card-title >{{data.title}}</ion-card-title>
+                @if(global.isAnime) {
+                  <ion-card-title >{{data.title}}</ion-card-title>
+                }
+
+                @else {
+                  @if (data.title.english) {
+                    <ion-card-title >{{data.title.english}}</ion-card-title>
+                  }
+
+                  @else {
+                    <ion-card-title >{{data.title.romaji}}</ion-card-title>
+                  }
+                }
               </div>
           </ion-card>
         </ion-col>

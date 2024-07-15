@@ -154,9 +154,9 @@ export class SearchPage {
         result['isKdrama'] = true;
         result['isManga'] = false;
         this.localstorage.setItem('isFrom', 'search');
+        this.global.data = result;
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
-          componentProps: {state: result},
           breakpoints: [0, 0.6, 1],
           initialBreakpoint: 1,
           backdropDismiss: true,

@@ -2,7 +2,7 @@
 </ion-header>
 
 <ion-content>
-  @if (!global.data.isManga) {
+  @if (global.isAnime) {
     <ion-grid>
       <ion-row>
         <ion-col size="6">
@@ -59,7 +59,7 @@
     </ion-grid>
   }
 
-  @else if (global.data.isManga) {
+  @else if (!global.isAnime) {
     <ion-grid>
       <ion-row>
         <ion-col size="6">
@@ -89,10 +89,28 @@
         </ion-col>
       </ion-row>
       <ion-row>
+        
+        @if (!global.data.watchedEp) {
+          <ion-col size="12" *ngFor="let chapter of epList; let i = index" (click)="readChapter(chapter)">
+            {{chapter.title}}
+          </ion-col>
+        }
 
-        <ion-col size="12" *ngFor="let chapter of global.data.chapters; let i = index" (click)="readChapter(chapter)">
-          {{chapter.title}}
-        </ion-col>
+        @else {
+          @for(ep of epList; track ep) {
+            @if (ep.opened) {
+              <ion-col size="12" class="continueEpisode" (click)="readChapter(ep)">
+                {{ep.title}}
+              </ion-col>
+            }
+
+            @else {
+              <ion-col size="12" (click)="readChapter(ep)">
+                {{ep.title}}
+              </ion-col>
+            }
+          }
+        }
         <!-- @if(!global.data.watchedEp) {
           <ion-col size="2" *ngFor="let episode of global.data.episodes" (click)="playEpisode(episode)">
             {{episode.number}}

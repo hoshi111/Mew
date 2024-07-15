@@ -36,20 +36,39 @@ export class DetailsModalComponent  implements OnInit {
     if (Capacitor.isNativePlatform()) {
       this.isNativePlatform = true;
     }
-    console.log(this.global.data)
+    console.log(this.global.data.isKdrama, this.global.data.isManga)
     this.watchedEp = [];
-    this.global.data.listForEp.forEach((data: any) => {
-      if (data.title == this.global.data.title) {
-        this.watchedEp.push({
-          number: data.epNumber,
-          isFinished: data.isFinished
-        });
-      }
-    })
-    this.global.data['watchedEp'] = this.watchedEp;
+
+    if (!this.global.data.isManga) {
+      this.global.data.listForEp.forEach((data: any) => {
+        if (data.title == this.global.data.title) {
+          this.watchedEp.push({
+            number: data.epNumber,
+            isFinished: data.isFinished
+          });
+        }
+      })
+      this.global.data['watchedEp'] = this.watchedEp;
+      console.log(this.watchedEp)
+    }
+
+    else {
+      console.log(this.global.data.listForEp)
+      this.global.data.listForEp.forEach((data: any) => {
+        if (data.mangaId == this.global.mangaId) {
+          this.watchedEp.push({
+            number: data.chapterIndex,
+            isOpened: data.opened
+          });
+        }
+      })
+      this.global.data['watchedEp'] = this.watchedEp;
+      console.log(this.watchedEp)
+    }
 
     this.epList = [];
     let flag = false;
+
     if(this.global.data.watchedEp) {
       if (this.global.data.isKdrama) {
         this.localstorage.setItem('isKdrama', 'true');
@@ -83,7 +102,49 @@ export class DetailsModalComponent  implements OnInit {
       }
 
       else if (this.global.data.isManga) {
+        this.localstorage.setItem('isKdrama', 'false');
+        this.localstorage.setItem('isManga', 'true');
         console.log(this.global.data)
+
+        for (let i = 0; i < this.global.data.chapters.length; i ++) {
+          this.epList.push({
+            id: this.global.data.chapters[i].id,
+            title: this.global.data.chapters[i].title,
+            opened: false
+          })
+        }
+
+        this.global.data.watchedEp.forEach((ep: any) => {
+          this.epList[ep.number].opened = true
+        })
+
+        console.log(this.epList)
+        // this.global.data.chapters.forEach((ep: any) => {
+        //   this.global.data.watchedEp.forEach((watchedEp: any) => {
+        //     if (ep.episode == watchedEp.number) {
+        //       this.epList.push({
+        //         ep: {
+        //           id: ep.id,
+        //           number: ep.episode
+        //         },
+        //         isWatched: true,
+        //         isFinished: watchedEp.isFinished
+        //       })
+        //       flag = true;
+        //     }
+        //   })
+        //   if (!flag) {
+        //     this.epList.push({
+        //       ep: {
+        //         id: ep.id,
+        //         number: ep.episode
+        //       },
+        //       isWatched: false
+        //     })
+        //   }
+          
+        //   flag = false;
+        // })
       }
       
       else {

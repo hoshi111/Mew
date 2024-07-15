@@ -5,6 +5,10 @@ import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from '../api/loader.service';
 import { IonContent } from '@ionic/angular';
 
+import { doc, setDoc, getDocs, collection } from "firebase/firestore"; 
+import { db } from "src/environments/environment";
+import { GlobalVariable } from '../api/global';
+
 @Component({
   selector: 'app-reader',
   templateUrl: './reader.page.html',
@@ -21,14 +25,17 @@ export class ReaderPage implements OnInit {
   index = 0;
   currentId: string = '';
   value: any;
+  uid: any;
 
   constructor(private apiService: ApiService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
-              private loaderService: LoaderService
+              private loaderService: LoaderService,
+              public global: GlobalVariable
   ) { }
 
   ngOnInit() {
+    this.uid = this.localstorage.getItem('uid');
     this.loaderService.showLoader();
     this.loadPages();
   }
@@ -42,7 +49,7 @@ export class ReaderPage implements OnInit {
       this.value = '"' + this.currentId + '"';
     }
     console.log(this.value)
-    this.mangaInfo(this.localstorage.getItem('mangaId')).then((result: any) => {
+    this.mangaInfo(this.global.data.id).then((result: any) => {
 
       this.chapters = result.chapters;
 
@@ -81,12 +88,32 @@ export class ReaderPage implements OnInit {
       //   }
       // })
     }).then(() => {
+      this.saveDb();
       if (!this.currentId) {
         this.content?.scrollToTop(0);
       }
     })
 
     
+  }
+
+  async saveDb() {
+    if (this.uid) {
+      let id = this.chapters[this.index].id.split('/').join('*');
+      id = '0_manga-' + id;
+      console.log(this.title)
+      await setDoc(doc(db, this.uid, id), {
+          details: {
+              title: this.title,
+              id: id,
+              chapterIndex: this.index,
+              opened: true,
+              mangaId: this.localstorage.getItem('mangaId')
+          }
+      })
+      console.log(id.includes('1_manga-'))
+      
+  } 
   }
 
   nextChapter() {
@@ -107,7 +134,7 @@ export class ReaderPage implements OnInit {
   }
 
   close() {
-    this.router.navigate(['tabs/search']);
+    this.router.navigate(['watch-list']);
   }
 
   mangaInfo(id: any) {
