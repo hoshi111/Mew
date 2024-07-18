@@ -167,7 +167,9 @@ export var whilePlaying = function() {
     
     setInterval(() => { 
         currentTimeRef.innerHTML = timeFormatter(video.currentTime); 
-        maxDuration.innerText = timeFormatter(video.duration); 
+        if (video.duration) {
+            maxDuration.innerText = timeFormatter(video.duration); 
+        }
     }, 1);
     
 }
@@ -184,10 +186,14 @@ export var rewind = function() {
 
 export var nextAvailable = function() {
     const video = document.getElementById("video");
+    var flag = false;
     video.addEventListener("timeupdate", () => { 
     if (video.currentTime >= video.duration - 60 && video.currentTime > 0) {
-        playNext.classList.remove('playNextHidden');
-        playNext.classList.add('playNext');
+            if (!flag) {
+                flag = true;
+                playNext.classList.remove('playNextHidden');
+                playNext.classList.add('playNext');
+            }
         }
 
         else {

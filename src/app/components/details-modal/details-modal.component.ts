@@ -50,6 +50,7 @@ export class DetailsModalComponent  implements OnInit {
       })
       this.global.data['watchedEp'] = this.watchedEp;
       console.log(this.watchedEp)
+      console.log(this.global.data)
     }
 
     else {
@@ -115,6 +116,7 @@ export class DetailsModalComponent  implements OnInit {
         }
 
         this.global.data.watchedEp.forEach((ep: any) => {
+          console.log(ep)
           this.epList[ep.number].opened = true
         })
 

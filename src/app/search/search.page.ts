@@ -120,8 +120,16 @@ export class SearchPage {
      querySnapshot.forEach((doc: any) => {
       this.listForEp.push(doc.data().details);
       this.tempList.forEach((t: any | undefined) => {
-        if (t.title == doc.data().details.title) {
-          flag = true;
+        if (!this.isManga) {
+          if (t.title == doc.data().details.title) {
+            flag = true;
+          }
+        }
+
+        else {
+          if (t.mangaId == doc.data().details.mangaId) {
+            flag = true;
+          }
         }
       })
       
@@ -134,13 +142,31 @@ export class SearchPage {
         flag = false;
       }
     })
-    this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-          this.list.push(data2);
-        })
+
+    if (!this.isManga) { 
+      this.tempList.forEach(async (data: any) => {
+        console.log(data.id.includes('0_manga-'))
+        if (!data.id.includes('0_manga-')) {
+          await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+            await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+              this.list.push(data2);
+            })
+          })
+        }
       })
-    });
+    }
+
+    else {
+      this.tempList.forEach(async (data: any) => {
+        if (data.id.includes('0_manga-')) {
+          console.log(data)
+            await this.mangaInfo(data.mangaId).then((data2: any) => {
+              this.list.push(data2);
+            })
+        }
+      })
+    }
+
   }
 
   async openDetailsModal(value: any) {
@@ -178,6 +204,7 @@ export class SearchPage {
         result['isManga'] = true;
         this.localstorage.setItem('isFrom', 'search');
         this.global.data = result;
+        this.global.mangaId = value.id;
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           breakpoints: [0, 0.6, 1],
@@ -195,7 +222,9 @@ export class SearchPage {
       this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = false;
+        result['isManga'] = false;
         this.localstorage.setItem('isFrom', 'search');
+        this.global.data = result;
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},

@@ -9,6 +9,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { App } from '@capacitor/app';
+import { GlobalVariable } from '../api/global';
 
 @Component({
   selector: 'app-home',
@@ -44,7 +45,8 @@ export class HomePage implements OnInit{
               private loaderService: LoaderService,
               private modalCtrl: ModalController,
               private navCtrl: NavController,
-              private platform: Platform
+              private platform: Platform,
+              public global: GlobalVariable
   ) { }
 
   handleRefresh(event: any) {
@@ -359,8 +361,10 @@ export class HomePage implements OnInit{
 
   showDetailsPage(movieDetail: any) {
     this.loaderService.showLoader();
+    this.global.data = [];
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
+        
         const ep = result.episodes[(result.episodes.length) - 1];
         // console.log(ep.id.split("-"));
       //   ep['title'] = result.title;
@@ -387,7 +391,10 @@ export class HomePage implements OnInit{
     else {
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
+        result['isKdrama'] = false;
+        result['isManga'] = false;
         this.localstorage.setItem('isFrom', 'home');
+        this.global.data = result;
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},
@@ -398,7 +405,7 @@ export class HomePage implements OnInit{
         });
         await modal.present().then(() => {
           this.loaderService.hideLoader();
-        });
+        })
       })
     }
   }
@@ -425,15 +432,73 @@ export class HomePage implements OnInit{
     })
 
     this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-          this.list.push(data2);
+      console.log(data.id.includes('0_manga-'))
+      if (!data.id.includes('0_manga-')) {
+        await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+          await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+            this.list.push(data2);
+          })
         })
-      })
-    });
+      }
+    })
   }
 
   openProfile() {
     this.navCtrl.navigateForward('tabs/profile')
   }
 }
+
+// async fetchData() {
+//   let flag = false;
+//   const querySnapshot = await getDocs(collection(db, this.uid));
+//    querySnapshot.forEach((doc: any) => {
+//     this.listForEp.push(doc.data().details);
+//     this.tempList.forEach((t: any | undefined) => {
+//       if (!this.isManga) {
+//         if (t.title == doc.data().details.title) {
+//           flag = true;
+//         }
+//       }
+
+//       else {
+//         if (t.mangaId == doc.data().details.mangaId) {
+//           flag = true;
+//         }
+//       }
+//     })
+    
+//     if(!flag) {
+//       this.tempList.push(doc.data().details);
+      
+//     }
+
+//     else {
+//       flag = false;
+//     }
+//   })
+
+//   if (!this.isManga) { 
+//     this.tempList.forEach(async (data: any) => {
+//       console.log(data.id.includes('0_manga-'))
+//       if (!data.id.includes('0_manga-')) {
+//         await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+//           await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+//             this.list.push(data2);
+//           })
+//         })
+//       }
+//     })
+//   }
+
+//   else {
+//     this.tempList.forEach(async (data: any) => {
+//       if (data.id.includes('0_manga-')) {
+//         console.log(data)
+//           await this.mangaInfo(data.mangaId).then((data2: any) => {
+//             this.list.push(data2);
+//           })
+//       }
+//     })
+//   }
+
+// }

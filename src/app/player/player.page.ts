@@ -39,7 +39,7 @@ export class PlayerPage implements OnInit {
   isFullscreen: boolean = false;
   timeoutDelay: any;
   data: any = [];
-  newData: any = [];
+  newData: any;
   trustedVideoUrl: SafeResourceUrl | undefined;
   value: any;
   sub: any;
@@ -53,7 +53,6 @@ export class PlayerPage implements OnInit {
   isPlaying: boolean = false;
   btn: any;
   fsUpdate: any;
-  i = 0;
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
   isAndroid = false;
@@ -64,6 +63,7 @@ export class PlayerPage implements OnInit {
   tempVol: any = 0.5;
   kdramaId: any;
   kdramaEpId: any;
+  initValue: any;
 
   hls = new Hls();
 
@@ -92,7 +92,14 @@ export class PlayerPage implements OnInit {
     this.btn = document.getElementById('playNext');
     this.currentVideo = document.getElementById("video");
     this.currentVideo.removeAttribute('src');
-    const value = this.activatedRoute.snapshot.queryParamMap.get('value');
+    if (!this.newData) {
+      this.initValue = this.activatedRoute.snapshot.queryParamMap.get('value');
+    }
+
+    else {
+      this.initValue = this.newData;
+    }
+
     if (this.isAndroid) {
       ScreenOrientation.lock({ orientation: "landscape-primary" });
       StatusBar.setOverlaysWebView({ overlay: true });
@@ -107,13 +114,13 @@ export class PlayerPage implements OnInit {
     }
 
     if (!this.isLoaded) {
-      if (value) {
+      if (this.initValue) {
         if (this.localstorage.getItem('isKdrama') == 'true') {
           this.kdramaId = this.localstorage.getItem('kdramaId');
           if (this.kdramaId) {
             this.kdramaInfo(this.kdramaId).then((result: any) => {
               result.episodes.forEach((ep: any) => {
-                if ('"' + ep.id + '"' == value) {
+                if ('"' + ep.id + '"' == this.initValue) {
                   this.data = ep;
                   this.data['title'] = result.title;
                   this.data['image'] = result.image;
@@ -128,7 +135,14 @@ export class PlayerPage implements OnInit {
         }
 
         else {
-          const idSplitted = (JSON.parse(value)).split("-");
+          var idSplitted: any;
+          if (!this.newData) {
+            idSplitted = (JSON.parse(this.initValue)).split("-");
+          }
+
+          else {
+            idSplitted = this.newData.split("-");
+          }
 
           let videoId = '';
 
@@ -269,6 +283,16 @@ export class PlayerPage implements OnInit {
           this.currentVideo.removeAttribute('src');
           this.hls.loadSource(this.videoURL);
           this.hls.attachMedia(this.currentVideo);
+
+          if(this.newData) {
+            this.loaderService.hideLoader();
+            this.currentVideo.play();
+            this.progressBar.value = 0;
+            this.maxDuration.innerText = '00:00';
+            this.rewindBtn.classList.remove("alwaysHide");
+            this.forwardBtn.classList.remove("alwaysHide");
+            this.progressMain.classList.remove("alwaysHide");
+          }
       }
       console.log('ready to play')
 
@@ -282,30 +306,8 @@ export class PlayerPage implements OnInit {
 
       this.playVideo(this.data.id).then((result: any) => {
         result.sources.forEach((value: any) => {
-
-            // if (value.quality != 'backup') {
-            //   let q = value.quality;
-            //   if (q == 'default') {
-            //     this.alertInputs.values.push({'value': 'Auto'})
-            //   }
-            //   // alert('true')
-            //   else {
-            //     this.alertInputs.values.push({'value': q})
-            //   }
-            // }
-
           if (value.quality == 'default') {
-            // this.alertInputs.values = this.alertInputs.values.reverse();
-
-            // this.alertInputs.values.forEach((value: any) => {
-            //   if (value == 'Auto') {
-            //     const quality = document.getElementById(value) as HTMLElement;
-            //     quality?.setAttribute('checked','true')
-            //   }
-            // })
             this.videoURL = value.url;
-            // this.trustedVideoUrl = value.url;
-            // check(this.trustedVideoUrl);
 
             if (Hls.isSupported()) {
               this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -326,16 +328,22 @@ export class PlayerPage implements OnInit {
               this.currentVideo.removeAttribute('src');
               this.hls.loadSource(this.videoURL);
               this.hls.attachMedia(this.currentVideo);
+
+              if(this.newData) {
+                this.loaderService.hideLoader();
+                this.currentVideo.play();
+                this.progressBar.value = 0;
+                this.maxDuration.innerText = '00:00';
+                this.rewindBtn.classList.remove("alwaysHide");
+                this.forwardBtn.classList.remove("alwaysHide");
+                this.progressMain.classList.remove("alwaysHide");
+              }
             }
             whilePlaying();
           }
         })
       }).then(() => {
         let created = false;
-        if (this.localstorage.getItem('isFullscreen') == 'true') {
-          this.playPauseVideo();
-          this.toggleFullscreen();
-        }
       })
     }
   }
@@ -492,18 +500,22 @@ export class PlayerPage implements OnInit {
   }
 
   playNextVid() {
-    this.loaderService.showLoader();
     this.btn.classList.remove('playNext');
     this.btn.classList.add('playNextHidden');
+    this.rewindBtn.classList.add("alwaysHide");
+      this.forwardBtn.classList.add("alwaysHide");
+      this.progressMain.classList.add("alwaysHide");
+    this.loaderService.showLoader();
     videoEnded(this.data).then(() => {
-      const no = this.data.number + this.i;
+      const no = this.data.number + 1;
       var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+      this.newData = newVid;
 
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
       this.currentVideo.removeAttribute('src');
 
-      this.localstorage.setItem('isFullscreen', 'true');
+      // this.localstorage.setItem('isFullscreen', 'true');
 
       const queryParams: any = {};
 
@@ -511,19 +523,24 @@ export class PlayerPage implements OnInit {
 
       const navigationExtras: NavigationExtras = {queryParams}
 
-      this.router.navigate(['player'], navigationExtras).then(() => {
-        this.loaderService.hideLoader();
-        window.location.reload(); 
-      });
-
+      this.router.navigate(['player'], navigationExtras);
+      this.isLoaded = false;
+      this.ionViewWillEnter();
     })
   }
 
-  nextVideo() {
-    this.i += 1;
-    const no = this.data.number + this.i;
-    var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+  newVid() {
+    const newLink = 'https://playertest.longtailvideo.com/adaptive/progdatime/playlist2.m3u8';
+    this.hls.loadSource(newLink);
+    this.hls.attachMedia(this.currentVideo)
+    this.currentVideo.play();
+  }
 
+  nextVideo() {
+    // this.i += 1;
+    const no = this.data.number + 1;
+    var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+    // console.log(this.i)
     return this.playVideo(newVid).then(() => {
       this.isNextVideo = true;
     })
@@ -751,4 +768,6 @@ export class PlayerPage implements OnInit {
     this.localstorage.setItem('volumeLevel', this.currentVideo.volume);
     this.changeVolumeIcon(this.currentVideo.volume);
   }
+
+  
 }
