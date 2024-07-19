@@ -5,31 +5,95 @@
 
 <ion-content [fullscreen]="true">
   <div class="chips">
-    <div class="chip-container">
+    <!-- <div class="chip-container">
       <button class="button-chip" [ngClass]="{'active' : category.pressed }" *ngFor="let category of categories" (click)="chooseCat(category)">{{category.name}}</button>
-    </div>
-  </div>
-  <div class="mid">
-    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
-    
-    <ion-grid [fixed]="true">
-      <ion-row>
-        <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
-          <ion-card (click)="showDetailsPage(movieDetail)">
-            <div class="img">
-              <img draggable="false" src= "{{movieDetail.image}}" />
-            </div>
-              <div class="titleContainer">
-                <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>
+    </div> -->
+
+
+    <ion-segment mode="ios" value="anime" (ionChange)="chooseCat($event)">
+      <ion-segment-button value="anime">
+        <ion-label>Anime</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="manga">
+        <ion-label>Manga</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="drama">
+        <ion-label>Drama</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div> 
+  
+  @if (selectedCat == 'anime') {
+    <div class="mid">
+      <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+      
+      <ion-grid [fixed]="true">
+        <ion-row>
+          <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
+            <ion-card (click)="showDetailsPage(movieDetail)">
+              <div class="img">
+                <img draggable="false" src= "{{movieDetail.image}}" />
               </div>
-          </ion-card>
-        </ion-col>
-        <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
-          <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
-      </ion-row>
-    </ion-grid>
-  </div>
+                <div class="titleContainer">
+                  <ion-card-title >{{movieDetail.displayTitle}}</ion-card-title>
+                </div>
+            </ion-card>
+          </ion-col>
+          <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+            <ion-infinite-scroll-content></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        </ion-row>
+      </ion-grid>
+    </div>
+  }
+
+  @else if (selectedCat == 'manga') {
+    
+    <!-- <div class="labelContainer">
+      <input type="checkbox" id="kdrama" value="kdrama" (change)="kdramaChecked($event)"><p class="kdramaLbl">Drama</p>
+      <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
+    </div> -->
+  
+    <div class="mid">
+      <ion-grid class="searchBar">
+        <ion-row>
+          <ion-col>
+            <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+          </ion-col>
+        </ion-row>
+    
+        <ion-row>
+          <ion-col>
+            <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-grid class="results">
+        <ion-row class="mangaContainer">
+          <ion-col (window:resize)="onResize($event)" size={{colSize}} *ngFor="let movieDetail of movieDetails">
+            <ion-card (click)="openDetailsModal(movieDetail)">
+              <div class="img">
+                <img draggable="false" src= "{{movieDetail.image}}" />
+              </div>
+                <div class="titleContainer">
+                  @if (movieDetail.title.english) {
+                    <ion-card-title >{{movieDetail.title.english}}</ion-card-title>
+                  }
+
+                  @else {
+                    <ion-card-title >{{movieDetail.title.romaji}}</ion-card-title>
+                  }
+                </div>
+            </ion-card>
+          </ion-col>
+          <!-- <ion-infinite-scroll (ionInfinite)="onIonInfiniteManga($event)">
+            <ion-infinite-scroll-content></ion-infinite-scroll-content>
+          </ion-infinite-scroll> -->
+        </ion-row>
+      </ion-grid>
+    </div>
+  }
 </ion-content>

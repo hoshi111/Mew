@@ -39,6 +39,7 @@ export class HomePage implements OnInit{
   uid: any;
   listForEp: any = [];
   tempList: any = [];
+  selectedCat: string = 'anime';
 
   constructor(private apiService: ApiService,
               private router: Router,
@@ -77,8 +78,7 @@ export class HomePage implements OnInit{
       this.colSize = 2;
     }
 
-    this.generateItems(this.categories[0].code);
-    // this.animeRecentEpisodes();
+    this.animeTopAiring();
   }
 
   onResize(e: any) {
@@ -98,52 +98,6 @@ export class HomePage implements OnInit{
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-
-  // generateItems(vid: any) {
-  //   console.log(this.initial)
-  //   this.getList(vid, 'new', this.i).then((result: any) => {
-  //     this.list = result.result.items;
-  //     console.log(this.list)
-
-  //     if (this.initial === 'movie') {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           // console.log(result)
-  //           result.movie_results[0].displayTitle = item.title;
-  //           result.movie_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.movie_results[0])
-  //         })
-  //       })
-  //     }
-
-  //     else if (this.initial === 'tv') {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           console.log('result: ', result)
-  //           result.tv_results[0].displayTitle = item.title;
-  //           result.tv_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.tv_results[0])
-  //         })
-  //       })
-  //     }
-
-  //     else {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           // console.log(result)
-  //           result.episode_results[0].displayTitle = item.title;
-  //           result.episode_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.episode_results[0])
-  //         })
-  //       })
-  //     }
-      
-  //     console.log(this.movieDetails)
-  //   })
-  // }
 
   generateItems(vid: any) {
     if (vid == 'anime-latest') {
@@ -181,64 +135,97 @@ export class HomePage implements OnInit{
     }, 500);
   }
 
-  chooseCat(index:any) {
+  chooseCat(event:any) {
+    this.selectedCat = event.detail.value;
+    console.log(event.detail.value)
 
-    this.categories.forEach((category: any) => {
-      category.pressed = false;
-    });
-    index.pressed = !index.pressed;
-
-    if (index.code == 'anime-latest') {
-      this.isAnime = true;
-      this.animeResults = [];
-      this.movieDetails = [];
-      this.i = 4;
-      this.animeRecentEpisodes();
-    }
-
-    else if (index.code == 'anime-top') {
-      this.isAnime = true;
+    if (event.detail.value == 'anime') {
       this.animeResults = [];
       this.movieDetails = [];
       this.i = 4;
       this.animeTopAiring();
     }
 
-    // else if (index.name == 'Anime') {
+    else if (event.detail.value == 'manga') {
+      this.animeResults = [];
+      this.movieDetails = [];
+    }
+
+    // this.categories.forEach((category: any) => {
+    //   category.pressed = false;
+    // });
+    // index.pressed = !index.pressed;
+
+    // if (index.code == 'anime-latest') {
     //   this.isAnime = true;
     //   this.animeResults = [];
     //   this.movieDetails = [];
-    //   this.i = 1;
+    //   this.i = 4;
     //   this.animeRecentEpisodes();
-      
     // }
 
-    // if (index.name == 'Movies') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'TV Shows') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'Episodes') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'Anime') {
+    // else if (index.code == 'anime-top') {
     //   this.isAnime = true;
     //   this.animeResults = [];
     //   this.movieDetails = [];
-    //   this.i = 1;
-    //   this.animeRecentEpisodes();
-      
+    //   this.i = 4;
+    //   this.animeTopAiring();
     // }
+
+  }
+
+  query: any;
+
+  handleInput(e: any) {
+    this.movieDetails = [];
+    this.i = 1;
+    this.query = e.target.value.toLowerCase();
+    if(this.query) {
+      this.findItems();
+    }
+  }
+
+  findItems() {
+    this.mangaSearch(this.query).then((result: any) => {
+      result.results.forEach((item: any) => {
+        this.movieDetails.push(item);
+      })
+      console.log(this.movieDetails)
+    })
+  }
+
+  async openDetailsModal(value: any) {
+    this.loaderService.showLoader();
+    this.mangaInfo(value.id).then(async(result: any) => {
+      console.log(result)
+      this.localstorage.setItem('mangaId', value.id);
+      result['listForEp'] = this.listForEp;
+      result['isKdrama'] = false;
+      result['isManga'] = true;
+      this.localstorage.setItem('isFrom', 'search');
+      this.global.data = result;
+      this.global.mangaId = value.id;
+      const modal = await this.modalCtrl.create({
+        component: DetailsModalComponent,
+        breakpoints: [0, 0.6, 1],
+        initialBreakpoint: 1,
+        backdropDismiss: true,
+        backdropBreakpoint: 0,
+      });
+      await modal.present().then(() => {
+        this.loaderService.hideLoader();
+      })
+    })
+  }
+
+  j = 0;
+
+  onIonInfiniteManga(ev: Event) {
+    this.i += 1;
+    this.findItems();
+    setTimeout(() => {
+      (ev as InfiniteScrollCustomEvent).target.complete();
+    }, 500);
   }
 
   animeRecentEpisodes() {
@@ -349,6 +336,32 @@ export class HomePage implements OnInit{
   searchKeyword(query: string, page: number) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.searchAnime(query, page).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaInfo(id: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaInfo(id).subscribe(
         (result: any) => {
           resolve(result)
         },
