@@ -1,5 +1,10 @@
 <ion-header>
     <p>Mew</p>
+    @if (!isAndroid) {
+      <div class="downloadApp" (click)="downloadApp()">
+        Download the App
+      </div>
+    }
     <ion-icon name="person-circle" (click)="openProfile()"></ion-icon>
 </ion-header>
 
@@ -49,13 +54,7 @@
     </div>
   }
 
-  @else if (selectedCat == 'manga') {
-    
-    <!-- <div class="labelContainer">
-      <input type="checkbox" id="kdrama" value="kdrama" (change)="kdramaChecked($event)"><p class="kdramaLbl">Drama</p>
-      <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
-    </div> -->
-  
+  @else {
     <div class="mid">
       <ion-grid class="searchBar">
         <ion-row>
@@ -78,20 +77,28 @@
               <div class="img">
                 <img draggable="false" src= "{{movieDetail.image}}" />
               </div>
-                <div class="titleContainer">
-                  @if (movieDetail.title.english) {
-                    <ion-card-title >{{movieDetail.title.english}}</ion-card-title>
-                  }
+                @if (selectedCat == 'manga') {
+                  <div class="titleContainer">
+                    @if (movieDetail.title.english) {
+                      <ion-card-title >{{movieDetail.title.english}}</ion-card-title>
+                    }
+  
+                    @else {
+                      <ion-card-title >{{movieDetail.title.romaji}}</ion-card-title>
+                    }
+                  </div>
+                }
 
-                  @else {
-                    <ion-card-title >{{movieDetail.title.romaji}}</ion-card-title>
-                  }
-                </div>
+                @else if (selectedCat == 'drama') {
+                  <div class="titleContainer">
+                    <ion-card-title >{{movieDetail.title}}</ion-card-title>
+                  </div>
+                }
             </ion-card>
           </ion-col>
-          <!-- <ion-infinite-scroll (ionInfinite)="onIonInfiniteManga($event)">
-            <ion-infinite-scroll-content></ion-infinite-scroll-content>
-          </ion-infinite-scroll> -->
+          <div class="spacer">
+
+          </div>
         </ion-row>
       </ion-grid>
     </div>

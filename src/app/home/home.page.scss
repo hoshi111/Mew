@@ -21,6 +21,18 @@ ion-header {
     margin-left: 20px;
   }
 
+  .downloadApp {
+    width: 170px;
+    border-radius: 10px;
+    position: absolute;
+    right: 100px;
+    font-size: 16px;
+    background-color: var(--secColor);
+    text-align: center;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+
   ion-icon {
     height: 40px;
     width: 40px;
@@ -144,4 +156,9 @@ ion-searchbar {
 .label {
   color: white;
   font-size: 24px;
+}
+
+.spacer {
+  height: 50px;
+  width: 100%;
 }

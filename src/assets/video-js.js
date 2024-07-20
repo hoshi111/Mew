@@ -42,7 +42,7 @@ export var check = function(value) {
         hls.loadSource(value);
         hls.attachMedia(video);
     }
-    console.log('ready to play')
+    // console.log('ready to play')
 }
 
 export var changeQuality = function(value, currentTime) {

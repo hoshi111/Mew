@@ -54,6 +54,20 @@ export class WatchListPage implements OnInit {
     await this.fetchData().then(() => {
       this.loaderService.hideLoader();
     });
+
+    if (this.global.fromPlayer) {
+      this.global.fromPlayer = false;
+      const modal = await this.modalCtrl.create({
+        component: DetailsModalComponent,
+        breakpoints: [0, 0.6, 1],
+        initialBreakpoint: 1,
+        backdropDismiss: true,
+        backdropBreakpoint: 0,
+      });
+      await modal.present().then(() => {
+        this.loaderService.hideLoader();
+      })
+    }
   }
 
   onResize(e: any) {
@@ -101,7 +115,6 @@ export class WatchListPage implements OnInit {
 
     if (this.global.isAnime) {
       this.tempList.forEach(async (data: any) => {
-        console.log(data.id.includes('0_manga-'))
         if (!data.id.includes('0_manga-')) {
           await this.searchKeyword(data.title, 1).then(async (data1: any) => {
             await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
@@ -115,7 +128,6 @@ export class WatchListPage implements OnInit {
     else {
       this.tempList.forEach(async (data: any) => {
         if (data.id.includes('0_manga-')) {
-          console.log(data)
             await this.mangaInfo(data.mangaId).then((data2: any) => {
               this.list.push(data2);
             })

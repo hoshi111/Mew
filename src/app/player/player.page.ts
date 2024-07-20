@@ -10,6 +10,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
 import Hls from 'hls.js';
+import { GlobalVariable } from '../api/global';
 
 @Component({
   selector: 'app-player',
@@ -75,7 +76,7 @@ export class PlayerPage implements OnInit {
               private apiService: ApiService,
               private router: Router,
               private platform: Platform,
-              private location: Location
+              public global: GlobalVariable
   ) {
     this.platform.backButton.subscribeWithPriority(10, () => {
       this.goBack();
@@ -609,24 +610,28 @@ export class PlayerPage implements OnInit {
     }
 
     else if (vid.webkitExitFullscreen) { /* Safari */
-    vid.webkitExitFullscreen();
-  } 
+      vid.webkitExitFullscreen();
+    } 
 
-  else if (vid.msRExitFullscreen) { /* IE11 */
-  vid.msRExitFullscreen();
-  }
-
-    if (this.localstorage.getItem('isFrom') == 'home') {
-      this.router.navigate(['tabs']);
+    else if (vid.msRExitFullscreen) { /* IE11 */
+      vid.msRExitFullscreen();
     }
 
-    else if (this.localstorage.getItem('isFrom')== 'search') {
-      this.router.navigate(['tabs/search']);
-    }
+    this.global.fromPlayer = true;
 
-    else if (this.localstorage.getItem('isFrom') == 'watchList') {
-      this.router.navigate(['watch-list']);
-    }
+    this.router.navigate(['watch-list']);
+    
+    // if (this.localstorage.getItem('isFrom') == 'home') {
+    //   this.router.navigate(['tabs']);
+    // }
+
+    // else if (this.localstorage.getItem('isFrom')== 'search') {
+    //   this.router.navigate(['tabs/search']);
+    // }
+
+    // else if (this.localstorage.getItem('isFrom') == 'watchList') {
+    //   this.router.navigate(['watch-list']);
+    // }
   }
   
   playVideo(value: string) {

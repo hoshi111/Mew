@@ -48,7 +48,6 @@ export class ReaderPage implements OnInit {
     else {
       this.value = '"' + this.currentId + '"';
     }
-    console.log(this.value)
     this.mangaInfo(this.global.data.id).then((result: any) => {
 
       this.chapters = result.chapters;
@@ -59,7 +58,6 @@ export class ReaderPage implements OnInit {
           this.title = this.chapters[i].title;
 
           this.getPages(this.chapters[i].id).then((data: any) => {
-            console.log(data)
             
             this.pages = data;
 
@@ -101,7 +99,6 @@ export class ReaderPage implements OnInit {
     if (this.uid) {
       let id = this.chapters[this.index].id.split('/').join('*');
       id = '0_manga-' + id;
-      console.log(this.title)
       await setDoc(doc(db, this.uid, id), {
           details: {
               title: this.title,
@@ -111,7 +108,6 @@ export class ReaderPage implements OnInit {
               mangaId: this.localstorage.getItem('mangaId')
           }
       })
-      console.log(id.includes('1_manga-'))
       
   } 
   }

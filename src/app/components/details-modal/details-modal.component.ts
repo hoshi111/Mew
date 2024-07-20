@@ -36,7 +36,7 @@ export class DetailsModalComponent  implements OnInit {
     if (Capacitor.isNativePlatform()) {
       this.isNativePlatform = true;
     }
-    console.log(this.global.data.isKdrama, this.global.data.isManga)
+    
     this.watchedEp = [];
 
     if (!this.global.data.isManga) {
@@ -49,12 +49,9 @@ export class DetailsModalComponent  implements OnInit {
         }
       })
       this.global.data['watchedEp'] = this.watchedEp;
-      console.log(this.watchedEp)
-      console.log(this.global.data)
     }
 
     else {
-      console.log(this.global.data.listForEp)
       this.global.data.listForEp.forEach((data: any) => {
         if (data.mangaId == this.global.mangaId) {
           this.watchedEp.push({
@@ -64,7 +61,6 @@ export class DetailsModalComponent  implements OnInit {
         }
       })
       this.global.data['watchedEp'] = this.watchedEp;
-      console.log(this.watchedEp)
     }
 
     this.epList = [];
@@ -105,7 +101,6 @@ export class DetailsModalComponent  implements OnInit {
       else if (this.global.data.isManga) {
         this.localstorage.setItem('isKdrama', 'false');
         this.localstorage.setItem('isManga', 'true');
-        console.log(this.global.data)
 
         for (let i = 0; i < this.global.data.chapters.length; i ++) {
           this.epList.push({
@@ -116,11 +111,9 @@ export class DetailsModalComponent  implements OnInit {
         }
 
         this.global.data.watchedEp.forEach((ep: any) => {
-          console.log(ep)
           this.epList[ep.number].opened = true
         })
 
-        console.log(this.epList)
         // this.global.data.chapters.forEach((ep: any) => {
         //   this.global.data.watchedEp.forEach((watchedEp: any) => {
         //     if (ep.episode == watchedEp.number) {
@@ -203,7 +196,6 @@ export class DetailsModalComponent  implements OnInit {
   }
 
   readChapter(chapter: any) {
-    console.log(chapter.id)
 
     const queryParams: any = {};
 

@@ -90,7 +90,6 @@ export class SearchPage {
 
     else if (this.isManga) {
       this.mangaSearch(this.query).then((result: any) => {
-        console.log(result)
         result.results.forEach((item: any) => {
           this.movieDetails.push(item);
         })
@@ -145,7 +144,6 @@ export class SearchPage {
 
     if (!this.isManga) { 
       this.tempList.forEach(async (data: any) => {
-        console.log(data.id.includes('0_manga-'))
         if (!data.id.includes('0_manga-')) {
           await this.searchKeyword(data.title, 1).then(async (data1: any) => {
             await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
@@ -159,7 +157,6 @@ export class SearchPage {
     else {
       this.tempList.forEach(async (data: any) => {
         if (data.id.includes('0_manga-')) {
-          console.log(data)
             await this.mangaInfo(data.mangaId).then((data2: any) => {
               this.list.push(data2);
             })
@@ -173,8 +170,8 @@ export class SearchPage {
     this.loaderService.showLoader();
 
     if (this.isKdrama) {
+      this.global.isAnime = true;
       this.kdramaInfo(value.id).then(async(result: any) => {
-        console.log(result)
         this.localstorage.setItem('kdramaId', value.id);
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = true;
@@ -195,9 +192,8 @@ export class SearchPage {
     }
 
     else if (this.isManga) {
-
+      this.global.isAnime = false;
       this.mangaInfo(value.id).then(async(result: any) => {
-        console.log(result)
         this.localstorage.setItem('mangaId', value.id);
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = false;
@@ -219,6 +215,7 @@ export class SearchPage {
     }
 
     else {
+      this.global.isAnime = true;
       this.gogoAnimeGetDetails(value.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = false;
