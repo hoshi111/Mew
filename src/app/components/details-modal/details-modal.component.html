@@ -2,59 +2,116 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="6">
-        <img draggable="false" src="{{state.image}}">
-        <p>{{state.title}} ({{state.releaseDate}})</p>
-        <p>Genres: {{genres}}</p>
-        <p>Status: {{state.status}}</p>
-        <p>Total Episodes: {{state.totalEpisodes}}</p>
-      </ion-col>
-      <ion-col size="6">
-        <p>Summary:</p>
-        <p>{{state.description}}</p>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        Episode List:
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      @if(!state.watchedEp) {
-        <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
-          {{episode.number}}
+  @if (!global.data.isManga) {
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <img draggable="false" src="{{global.data.image}}">
+          <p>{{global.data.title}} ({{global.data.releaseDate}})</p>
+          <p>Genres: {{genres}}</p>
+          <p>Status: {{global.data.status}}</p>
+          <p>Total Episodes: {{global.data.totalEpisodes}}</p>
         </ion-col>
-      }
-
-      @else {
-        @for(ep of epList; track ep) {
-          @if(ep.isWatched) {
-            @if(ep.isFinished) {
-              <ion-col size="2" class="finishedEpisode" (click)="playEpisode(ep.ep)">
+        <ion-col size="6">
+          <p>Summary:</p>
+          <p>{{global.data.description}}</p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="isNativePlatform">
+        <ion-col class="download" offset="6" size="6" (click)="downloadEpisodes()"><ion-icon name="download-outline"></ion-icon>Download Episodes</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          Episode List:
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        @if(!global.data.watchedEp) {
+          <ion-col size="2" *ngFor="let episode of global.data.episodes" (click)="playEpisode(episode)">
+            {{episode.number}}
+          </ion-col>
+        }
+  
+        @else {
+          @for(ep of epList; track ep) {
+            @if(ep.isWatched) {
+              @if(ep.isFinished) {
+                <ion-col size="2" class="finishedEpisode" (click)="playEpisode(ep.ep)">
+                  {{ep.ep.number}}
+                </ion-col>
+              }
+  
+              @else {
+                <ion-col size="2" class="continueEpisode" (click)="playEpisode(ep.ep)">
+                  {{ep.ep.number}}
+                </ion-col>
+              }
+            }
+    
+            @else {
+              <ion-col size="2" (click)="playEpisode(ep.ep)">
                 {{ep.ep.number}}
+              </ion-col>
+            }
+          }
+        }
+      </ion-row>
+    </ion-grid>
+  }
+
+  @else if (!global.data.isKdrama && global.data.isManga) {
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <img draggable="false" src="{{global.data.image}}">
+          @if (global.data.title.english) {
+            <p>{{global.data.title.english}} ({{global.data.releaseDate}})</p>
+          }
+
+          @else {
+            <p>{{global.data.title.romaji}} ({{global.data.releaseDate}})</p>
+          }
+          <p>Genres: {{genres}}</p>
+          <p>Status: {{global.data.status}}</p>
+          <p>Total Chapters: {{global.data.chapters.length - 1}}</p>
+        </ion-col>
+        <ion-col size="6">
+          <p>Summary:</p>
+          <p>{{global.data.description}}</p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="isNativePlatform">
+        <ion-col class="download" offset="6" size="6" (click)="downloadEpisodes()"><ion-icon name="download-outline"></ion-icon>Download Episodes</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          Chapter List:
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        
+        @if (!global.data.watchedEp) {
+          <ion-col size="12" *ngFor="let chapter of epList; let i = index" (click)="readChapter(chapter)">
+            {{chapter.title}}
+          </ion-col>
+        }
+
+        @else {
+          @for(ep of epList; track ep) {
+            @if (ep.opened) {
+              <ion-col size="12" class="continueEpisode" (click)="readChapter(ep)">
+                {{ep.title}}
               </ion-col>
             }
 
             @else {
-              <ion-col size="2" class="continueEpisode" (click)="playEpisode(ep.ep)">
-                {{ep.ep.number}}
+              <ion-col size="12" (click)="readChapter(ep)">
+                {{ep.title}}
               </ion-col>
             }
           }
-  
-          @else {
-            <ion-col size="2" (click)="playEpisode(ep.ep)">
-              {{ep.ep.number}}
-            </ion-col>
-          }
         }
-      }
-    </ion-row>
-  </ion-grid>
+      </ion-row>
+    </ion-grid>
+  }
 </ion-content>
-
-<!-- <ion-col size="2" *ngFor="let episode of state.episodes" (click)="playEpisode(episode)">
-  {{episode.number}}
-</ion-col> -->

@@ -6,7 +6,6 @@ ion-searchbar {
     background-color: var(--secColor);
     color: white;
     --background: var(--mainColor);
-    position: fixed;
     height: 50px;
 }
 
@@ -42,7 +41,7 @@ ion-card {
 .mid {
   position: relative;
   z-index: -99999;
-  margin-top: 100px;
+  margin-top: 10px;
 }
 
 .labelContainer {
@@ -59,7 +58,6 @@ ion-card {
 .label {
   color: white;
   font-size: 24px;
-  margin-left: 100px;
 }
 
 .kdramaLbl {
@@ -68,4 +66,8 @@ ion-card {
 
 #kdrama {
   margin-left: 10px;
+}
+
+.checkbox {
+  display: flex;
 }

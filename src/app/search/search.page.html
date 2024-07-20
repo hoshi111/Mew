@@ -1,10 +1,35 @@
 <ion-content  [fullscreen]="true">
-  <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+      </ion-col>
+    </ion-row>
+
+    <!-- <ion-radio-group [allowEmptySelection]="true"  (ionChange)="checkboxChecked($event)">
+      <ion-row>
+          <ion-col class="checkbox">
+            <ion-radio value="kdrama" labelPlacement="end"><p class="kdramaLbl">Drama</p></ion-radio>
+          </ion-col>
+
+          <ion-col class="checkbox">
+            <ion-radio value="manga" labelPlacement="end"><p class="kdramaLbl">Manga</p></ion-radio>
+          </ion-col>
+      </ion-row>
+  </ion-radio-group> -->
+
+    <ion-row>
+      <ion-col>
+        <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   
-  <div class="labelContainer">
+  <!-- <div class="labelContainer">
     <input type="checkbox" id="kdrama" value="kdrama" (change)="kdramaChecked($event)"><p class="kdramaLbl">Drama</p>
     <p class="label" *ngIf="query"><i>Search result for "{{query}}"</i></p>
-  </div>
+  </div> -->
 
   <div class="mid">
     <ion-grid [fixed]="true">
@@ -14,9 +39,23 @@
             <div class="img">
               <img draggable="false" src= "{{movieDetail.image}}" />
             </div>
-              <div class="titleContainer">
-                <ion-card-title >{{movieDetail.title}}</ion-card-title>
-              </div>
+              @if (!isManga) {
+                <div class="titleContainer">
+                  <ion-card-title >{{movieDetail.title}}</ion-card-title>
+                </div>
+              }
+
+              @else {
+                <div class="titleContainer">
+                  @if (movieDetail.title.english) {
+                    <ion-card-title >{{movieDetail.title.english}}</ion-card-title>
+                  }
+
+                  @else {
+                    <ion-card-title >{{movieDetail.title.romaji}}</ion-card-title>
+                  }
+                </div>
+              }
           </ion-card>
         </ion-col>
         <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">

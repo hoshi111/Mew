@@ -33,7 +33,11 @@ const routes: Routes = [
   {
     path: 'signup',
     loadChildren: () => import('./signup/signup.module').then( m => m.SignupPageModule)
+  },  {
+    path: 'reader',
+    loadChildren: () => import('./reader/reader.module').then( m => m.ReaderPageModule)
   }
+
 
 
 

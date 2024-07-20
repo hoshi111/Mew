@@ -5,10 +5,12 @@ import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
 import { InfiniteScrollCustomEvent, ModalController, NavController, Platform } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, queryEqual } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { App } from '@capacitor/app';
+import { GlobalVariable } from '../api/global';
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 @Component({
   selector: 'app-home',
@@ -38,13 +40,16 @@ export class HomePage implements OnInit{
   uid: any;
   listForEp: any = [];
   tempList: any = [];
+  selectedCat: string = 'anime';
+  isAndroid: boolean = false;
 
   constructor(private apiService: ApiService,
               private router: Router,
               private loaderService: LoaderService,
               private modalCtrl: ModalController,
               private navCtrl: NavController,
-              private platform: Platform
+              private platform: Platform,
+              public global: GlobalVariable
   ) { }
 
   handleRefresh(event: any) {
@@ -62,6 +67,10 @@ export class HomePage implements OnInit{
     this.uid = this.localstorage.getItem('uid');
     this.fetchData();
     this.localstorage.setItem('isKdrama', 'false');
+
+    if (this.platform.is('android')) {
+      this.isAndroid = true;
+    }
     
     if (window.innerWidth <= 480) {
       this.colSize = 6;
@@ -75,8 +84,7 @@ export class HomePage implements OnInit{
       this.colSize = 2;
     }
 
-    this.generateItems(this.categories[0].code);
-    // this.animeRecentEpisodes();
+    this.animeTopAiring();
   }
 
   onResize(e: any) {
@@ -97,52 +105,6 @@ export class HomePage implements OnInit{
     this.subscription.unsubscribe();
   }
 
-  // generateItems(vid: any) {
-  //   console.log(this.initial)
-  //   this.getList(vid, 'new', this.i).then((result: any) => {
-  //     this.list = result.result.items;
-  //     console.log(this.list)
-
-  //     if (this.initial === 'movie') {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           // console.log(result)
-  //           result.movie_results[0].displayTitle = item.title;
-  //           result.movie_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.movie_results[0])
-  //         })
-  //       })
-  //     }
-
-  //     else if (this.initial === 'tv') {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           console.log('result: ', result)
-  //           result.tv_results[0].displayTitle = item.title;
-  //           result.tv_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.tv_results[0])
-  //         })
-  //       })
-  //     }
-
-  //     else {
-  //       this.list.forEach((item: any) => {
-  //         this.getDetail(item.imdb_id).then((result: any) => {
-  //           // console.log(result)
-  //           result.episode_results[0].displayTitle = item.title;
-  //           result.episode_results[0].link = item.embed_url_imdb;
-  //           result.movie_results[0].isAnime = false;
-  //           this.movieDetails.push(result.episode_results[0])
-  //         })
-  //       })
-  //     }
-      
-  //     console.log(this.movieDetails)
-  //   })
-  // }
-
   generateItems(vid: any) {
     if (vid == 'anime-latest') {
       this.animeRecentEpisodes();
@@ -154,18 +116,18 @@ export class HomePage implements OnInit{
   }
 
   onIonInfinite(ev: Event) {
-    this.categories.forEach((category: any) => {
-      if(category.pressed) {
-        this.i += 4;
-        if (category.code == 'anime-latest') {
-          this.animeRecentEpisodes();
-        }
+    // this.categories.forEach((category: any) => {
+    //   if(category.pressed) {
+    //     this.i += 4;
+    //     if (category.code == 'anime-latest') {
+    //       this.animeRecentEpisodes();
+    //     }
     
-        else if (category.code == 'anime-top') {
-          this.animeTopAiring();
-        }
-      }
-    })
+    //     else if (category.code == 'anime-top') {
+    //       this.animeTopAiring();
+    //     }
+    //   }
+    // })
     // if (!this.isAnime) {
     //   this.generateItems(this.initial);
     // }
@@ -173,70 +135,127 @@ export class HomePage implements OnInit{
     // else {
     //   this.animeRecentEpisodes();
     // }
-    
+    this.i += 4;
+    this.animeTopAiring();
     setTimeout(() => {
       (ev as InfiniteScrollCustomEvent).target.complete();
     }, 500);
   }
 
-  chooseCat(index:any) {
+  chooseCat(event:any) {
+    this.selectedCat = event.detail.value;
 
-    this.categories.forEach((category: any) => {
-      category.pressed = false;
-    });
-    index.pressed = !index.pressed;
-
-    if (index.code == 'anime-latest') {
-      this.isAnime = true;
-      this.animeResults = [];
-      this.movieDetails = [];
-      this.i = 4;
-      this.animeRecentEpisodes();
-    }
-
-    else if (index.code == 'anime-top') {
-      this.isAnime = true;
+    if (event.detail.value == 'anime') {
       this.animeResults = [];
       this.movieDetails = [];
       this.i = 4;
       this.animeTopAiring();
     }
 
-    // else if (index.name == 'Anime') {
+    else {
+      this.animeResults = [];
+      this.movieDetails = [];
+      this.findItems();
+    }
+
+    // this.categories.forEach((category: any) => {
+    //   category.pressed = false;
+    // });
+    // index.pressed = !index.pressed;
+
+    // if (index.code == 'anime-latest') {
     //   this.isAnime = true;
     //   this.animeResults = [];
     //   this.movieDetails = [];
-    //   this.i = 1;
+    //   this.i = 4;
     //   this.animeRecentEpisodes();
-      
     // }
 
-    // if (index.name == 'Movies') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'TV Shows') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'Episodes') {
-    //   this.isAnime = false;
-    //   this.movieDetails = [];
-    //   this.i = 1;
-    // }
-
-    // else if (index.name == 'Anime') {
+    // else if (index.code == 'anime-top') {
     //   this.isAnime = true;
     //   this.animeResults = [];
     //   this.movieDetails = [];
-    //   this.i = 1;
-    //   this.animeRecentEpisodes();
-      
+    //   this.i = 4;
+    //   this.animeTopAiring();
     // }
+
+  }
+
+  query: any;
+
+  handleInput(e: any) {
+    this.movieDetails = [];
+    this.i = 1;
+    this.query = e.target.value.toLowerCase();
+    if(this.query) {
+      this.findItems();
+    }
+  }
+
+  findItems() {
+    if (this.selectedCat == 'manga') {
+      this.mangaSearch(this.query).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.movieDetails.push(item);
+        })
+      })
+    }
+
+    else if (this.selectedCat == 'drama') {
+      this.kdramaSearch(this.query).then((result: any) => {
+        result.results.forEach((item: any) => {
+          this.movieDetails.push(item);
+        })
+      })
+    }
+  }
+
+  async openDetailsModal(value: any) {
+    this.loaderService.showLoader();
+    if (this.selectedCat == 'manga') {
+      this.global.isAnime = false;
+      this.mangaInfo(value.id).then(async(result: any) => {
+        this.localstorage.setItem('mangaId', value.id);
+        result['listForEp'] = this.listForEp;
+        result['isKdrama'] = false;
+        result['isManga'] = true;
+        this.localstorage.setItem('isFrom', 'home');
+        this.global.data = result;
+        this.global.mangaId = value.id;
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 1,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        })
+      })
+    }
+
+    else if (this.selectedCat == 'drama') {
+      this.global.isAnime = true;
+      this.kdramaInfo(value.id).then(async(result: any) => {
+        this.localstorage.setItem('kdramaId', value.id);
+        result['listForEp'] = this.listForEp;
+        result['isKdrama'] = true;
+        result['isManga'] = false;
+        this.localstorage.setItem('isFrom', 'home');
+        this.global.data = result;
+        const modal = await this.modalCtrl.create({
+          component: DetailsModalComponent,
+          breakpoints: [0, 0.6, 1],
+          initialBreakpoint: 1,
+          backdropDismiss: true,
+          backdropBreakpoint: 0,
+        });
+        await modal.present().then(() => {
+          this.loaderService.hideLoader();
+        })
+      })
+    }
   }
 
   animeRecentEpisodes() {
@@ -357,10 +376,65 @@ export class HomePage implements OnInit{
     })
   }
 
+  mangaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaInfo(id: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaInfo(id).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  kdramaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.kdramaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  kdramaInfo(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.kdramaInfo(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
   showDetailsPage(movieDetail: any) {
     this.loaderService.showLoader();
+    this.global.isAnime = true;
+    this.global.data = [];
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
+        
         const ep = result.episodes[(result.episodes.length) - 1];
         // console.log(ep.id.split("-"));
       //   ep['title'] = result.title;
@@ -387,7 +461,10 @@ export class HomePage implements OnInit{
     else {
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
+        result['isKdrama'] = false;
+        result['isManga'] = false;
         this.localstorage.setItem('isFrom', 'home');
+        this.global.data = result;
         const modal = await this.modalCtrl.create({
           component: DetailsModalComponent,
           componentProps: {state: result},
@@ -398,7 +475,7 @@ export class HomePage implements OnInit{
         });
         await modal.present().then(() => {
           this.loaderService.hideLoader();
-        });
+        })
       })
     }
   }
@@ -425,15 +502,27 @@ export class HomePage implements OnInit{
     })
 
     this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-          this.list.push(data2);
+      if (!data.id.includes('0_manga-')) {
+        await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+          await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+            this.list.push(data2);
+          })
         })
-      })
-    });
+      }
+    })
   }
 
   openProfile() {
     this.navCtrl.navigateForward('tabs/profile')
+  }
+
+  downloadApp() {
+    window.open('https://mega.nz/file/9iBmgDSA#syBDQdgEzJneGotfVOfPq49djVdAXI8Dadg_8lXoylU');
+    // const storage = getStorage();
+    // getDownloadURL(ref(storage, 'gs://mew-4b389.appspot.com/✩.jpg'))
+    //   .then((url) => {
+    //     window.open(url)
+    //   })
+
   }
 }

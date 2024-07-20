@@ -7,7 +7,7 @@ import { ModalController, NavController } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
 import { db } from 'src/environments/environment';
 import { Router } from '@angular/router';
-
+import { GlobalVariable } from '../api/global';
 
 @Component({
   selector: 'app-watch-list',
@@ -28,7 +28,8 @@ export class WatchListPage implements OnInit {
               private loaderService: LoaderService,
               private modalCtrl: ModalController,
               private navCtrl: NavController,
-              private router: Router
+              private router: Router,
+              public global: GlobalVariable
 
   ) { }
 
@@ -44,12 +45,29 @@ export class WatchListPage implements OnInit {
     else if(window.innerWidth > 1024) {
       this.colSize = 2;
     }
+  }
 
+  async ionViewWillEnter() {
     this.loaderService.showLoader();
+    this.list = [];
     this.uid = this.localstorage.getItem('uid');
     await this.fetchData().then(() => {
       this.loaderService.hideLoader();
     });
+
+    if (this.global.fromPlayer) {
+      this.global.fromPlayer = false;
+      const modal = await this.modalCtrl.create({
+        component: DetailsModalComponent,
+        breakpoints: [0, 0.6, 1],
+        initialBreakpoint: 1,
+        backdropDismiss: true,
+        backdropBreakpoint: 0,
+      });
+      await modal.present().then(() => {
+        this.loaderService.hideLoader();
+      })
+    }
   }
 
   onResize(e: any) {
@@ -72,8 +90,16 @@ export class WatchListPage implements OnInit {
      querySnapshot.forEach((doc: any) => {
       this.listForEp.push(doc.data().details);
       this.tempList.forEach((t: any | undefined) => {
-        if (t.title == doc.data().details.title) {
-          flag = true;
+        if (this.global.isAnime) {
+          if (t.title == doc.data().details.title) {
+            flag = true;
+          }
+        }
+
+        else {
+          if (t.mangaId == doc.data().details.mangaId) {
+            flag = true;
+          }
         }
       })
       
@@ -87,13 +113,28 @@ export class WatchListPage implements OnInit {
       }
     })
 
-    this.tempList.forEach(async (data: any) => {
-      await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-        await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-          this.list.push(data2);
-        })
+    if (this.global.isAnime) {
+      this.tempList.forEach(async (data: any) => {
+        if (!data.id.includes('0_manga-')) {
+          await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+            await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+              this.list.push(data2);
+            })
+          })
+        }
       })
-    });
+    }
+
+    else {
+      this.tempList.forEach(async (data: any) => {
+        if (data.id.includes('0_manga-')) {
+            await this.mangaInfo(data.mangaId).then((data2: any) => {
+              this.list.push(data2);
+            })
+        }
+      })
+    }
+
   }
 
   goBack() {
@@ -103,11 +144,21 @@ export class WatchListPage implements OnInit {
   async openDetailsModal(value: any) {
     this.loaderService.showLoader();
     value['listForEp'] = this.listForEp;
-    this.localstorage.setItem('isFrom', 'watchList');
+    if (this.global.isAnime) {
+      value['isKdrama'] = false;
+      value['isManga'] = false;
+    }
 
+    else {
+      value['isKdrama'] = false;
+      value['isManga'] = true;
+      this.global.mangaId = value.id;
+    }
+    
+    this.localstorage.setItem('isFrom', 'watchList');
+    this.global.data = value;
     const modal = await this.modalCtrl.create({
       component: DetailsModalComponent,
-      componentProps: {state: value},
       breakpoints: [0, 0.6, 1],
       initialBreakpoint: 1,
       backdropDismiss: true,
@@ -134,6 +185,32 @@ export class WatchListPage implements OnInit {
   searchKeyword(query: string, page: number) {
     return new Promise((resolve, reject) => {
       this.subscription = this.apiService.searchAnime(query, page).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaSearch(query: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaSearch(query).subscribe(
+        (result: any) => {
+          resolve(result)
+        },
+        (error) => {
+          reject(error);
+        }
+      )
+    })
+  }
+
+  mangaInfo(id: string) {
+    return new Promise((resolve, reject) => {
+      this.subscription = this.apiService.mangaInfo(id).subscribe(
         (result: any) => {
           resolve(result)
         },

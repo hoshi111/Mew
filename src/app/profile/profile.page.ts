@@ -5,6 +5,7 @@ import { readBlobAsBase64 } from '@capacitor/core/types/core-plugins';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { ActionSheetController } from '@ionic/angular';
 import { getAuth, signOut, updateProfile } from "firebase/auth";
+import { GlobalVariable } from '../api/global';
 
 @Component({
   selector: 'app-profile',
@@ -24,7 +25,8 @@ export class ProfilePage {
 
 
   constructor(private router: Router,
-              private actionSheetController: ActionSheetController
+              private actionSheetController: ActionSheetController,
+              public global: GlobalVariable
   ) {}
 
   ngOnInit() {
@@ -36,6 +38,12 @@ export class ProfilePage {
   }
 
   showWatchList() {
+    this.global.isAnime = true;
+    this.router.navigate(['watch-list']);
+  }
+
+  showMangaList() {
+    this.global.isAnime = false;
     this.router.navigate(['watch-list']);
   }
   

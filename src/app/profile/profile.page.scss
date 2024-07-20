@@ -13,7 +13,7 @@ ion-content {
 .watchList {
     --background: var(--secColor);
     width: 300px;
-    margin: 20vh auto 0;
+    margin: 10vh auto 0;
     display: flex;
     color: white;
 }
@@ -28,4 +28,5 @@ ion-content {
 
 span {
     color: white;
+    margin-bottom: 100px;
 }
