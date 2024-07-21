@@ -6,6 +6,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 export const environment = {
+  api: 'http://localhost:1337',
   production: true,
   firebaseConfig: {
     apiKey: "AIzaSyDfzDYhDv43vzN97UtL6y9IimsLuj29vBk",

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { throwError } from "rxjs";
+import { environment } from "src/environments/environment";
 
 @Injectable({
     providedIn: 'root'
@@ -84,6 +85,10 @@ export class ApiService {
     
     mangaGetPages(id: any) {
         return this.http.get('https://consumet-beige.vercel.app/manga/mangahere/read?chapterId=' + id)
+    }
+
+    animeHistory() {
+        return this.http.get(environment.api + 'api/anime-histories?populate[0]=anime&populate[1]=anime.episode')
     }
 
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'
