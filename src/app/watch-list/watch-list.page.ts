@@ -50,6 +50,8 @@ export class WatchListPage implements OnInit {
   async ionViewWillEnter() {
     this.loaderService.showLoader();
     this.list = [];
+    this.watchedEp = [];
+    this.listForEp = [];
     this.uid = this.localstorage.getItem('uid');
     await this.fetchData().then(() => {
       this.loaderService.hideLoader();
@@ -117,9 +119,11 @@ export class WatchListPage implements OnInit {
       this.tempList.forEach(async (data: any) => {
         if (!data.id.includes('0_manga-')) {
           await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-            await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-              this.list.push(data2);
-            })
+            if (data1.results[0]) {
+              await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+                this.list.push(data2);
+              })
+            }
           })
         }
       })

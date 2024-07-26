@@ -22,6 +22,7 @@ export class PlayerPage implements OnInit {
   public subscription: any = Subscription;
   localstorage = localStorage
   videoURL: any;
+  newVid: any;
 
   overlayElements!: HTMLElement;
   rewindBtn!: HTMLElement;
@@ -98,7 +99,7 @@ export class PlayerPage implements OnInit {
     }
 
     else {
-      this.initValue = this.newData;
+      this.initValue = '"' + this.newData + '"';
     }
 
     if (this.isAndroid) {
@@ -160,10 +161,13 @@ export class PlayerPage implements OnInit {
           videoId = videoId?.slice(0, -1);
 
           this.gogoAnimeGetDetails(videoId).then((result: any) => {
-            this.data = result.episodes[idSplitted[idSplitted.length-1] - 1];
-            this.data['title'] = result.title;
-            this.data['image'] = result.image;
-
+            result.episodes.forEach((episode: any) => {
+              if ('"' + episode.id + '"' == this.initValue) {
+                this.data = episode;
+                this.data['title'] = result.title;
+                this.data['image'] = result.image;
+              }
+            })
             this.setLink();
 
             this.nextVideo().then(() => {
@@ -257,7 +261,7 @@ export class PlayerPage implements OnInit {
 
   setLink() {
     this.isLoaded = true;
-
+    // this.alertInputs.values = {};
     if (this.localstorage.getItem('isKdrama') == 'true') {
       this.data['number'] = this.data.episode;
       this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
@@ -508,9 +512,7 @@ export class PlayerPage implements OnInit {
       this.progressMain.classList.add("alwaysHide");
     this.loaderService.showLoader();
     videoEnded(this.data).then(() => {
-      const no = this.data.number + 1;
-      var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-      this.newData = newVid;
+      this.newData = this.newVid;
 
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
@@ -520,7 +522,7 @@ export class PlayerPage implements OnInit {
 
       const queryParams: any = {};
 
-      queryParams.value = JSON.stringify(newVid);
+      queryParams.value = JSON.stringify(this.newVid);
 
       const navigationExtras: NavigationExtras = {queryParams}
 
@@ -530,21 +532,19 @@ export class PlayerPage implements OnInit {
     })
   }
 
-  newVid() {
-    const newLink = 'https://playertest.longtailvideo.com/adaptive/progdatime/playlist2.m3u8';
-    this.hls.loadSource(newLink);
-    this.hls.attachMedia(this.currentVideo)
-    this.currentVideo.play();
-  }
-
-  nextVideo() {
-    // this.i += 1;
+  async nextVideo() {
     const no = this.data.number + 1;
-    var newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-    // console.log(this.i)
-    return this.playVideo(newVid).then(() => {
-      this.isNextVideo = true;
-    })
+    let idSplit = this.data.id.split("-");
+
+    if (idSplit[idSplit.length - 2] != 'episode') {
+      this.newVid = this.data.id + '-episode-' + no;
+    }
+    else {
+      this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+    }
+    console.log(this.newVid)
+    await this.playVideo(this.newVid);
+    this.isNextVideo = true;
   }
 
   toggleFullscreen() {
