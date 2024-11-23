@@ -287,7 +287,7 @@ export class HomePage implements OnInit{
         result.results.forEach((item: any) => {
           this.animeResults = {
             id: item.id,
-            displayTitle: item.title,
+            displayTitle: item.title.english || item.title.romaji,
             image: item.image,
             link: item.url,
           }
@@ -432,6 +432,7 @@ export class HomePage implements OnInit{
     this.loaderService.showLoader();
     this.global.isAnime = true;
     this.global.data = [];
+    this.localstorage.setItem('animeCurrentId', movieDetail.id)
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
         
@@ -444,15 +445,20 @@ export class HomePage implements OnInit{
   
         const queryParams: any = {};
   
-        queryParams.value = JSON.stringify(ep.id);
+        // queryParams.value = JSON.stringify(ep.id);
+        this.global.animeCurrentId = ep.id;
     
-        let navigationExtras: NavigationExtras = {};
+        // let navigationExtras: NavigationExtras = {};
 
-        navigationExtras = {queryParams};
+        // navigationExtras = {queryParams};
 
         this.localstorage.setItem('isFrom', 'home');
         
-        this.router.navigate(['player'], navigationExtras).then(() => {
+        // this.router.navigate(['player'], navigationExtras).then(() => {
+        //   this.loaderService.hideLoader();
+        // });
+
+        this.router.navigate(['player']).then(() => {
           this.loaderService.hideLoader();
         });
       })

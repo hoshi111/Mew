@@ -7,4 +7,7 @@ export class GlobalVariable {
     isAnime: boolean = false;
     mangaId: any;
     fromPlayer: boolean = false;
+    animeCurrentId: any;
+    animeCurrentEpisodes: any;
+    animePlayingData: any;
 }

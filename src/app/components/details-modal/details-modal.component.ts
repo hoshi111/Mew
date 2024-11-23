@@ -36,6 +36,7 @@ export class DetailsModalComponent  implements OnInit {
     if (Capacitor.isNativePlatform()) {
       this.isNativePlatform = true;
     }
+    console.log(this.global.data);
     
     this.watchedEp = [];
 
@@ -176,7 +177,7 @@ export class DetailsModalComponent  implements OnInit {
   }
 
   playEpisode(episode: any) {
-    episode['title'] = this.global.data.title;
+    episode['title'] = this.global.data.title.english || this.global.data.title.english;
     episode['image'] = this.global.data.image;
     episode['isFrom'] = this.global.data.isFrom;
     episode['dramaId'] = this.global.data.id

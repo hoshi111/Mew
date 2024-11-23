@@ -96,6 +96,9 @@ export var whilePlaying = function() {
     const loaderPanel = document.getElementById("loaderContainer");
     const overlayElements = document.getElementById("overlay");
     const btnID = document.getElementById("btnID");
+    const track = document.getElementsByTagName('track')[0].track;
+    track.cues.id = -4;
+    console.log(track)
 
     const timeFormatter = (timeInput) => { 
         let minute = Math.floor(timeInput / 60); 

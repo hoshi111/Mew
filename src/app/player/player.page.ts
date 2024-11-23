@@ -66,6 +66,7 @@ export class PlayerPage implements OnInit {
   kdramaId: any;
   kdramaEpId: any;
   initValue: any;
+  subtitle: any;
 
   hls = new Hls();
 
@@ -90,9 +91,10 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     this.btn = document.getElementById('playNext');
     this.currentVideo = document.getElementById("video");
+    // this.subtitle = document.getElementById("sub");
     this.currentVideo.removeAttribute('src');
     if (!this.newData) {
       this.initValue = this.activatedRoute.snapshot.queryParamMap.get('value');
@@ -137,43 +139,69 @@ export class PlayerPage implements OnInit {
         }
 
         else {
-          var idSplitted: any;
-          if (!this.newData) {
-            idSplitted = (JSON.parse(this.initValue)).split("-");
-          }
+          // var idSplitted: any;
+          // if (!this.newData) {
+          //   idSplitted = (JSON.parse(this.initValue)).split("-");
+          // }
 
-          else {
-            idSplitted = this.newData.split("-");
-          }
+          // else {
+          //   idSplitted = this.newData.split("-");
+          // }
+
+          // let videoId = '';
+
+          // for (let i = 0; i < idSplitted.length; i++) {
+          //   if (idSplitted[i] != 'episode') {
+          //     videoId = videoId + idSplitted[i] + '-';
+          //   }
+
+          //   if (idSplitted[i] == 'episode') {
+          //     i = idSplitted.length
+          //   }
+          // }
+
+          // videoId = videoId?.slice(0, -1);
 
           let videoId = '';
 
-          for (let i = 0; i < idSplitted.length; i++) {
-            if (idSplitted[i] != 'episode') {
-              videoId = videoId + idSplitted[i] + '-';
-            }
+          videoId = JSON.parse(this.initValue);
 
-            if (idSplitted[i] == 'episode') {
-              i = idSplitted.length
-            }
-          }
+          await this.gogoAnimeGetDetails(this.localstorage.getItem('animeCurrentId')).then((result: any) => {
+            // console.log(result)
 
-          videoId = videoId?.slice(0, -1);
+            this.global.animeCurrentEpisodes = result.episodes;
 
-          this.gogoAnimeGetDetails(videoId).then((result: any) => {
-            result.episodes.forEach((episode: any) => {
-              if ('"' + episode.id + '"' == this.initValue) {
-                this.data = episode;
-                this.data['title'] = result.title;
-                this.data['image'] = result.image;
+            result.episodes.forEach((ep: any) => {
+              if (videoId == ep.id) {
+                this.data = ep;
+                this.data['title'] = result.title.english || result.title.romaji;
+                // this.data['image'] = result.image;
+
+                // console.log(this.data)
               }
             })
-            this.setLink();
+          })
+          
+          this.setLink();
 
             this.nextVideo().then(() => {
               nextAvailable();
             })
-          })
+
+          // this.gogoAnimeGetDetails(videoId).then((result: any) => {
+          //   result.episodes.forEach((episode: any) => {
+          //     if ('"' + episode.id + '"' == this.initValue) {
+          //       this.data = episode;
+          //       this.data['title'] = result.title;
+          //       this.data['image'] = result.image;
+          //     }
+          //   })
+          //   this.setLink();
+
+          //   this.nextVideo().then(() => {
+          //     nextAvailable();
+          //   })
+          // })
         }
       }
       else {
@@ -198,6 +226,152 @@ export class PlayerPage implements OnInit {
     this.volumeBar.value = this.localstorage.getItem('volumeLevel');
     this.changeVolumeIcon(this.volumeBar.value);
     this.resetIdleTimer();
+  }
+
+  setLink() {
+    this.isLoaded = true;
+    // this.alertInputs.values = {};
+    if (this.localstorage.getItem('isKdrama') == 'true') {
+      this.data['number'] = this.data.episode;
+      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
+      this.kdramaPlayVideo(this.data.id, this.kdramaId).then(async (value: any) => {
+        this.videoURL = value.sources[0].url;
+        // await check(this.videoURL);
+
+        if (Hls.isSupported()) {
+          this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+              // console.log('video and hls.js are now bound together !');
+          });
+  
+          this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+              for (let i = 0; i < data.levels.length; i++) {
+                this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+              }
+              this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+              this.alertInputs.values = this.alertInputs.values.reverse();
+          });
+
+          this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+          })
+          
+          this.currentVideo.removeAttribute('src');
+          this.hls.loadSource(this.videoURL);
+          this.hls.attachMedia(this.currentVideo);
+
+          if(this.newData) {
+            this.loaderService.hideLoader();
+            this.currentVideo.play();
+            this.progressBar.value = 0;
+            this.maxDuration.innerText = '00:00';
+            this.rewindBtn.classList.remove("alwaysHide");
+            this.forwardBtn.classList.remove("alwaysHide");
+            this.progressMain.classList.remove("alwaysHide");
+          }
+      }
+      console.log('ready to play')
+
+
+        whilePlaying();
+      })
+    }
+
+    else {
+      console.log(this.data)
+      let ccLink = '';
+      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
+
+      this.playVideo(this.data.id).then((result: any) => {
+        // this.subtitle = result.subtitles[0].url;
+
+        result.subtitles.forEach((sub: any) => {
+          if (sub.lang == 'English') {
+            ccLink = sub.url;
+          }
+        })
+
+        console.log(result.subtitles)
+        
+        result.sources.forEach((value: any) => {
+          this.videoURL = value.url;
+
+          if (Hls.isSupported()) {
+            this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+                // console.log('video and hls.js are now bound together !');
+            });
+    
+            this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+                for (let i = 0; i < data.levels.length; i++) {
+                  this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+                }
+                this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+                this.alertInputs.values = this.alertInputs.values.reverse();
+            });
+  
+            this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+            })
+            
+            this.currentVideo.removeAttribute('src');
+            this.hls.loadSource(this.videoURL);
+            this.hls.attachMedia(this.currentVideo);
+            console.log(result.subtitles[0].url)
+            this.subtitle = ccLink;
+            
+            // this.subtitle[0].track.activeCues[0].line = -4;
+
+            if(this.newData) {
+              this.loaderService.hideLoader();
+              this.currentVideo.play();
+              this.progressBar.value = 0;
+              this.maxDuration.innerText = '00:00';
+              this.rewindBtn.classList.remove("alwaysHide");
+              this.forwardBtn.classList.remove("alwaysHide");
+              this.progressMain.classList.remove("alwaysHide");
+            }
+          }
+          whilePlaying();
+
+
+          // if (value.quality == 'default') {
+          //   this.videoURL = value.url;
+          //   console.log(this.videoURL)
+
+          //   if (Hls.isSupported()) {
+          //     this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          //         // console.log('video and hls.js are now bound together !');
+          //     });
+      
+          //     this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+          //         for (let i = 0; i < data.levels.length; i++) {
+          //           this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+          //         }
+          //         this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+          //         this.alertInputs.values = this.alertInputs.values.reverse();
+          //     });
+    
+          //     this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+          //     })
+              
+          //     this.currentVideo.removeAttribute('src');
+          //     this.hls.loadSource(this.videoURL);
+          //     this.hls.attachMedia(this.currentVideo);
+
+          //     if(this.newData) {
+          //       this.loaderService.hideLoader();
+          //       this.currentVideo.play();
+          //       this.progressBar.value = 0;
+          //       this.maxDuration.innerText = '00:00';
+          //       this.rewindBtn.classList.remove("alwaysHide");
+          //       this.forwardBtn.classList.remove("alwaysHide");
+          //       this.progressMain.classList.remove("alwaysHide");
+          //     }
+          //   }
+          //   whilePlaying();
+          // }
+        })
+      }).then(() => {
+        let created = false;
+      })
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -255,100 +429,6 @@ export class PlayerPage implements OnInit {
         this.rewindBtn.classList.remove("alwaysHide");
         this.forwardBtn.classList.remove("alwaysHide");
         this.progressMain.classList.remove("alwaysHide");
-      })
-    }
-  }
-
-  setLink() {
-    this.isLoaded = true;
-    // this.alertInputs.values = {};
-    if (this.localstorage.getItem('isKdrama') == 'true') {
-      this.data['number'] = this.data.episode;
-      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
-      this.kdramaPlayVideo(this.data.id, this.kdramaId).then(async (value: any) => {
-        this.videoURL = value.sources[0].url;
-        // await check(this.videoURL);
-
-        if (Hls.isSupported()) {
-          this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-              // console.log('video and hls.js are now bound together !');
-          });
-  
-          this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
-              for (let i = 0; i < data.levels.length; i++) {
-                this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
-              }
-              this.alertInputs.values.push({'value': 'Auto', 'id': -1});
-              this.alertInputs.values = this.alertInputs.values.reverse();
-          });
-
-          this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
-          })
-          
-          this.currentVideo.removeAttribute('src');
-          this.hls.loadSource(this.videoURL);
-          this.hls.attachMedia(this.currentVideo);
-
-          if(this.newData) {
-            this.loaderService.hideLoader();
-            this.currentVideo.play();
-            this.progressBar.value = 0;
-            this.maxDuration.innerText = '00:00';
-            this.rewindBtn.classList.remove("alwaysHide");
-            this.forwardBtn.classList.remove("alwaysHide");
-            this.progressMain.classList.remove("alwaysHide");
-          }
-      }
-      console.log('ready to play')
-
-
-        whilePlaying();
-      })
-    }
-
-    else {
-      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
-
-      this.playVideo(this.data.id).then((result: any) => {
-        result.sources.forEach((value: any) => {
-          if (value.quality == 'default') {
-            this.videoURL = value.url;
-
-            if (Hls.isSupported()) {
-              this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-                  // console.log('video and hls.js are now bound together !');
-              });
-      
-              this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
-                  for (let i = 0; i < data.levels.length; i++) {
-                    this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
-                  }
-                  this.alertInputs.values.push({'value': 'Auto', 'id': -1});
-                  this.alertInputs.values = this.alertInputs.values.reverse();
-              });
-    
-              this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
-              })
-              
-              this.currentVideo.removeAttribute('src');
-              this.hls.loadSource(this.videoURL);
-              this.hls.attachMedia(this.currentVideo);
-
-              if(this.newData) {
-                this.loaderService.hideLoader();
-                this.currentVideo.play();
-                this.progressBar.value = 0;
-                this.maxDuration.innerText = '00:00';
-                this.rewindBtn.classList.remove("alwaysHide");
-                this.forwardBtn.classList.remove("alwaysHide");
-                this.progressMain.classList.remove("alwaysHide");
-              }
-            }
-            whilePlaying();
-          }
-        })
-      }).then(() => {
-        let created = false;
       })
     }
   }
