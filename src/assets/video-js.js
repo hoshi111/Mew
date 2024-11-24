@@ -1,4 +1,5 @@
 import { doc, setDoc, getDocs, collection } from "firebase/firestore"; 
+import { GlobalVariable } from "src/app/api/global";
 import { db } from "src/environments/environment";
 
 var dbSavingInterval;
@@ -96,9 +97,6 @@ export var whilePlaying = function() {
     const loaderPanel = document.getElementById("loaderContainer");
     const overlayElements = document.getElementById("overlay");
     const btnID = document.getElementById("btnID");
-    const track = document.getElementsByTagName('track')[0].track;
-    track.cues.id = -4;
-    console.log(track)
 
     const timeFormatter = (timeInput) => { 
         let minute = Math.floor(timeInput / 60); 
@@ -187,11 +185,30 @@ export var rewind = function() {
     hls.currentLevel = 0;
 }
 
-export var nextAvailable = function() {
+export var introTime = function(start, end) {
     const video = document.getElementById("video");
     var flag = false;
-    video.addEventListener("timeupdate", () => { 
-    if (video.currentTime >= video.duration - 60 && video.currentTime > 0) {
+    video.addEventListener("timeupdate", () => {
+        if (video.currentTime >= start && video.currentTime <= end) {
+            if (!flag) {
+                flag = true;
+                skipIntro.classList.remove('skipIntroHidden');
+                skipIntro.classList.add('skipIntro');
+            }
+        }
+
+        else {
+            skipIntro.classList.remove('skipIntro');
+            skipIntro.classList.add('skipIntroHidden');
+        }
+    })
+}
+
+export var nextAvailable = function(outtroStart, outtroEnd) {
+    const video = document.getElementById("video");
+    var flag = false;
+    video.addEventListener("timeupdate", () => {
+    if (video.currentTime >= outtroStart) {
             if (!flag) {
                 flag = true;
                 playNext.classList.remove('playNextHidden');
@@ -201,7 +218,7 @@ export var nextAvailable = function() {
 
         else {
             playNext.classList.remove('playNext');
-        playNext.classList.add('playNextHidden');
+            playNext.classList.add('playNextHidden');
         }
     })
 }

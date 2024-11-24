@@ -186,7 +186,7 @@ export class DetailsModalComponent  implements OnInit {
     // this.navCtrl.navigateForward('player', { state: episode });
     const queryParams: any = {};
 
-    queryParams.value = JSON.stringify(episode.id);
+    queryParams.value = JSON.stringify(episode.id + '+' + this.global.data.id);
 
     let navigationExtras: NavigationExtras = {};
 

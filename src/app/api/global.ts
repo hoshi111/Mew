@@ -10,4 +10,8 @@ export class GlobalVariable {
     animeCurrentId: any;
     animeCurrentEpisodes: any;
     animePlayingData: any;
+    outtroTimeStart = 0;
+    outtroTimeEnd = 0;
+    introTimeStart = 0;
+    introTimeEnd = 0;
 }

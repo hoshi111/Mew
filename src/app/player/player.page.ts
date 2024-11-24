@@ -5,7 +5,7 @@ import { NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
-import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward, changeQuality, levels } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward, changeQuality, levels, introTime } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
@@ -23,6 +23,9 @@ export class PlayerPage implements OnInit {
   localstorage = localStorage
   videoURL: any;
   newVid: any;
+  animeId: any;
+  videoId: string = '';
+  arrayNumber = 0;
 
   overlayElements!: HTMLElement;
   rewindBtn!: HTMLElement;
@@ -54,6 +57,7 @@ export class PlayerPage implements OnInit {
   displayTitle: any;
   isPlaying: boolean = false;
   btn: any;
+  skipBtn: any;
   fsUpdate: any;
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
@@ -93,6 +97,7 @@ export class PlayerPage implements OnInit {
 
   async ionViewWillEnter() {
     this.btn = document.getElementById('playNext');
+    this.skipBtn = document.getElementById('skipIntro');
     this.currentVideo = document.getElementById("video");
     // this.subtitle = document.getElementById("sub");
     this.currentVideo.removeAttribute('src');
@@ -161,32 +166,33 @@ export class PlayerPage implements OnInit {
           // }
 
           // videoId = videoId?.slice(0, -1);
+          let temp: any;
+          
+          temp = JSON.parse(this.initValue).split("+", 2);
 
-          let videoId = '';
+          console.log(temp)
+          
+          this.animeId = temp[1];
+          this.videoId = temp[0];
 
-          videoId = JSON.parse(this.initValue);
+          // videoId = JSON.parse(this.initValue);
 
-          await this.gogoAnimeGetDetails(this.localstorage.getItem('animeCurrentId')).then((result: any) => {
+          await this.gogoAnimeGetDetails(this.animeId).then((result: any) => {
             // console.log(result)
 
             this.global.animeCurrentEpisodes = result.episodes;
 
             result.episodes.forEach((ep: any) => {
-              if (videoId == ep.id) {
+              if (this.videoId == ep.id) {
+                this.arrayNumber = result.episodes.indexOf(ep);
                 this.data = ep;
                 this.data['title'] = result.title.english || result.title.romaji;
                 // this.data['image'] = result.image;
-
-                // console.log(this.data)
               }
             })
           })
           
           this.setLink();
-
-            this.nextVideo().then(() => {
-              nextAvailable();
-            })
 
           // this.gogoAnimeGetDetails(videoId).then((result: any) => {
           //   result.episodes.forEach((episode: any) => {
@@ -281,17 +287,21 @@ export class PlayerPage implements OnInit {
       this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
 
       this.playVideo(this.data.id).then((result: any) => {
-        // this.subtitle = result.subtitles[0].url;
+
+        console.log(result.intro)
+        this.global.introTimeStart = result.intro.start;
+        this.global.introTimeEnd = result.intro.end;
+        introTime(this.global.introTimeStart, this.global.introTimeEnd);
+        console.log(result.intro ) //end
+        this.global.outtroTimeStart = result.outro.start;
 
         result.subtitles.forEach((sub: any) => {
           if (sub.lang == 'English') {
             ccLink = sub.url;
           }
         })
-
-        console.log(result.subtitles)
         
-        result.sources.forEach((value: any) => {
+        result.sources.forEach(async (value: any) => {
           this.videoURL = value.url;
 
           if (Hls.isSupported()) {
@@ -315,8 +325,6 @@ export class PlayerPage implements OnInit {
             this.hls.attachMedia(this.currentVideo);
             console.log(result.subtitles[0].url)
             this.subtitle = ccLink;
-            
-            // this.subtitle[0].track.activeCues[0].line = -4;
 
             if(this.newData) {
               this.loaderService.hideLoader();
@@ -328,6 +336,15 @@ export class PlayerPage implements OnInit {
               this.progressMain.classList.remove("alwaysHide");
             }
           }
+
+
+          // await this.nextVideo().then(() => {
+          //   if (this.isNextVideo) {
+          //     alert("TRUE")
+              
+          //   }
+          // })
+          this.nextVideo();
           whilePlaying();
 
 
@@ -556,7 +573,7 @@ export class PlayerPage implements OnInit {
 
     else {
       this.currentVideo.pause(); 
-      updateDb(this.data);
+      // updateDb(this.data);
       this.icon_name = 'play';
       dismissInterval();
       this.toggleOverlayByUser();
@@ -584,15 +601,25 @@ export class PlayerPage implements OnInit {
     }
   }
 
+  skipIntro() {
+    // this.skipBtn.classList.remove('skipIntro');
+    // this.skipBtn.classList.add('skipIntroHidden');
+    // this.rewindBtn.classList.add("alwaysHide");
+    // this.forwardBtn.classList.add("alwaysHide");
+    // this.progressMain.classList.add("alwaysHide");
+
+    this.currentVideo.currentTime = this.global.introTimeEnd;
+  }
+
   playNextVid() {
     this.btn.classList.remove('playNext');
     this.btn.classList.add('playNextHidden');
     this.rewindBtn.classList.add("alwaysHide");
-      this.forwardBtn.classList.add("alwaysHide");
-      this.progressMain.classList.add("alwaysHide");
+    this.forwardBtn.classList.add("alwaysHide");
+    this.progressMain.classList.add("alwaysHide");
     this.loaderService.showLoader();
-    videoEnded(this.data).then(() => {
-      this.newData = this.newVid;
+
+    this.newData = this.newVid;
 
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
@@ -609,22 +636,52 @@ export class PlayerPage implements OnInit {
       this.router.navigate(['player'], navigationExtras);
       this.isLoaded = false;
       this.ionViewWillEnter();
-    })
+
+    // videoEnded(this.data).then(() => {
+    //   this.newData = this.newVid;
+
+    //   this.currentVideo = document.getElementById("video");
+    //   this.currentVideo.pause();
+    //   this.currentVideo.removeAttribute('src');
+
+    //   // this.localstorage.setItem('isFullscreen', 'true');
+
+    //   const queryParams: any = {};
+
+    //   queryParams.value = JSON.stringify(this.newVid + '+' + this.animeId);
+
+    //   const navigationExtras: NavigationExtras = {queryParams}
+
+    //   this.router.navigate(['player'], navigationExtras);
+    //   this.isLoaded = false;
+    //   this.ionViewWillEnter();
+    // })
   }
 
-  async nextVideo() {
-    const no = this.data.number + 1;
-    let idSplit = this.data.id.split("-");
+  nextVideo() {
+    // const no = this.data.number + 1;
+    // let idSplit = this.data.id.split("-");
 
-    if (idSplit[idSplit.length - 2] != 'episode') {
-      this.newVid = this.data.id + '-episode-' + no;
+    // if (idSplit[idSplit.length - 2] != 'episode') {
+    //   this.newVid = this.data.id + '-episode-' + no;
+    // }
+    // else {
+    //   this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+    // }
+
+    this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id;
+
+    console.log(this.arrayNumber, this.global.animeCurrentEpisodes.length)
+
+    if (this.arrayNumber < this.global.animeCurrentEpisodes.length) {
+      this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id + '+' + this.animeId;
+      console.log(this.global.outtroTimeStart)
+      nextAvailable(this.global.outtroTimeStart, this.global.outtroTimeEnd);
+      this.isNextVideo = true;
     }
-    else {
-      this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-    }
-    console.log(this.newVid)
-    await this.playVideo(this.newVid);
-    this.isNextVideo = true;
+
+    // await this.playVideo(this.newVid);
+    // this.isNextVideo = true;
   }
 
   toggleFullscreen() {
@@ -672,7 +729,7 @@ export class PlayerPage implements OnInit {
 
 
   goBack() {
-    updateDb(this.data);
+    // updateDb(this.data);
     this.localstorage.setItem('isFullscreen', 'false');
     this.localstorage.setItem('isKdrama', 'false');
     this.currentVideo = document.getElementById("video");
