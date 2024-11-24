@@ -26,6 +26,7 @@ export class PlayerPage implements OnInit {
   animeId: any;
   videoId: string = '';
   arrayNumber = 0;
+  ccLink: string = '';
 
   overlayElements!: HTMLElement;
   rewindBtn!: HTMLElement;
@@ -99,7 +100,7 @@ export class PlayerPage implements OnInit {
     this.btn = document.getElementById('playNext');
     this.skipBtn = document.getElementById('skipIntro');
     this.currentVideo = document.getElementById("video");
-    // this.subtitle = document.getElementById("sub");
+    this.subtitle = document.getElementById("sub");
     this.currentVideo.removeAttribute('src');
     if (!this.newData) {
       this.initValue = this.activatedRoute.snapshot.queryParamMap.get('value');
@@ -283,7 +284,6 @@ export class PlayerPage implements OnInit {
 
     else {
       console.log(this.data)
-      let ccLink = '';
       this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
 
       this.playVideo(this.data.id).then((result: any) => {
@@ -292,12 +292,12 @@ export class PlayerPage implements OnInit {
         this.global.introTimeStart = result.intro.start;
         this.global.introTimeEnd = result.intro.end;
         introTime(this.global.introTimeStart, this.global.introTimeEnd);
-        console.log(result.intro ) //end
+        console.log(result) //end
         this.global.outtroTimeStart = result.outro.start;
 
         result.subtitles.forEach((sub: any) => {
           if (sub.lang == 'English') {
-            ccLink = sub.url;
+            this.ccLink = sub.url;
           }
         })
         
@@ -323,8 +323,11 @@ export class PlayerPage implements OnInit {
             this.currentVideo.removeAttribute('src');
             this.hls.loadSource(this.videoURL);
             this.hls.attachMedia(this.currentVideo);
-            console.log(result.subtitles[0].url)
-            this.subtitle = ccLink;
+            // this.subtitle = this.ccLink;
+            // this.currentVideo.track.removeAttribute('src');
+            this.subtitle.removeAttribute('src');
+            this.subtitle.src = this.ccLink;
+
 
             if(this.newData) {
               this.loaderService.hideLoader();
@@ -618,6 +621,9 @@ export class PlayerPage implements OnInit {
     this.forwardBtn.classList.add("alwaysHide");
     this.progressMain.classList.add("alwaysHide");
     this.loaderService.showLoader();
+    this.ccLink = '';
+
+    this.isLoaded = false;
 
     this.newData = this.newVid;
 
@@ -634,7 +640,6 @@ export class PlayerPage implements OnInit {
       const navigationExtras: NavigationExtras = {queryParams}
 
       this.router.navigate(['player'], navigationExtras);
-      this.isLoaded = false;
       this.ionViewWillEnter();
 
     // videoEnded(this.data).then(() => {

@@ -207,18 +207,34 @@ export var introTime = function(start, end) {
 export var nextAvailable = function(outtroStart, outtroEnd) {
     const video = document.getElementById("video");
     var flag = false;
+    var flag1 = false;
     video.addEventListener("timeupdate", () => {
-    if (video.currentTime >= outtroStart) {
+
+    if (outtroStart == 0) {
+        if (video.currentTime >= video.duration - 90) {
             if (!flag) {
                 flag = true;
                 playNext.classList.remove('playNextHidden');
                 playNext.classList.add('playNext');
             }
-        }
 
-        else {
-            playNext.classList.remove('playNext');
-            playNext.classList.add('playNextHidden');
+            else {
+                playNext.classList.remove('playNext');
+                playNext.classList.add('playNextHidden');
+            }
+        }
+    }
+    else if (video.currentTime >= outtroStart) {
+            if (!flag1) {
+                flag1 = true;
+                playNext.classList.remove('playNextHidden');
+                playNext.classList.add('playNext');
+            }
+
+            else {
+                playNext.classList.remove('playNext');
+                playNext.classList.add('playNextHidden');
+            }
         }
     })
 }
