@@ -5,7 +5,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { LoaderService } from 'src/app/api/loader.service';
 import { InfiniteScrollCustomEvent, ModalController, NavController, Platform } from '@ionic/angular';
 import { DetailsModalComponent } from '../components/details-modal/details-modal.component';
-import { collection, getDocs, queryEqual } from 'firebase/firestore';
+// import { collection, getDocs, queryEqual } from 'firebase/firestore';
 import { db } from 'src/environments/environment';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { App } from '@capacitor/app';
@@ -65,7 +65,7 @@ export class HomePage implements OnInit{
     ScreenOrientation.lock({ orientation: "portrait-primary" });
     this.localstorage.setItem('isFullscreen', 'false');
     this.uid = this.localstorage.getItem('uid');
-    this.fetchData();
+    // this.fetchData();
     this.localstorage.setItem('isKdrama', 'false');
 
     if (this.platform.is('android')) {
@@ -287,7 +287,7 @@ export class HomePage implements OnInit{
         result.results.forEach((item: any) => {
           this.animeResults = {
             id: item.id,
-            displayTitle: item.title.english || item.title.romaji,
+            displayTitle: item.title,
             image: item.image,
             link: item.url,
           }
@@ -432,6 +432,7 @@ export class HomePage implements OnInit{
     this.loaderService.showLoader();
     this.global.isAnime = true;
     this.global.data = [];
+    alert(this.isAnimeLatest)
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
         
@@ -463,7 +464,7 @@ export class HomePage implements OnInit{
       })
     }
 
-    else {
+    else {console.log(movieDetail)
       this.gogoAnimeGetDetails(movieDetail.id).then(async(result: any) => {
         result['listForEp'] = this.listForEp;
         result['isKdrama'] = false;
@@ -485,37 +486,37 @@ export class HomePage implements OnInit{
     }
   }
 
-  async fetchData() {
-    let flag = false;
-    const querySnapshot = await getDocs(collection(db, this.uid));
-     querySnapshot.forEach((doc: any) => {
-      this.listForEp.push(doc.data().details);
-      this.tempList.forEach((t: any | undefined) => {
-        if (t.title == doc.data().details.title) {
-          flag = true;
-        }
-      })
+  // async fetchData() {
+  //   let flag = false;
+  //   const querySnapshot = await getDocs(collection(db, this.uid));
+  //    querySnapshot.forEach((doc: any) => {
+  //     this.listForEp.push(doc.data().details);
+  //     this.tempList.forEach((t: any | undefined) => {
+  //       if (t.title == doc.data().details.title) {
+  //         flag = true;
+  //       }
+  //     })
       
-      if(!flag) {
-        this.tempList.push(doc.data().details);
+  //     if(!flag) {
+  //       this.tempList.push(doc.data().details);
         
-      }
+  //     }
 
-      else {
-        flag = false;
-      }
-    })
+  //     else {
+  //       flag = false;
+  //     }
+  //   })
 
-    this.tempList.forEach(async (data: any) => {
-      if (!data.id.includes('0_manga-')) {
-        await this.searchKeyword(data.title, 1).then(async (data1: any) => {
-          await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
-            this.list.push(data2);
-          })
-        })
-      }
-    })
-  }
+  //   this.tempList.forEach(async (data: any) => {
+  //     if (!data.id.includes('0_manga-')) {
+  //       await this.searchKeyword(data.title, 1).then(async (data1: any) => {
+  //         await this.gogoAnimeGetDetails(data1.results[0].id).then((data2: any) => {
+  //           this.list.push(data2);
+  //         })
+  //       })
+  //     }
+  //   })
+  // }
 
   openProfile() {
     this.navCtrl.navigateForward('tabs/profile')

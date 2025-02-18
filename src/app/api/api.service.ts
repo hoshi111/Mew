@@ -47,7 +47,7 @@ export class ApiService {
     // }
 
     gogoAnimeTopAiring(page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/meta/anilist/trending?page=' + page)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/top-airing?page=' + page)
     }
 
     getAnimeVideoServer(id: any) {
@@ -55,7 +55,7 @@ export class ApiService {
     }
 
     searchAnime(query: string, page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/' + query + '?page=' + page)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/' + query + '?page=' + page)
     }
 
     // gogoAnimeGetDetails(query: string) {
@@ -63,7 +63,7 @@ export class ApiService {
     // }
 
     gogoAnimeGetDetails(query: string) {
-        return this.http.get('https://consumet-beige.vercel.app/meta/anilist/info/' + query + '?provider=zoro')
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/info?id=' + query)
     }
 
     // gogoAnimePlayVideo(query: any) {

@@ -97,10 +97,14 @@ export class PlayerPage implements OnInit {
   }
 
   async ionViewWillEnter() {
+    this.initSetup();
+  }
+
+  async initSetup() {
     this.btn = document.getElementById('playNext');
     this.skipBtn = document.getElementById('skipIntro');
     this.currentVideo = document.getElementById("video");
-    this.subtitle = document.getElementById("sub");
+    // this.subtitle = document.getElementById("sub");
     this.currentVideo.removeAttribute('src');
     if (!this.newData) {
       this.initValue = this.activatedRoute.snapshot.queryParamMap.get('value');
@@ -145,41 +149,14 @@ export class PlayerPage implements OnInit {
         }
 
         else {
-          // var idSplitted: any;
-          // if (!this.newData) {
-          //   idSplitted = (JSON.parse(this.initValue)).split("-");
-          // }
-
-          // else {
-          //   idSplitted = this.newData.split("-");
-          // }
-
-          // let videoId = '';
-
-          // for (let i = 0; i < idSplitted.length; i++) {
-          //   if (idSplitted[i] != 'episode') {
-          //     videoId = videoId + idSplitted[i] + '-';
-          //   }
-
-          //   if (idSplitted[i] == 'episode') {
-          //     i = idSplitted.length
-          //   }
-          // }
-
-          // videoId = videoId?.slice(0, -1);
           let temp: any;
           
           temp = JSON.parse(this.initValue).split("+", 2);
-
-          console.log(temp)
           
           this.animeId = temp[1];
           this.videoId = temp[0];
 
-          // videoId = JSON.parse(this.initValue);
-
           await this.gogoAnimeGetDetails(this.animeId).then((result: any) => {
-            // console.log(result)
 
             this.global.animeCurrentEpisodes = result.episodes;
 
@@ -187,28 +164,13 @@ export class PlayerPage implements OnInit {
               if (this.videoId == ep.id) {
                 this.arrayNumber = result.episodes.indexOf(ep);
                 this.data = ep;
-                this.data['title'] = result.title.english || result.title.romaji;
-                // this.data['image'] = result.image;
+                this.data['title'] = result.title;
+                this.data['image'] = result.image;
               }
             })
           })
           
           this.setLink();
-
-          // this.gogoAnimeGetDetails(videoId).then((result: any) => {
-          //   result.episodes.forEach((episode: any) => {
-          //     if ('"' + episode.id + '"' == this.initValue) {
-          //       this.data = episode;
-          //       this.data['title'] = result.title;
-          //       this.data['image'] = result.image;
-          //     }
-          //   })
-          //   this.setLink();
-
-          //   this.nextVideo().then(() => {
-          //     nextAvailable();
-          //   })
-          // })
         }
       }
       else {
@@ -275,24 +237,18 @@ export class PlayerPage implements OnInit {
             this.progressMain.classList.remove("alwaysHide");
           }
       }
-      console.log('ready to play')
-
-
         whilePlaying();
       })
     }
 
     else {
-      console.log(this.data)
       this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
 
       this.playVideo(this.data.id).then((result: any) => {
 
-        console.log(result.intro)
         this.global.introTimeStart = result.intro.start;
         this.global.introTimeEnd = result.intro.end;
         introTime(this.global.introTimeStart, this.global.introTimeEnd);
-        console.log(result) //end
         this.global.outtroTimeStart = result.outro.start;
 
         result.subtitles.forEach((sub: any) => {
@@ -323,15 +279,26 @@ export class PlayerPage implements OnInit {
             this.currentVideo.removeAttribute('src');
             this.hls.loadSource(this.videoURL);
             this.hls.attachMedia(this.currentVideo);
+            // this.hls.subtitleDisplay = true;
             // this.subtitle = this.ccLink;
-            // this.currentVideo.track.removeAttribute('src');
-            this.subtitle.removeAttribute('src');
-            this.subtitle.src = this.ccLink;
+            // this.currentVideo.removeAttribute('src');
+            // this.subtitle.removeAttribute('src');
+            var sub = document.createElement('track');
+            sub.setAttribute('src', this.ccLink);
+            sub.setAttribute('label', 'English');
+            sub.setAttribute('kind', 'subtitles');
+            sub.setAttribute('srclang', 'en');
+            sub.setAttribute('default', '');
+            this.currentVideo.appendChild(sub);
+            // this.subtitle.src = this.ccLink;
+            // this.subtitle
+            // console.log(this.subtitle.src)
 
 
             if(this.newData) {
               this.loaderService.hideLoader();
               this.currentVideo.play();
+              this.icon_name = 'pause';
               this.progressBar.value = 0;
               this.maxDuration.innerText = '00:00';
               this.rewindBtn.classList.remove("alwaysHide");
@@ -630,6 +597,7 @@ export class PlayerPage implements OnInit {
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
       this.currentVideo.removeAttribute('src');
+      this.currentVideo.removeAttribute('track');
 
       // this.localstorage.setItem('isFullscreen', 'true');
 
@@ -640,7 +608,7 @@ export class PlayerPage implements OnInit {
       const navigationExtras: NavigationExtras = {queryParams}
 
       this.router.navigate(['player'], navigationExtras);
-      this.ionViewWillEnter();
+      this.initSetup();
 
     // videoEnded(this.data).then(() => {
     //   this.newData = this.newVid;
@@ -676,11 +644,8 @@ export class PlayerPage implements OnInit {
 
     this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id;
 
-    console.log(this.arrayNumber, this.global.animeCurrentEpisodes.length)
-
     if (this.arrayNumber < this.global.animeCurrentEpisodes.length) {
       this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id + '+' + this.animeId;
-      console.log(this.global.outtroTimeStart)
       nextAvailable(this.global.outtroTimeStart, this.global.outtroTimeEnd);
       this.isNextVideo = true;
     }
@@ -761,7 +726,7 @@ export class PlayerPage implements OnInit {
 
     this.global.fromPlayer = true;
 
-    this.router.navigate(['watch-list']);
+    this.router.navigate(['tabs/home']);
     
     // if (this.localstorage.getItem('isFrom') == 'home') {
     //   this.router.navigate(['tabs']);

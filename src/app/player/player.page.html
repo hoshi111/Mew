@@ -80,12 +80,7 @@
   @else {
     <div (document:mousemove)="onMouseMove($event)" id="videoContainer">
       <video id="video" crossorigin="anonymous" poster="{{data.image}}" width="100%" cache-view="false" (ended)="videoEnded()">
-        <track
-        id="sub"
-        label="English"
-        kind="subtitles"
-        srclang="en"
-        default />
+        <!-- <track id="sub" label="English" kind="subtitles" srclang="en" default /> -->
       </video>
       <div class="mainContent" id="mainContent" (click)="toggleOverlayByUser()"  (dblclick)="toggleFullscreen()">
         <div class="qualityContainer qualityContainerHidden" id="qualityContainer">

@@ -210,32 +210,45 @@ export var nextAvailable = function(outtroStart, outtroEnd) {
     var flag1 = false;
     video.addEventListener("timeupdate", () => {
 
-    if (outtroStart == 0) {
-        if (video.currentTime >= video.duration - 90) {
-            if (!flag) {
-                flag = true;
-                playNext.classList.remove('playNextHidden');
-                playNext.classList.add('playNext');
+        if (video.currentTime >= outtroStart) {
+                if (!flag1) {
+                    flag1 = true;
+                    playNext.classList.remove('playNextHidden');
+                    playNext.classList.add('playNext');
+                }
+    
+                // else {
+                //     playNext.classList.remove('playNext');
+                //     playNext.classList.add('playNextHidden');
+                // }
             }
+    // if (outtroStart == 0) {
+    //     if (video.currentTime >= video.duration - 90) {
+    //         if (!flag) {
+    //             flag = true;
+    //             playNext.classList.remove('playNextHidden');
+    //             playNext.classList.add('playNext');
+    //         }
 
-            else {
-                playNext.classList.remove('playNext');
-                playNext.classList.add('playNextHidden');
-            }
-        }
-    }
-    else if (video.currentTime >= outtroStart) {
-            if (!flag1) {
-                flag1 = true;
-                playNext.classList.remove('playNextHidden');
-                playNext.classList.add('playNext');
-            }
+    //         else {
+    //             playNext.classList.remove('playNext');
+    //             playNext.classList.add('playNextHidden');
+    //         }
+    //     }
+    // }
+    // else if (video.currentTime >= outtroStart) {
+        // console.log('outtro start')
+        //     if (!flag1) {
+        //         flag1 = true;
+        //         playNext.classList.remove('playNextHidden');
+        //         playNext.classList.add('playNext');
+        //     }
 
-            else {
-                playNext.classList.remove('playNext');
-                playNext.classList.add('playNextHidden');
-            }
-        }
+        //     else {
+        //         playNext.classList.remove('playNext');
+        //         playNext.classList.add('playNextHidden');
+        //     }
+        // }
     })
 }
 
