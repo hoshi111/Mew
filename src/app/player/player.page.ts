@@ -5,7 +5,7 @@ import { NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
-import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward, changeQuality, levels } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward, changeQuality, levels, introTime } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
@@ -23,6 +23,10 @@ export class PlayerPage implements OnInit {
   localstorage = localStorage
   videoURL: any;
   newVid: any;
+  animeId: any;
+  videoId: string = '';
+  arrayNumber = 0;
+  ccLink: string = '';
 
   overlayElements!: HTMLElement;
   rewindBtn!: HTMLElement;
@@ -54,6 +58,7 @@ export class PlayerPage implements OnInit {
   displayTitle: any;
   isPlaying: boolean = false;
   btn: any;
+  skipBtn: any;
   fsUpdate: any;
   isLoaded: boolean = false;
   isNextVideo: boolean = false;
@@ -66,6 +71,7 @@ export class PlayerPage implements OnInit {
   kdramaId: any;
   kdramaEpId: any;
   initValue: any;
+  subtitle: any;
 
   hls = new Hls();
 
@@ -90,9 +96,15 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
+    this.initSetup();
+  }
+
+  async initSetup() {
     this.btn = document.getElementById('playNext');
+    this.skipBtn = document.getElementById('skipIntro');
     this.currentVideo = document.getElementById("video");
+    // this.subtitle = document.getElementById("sub");
     this.currentVideo.removeAttribute('src');
     if (!this.newData) {
       this.initValue = this.activatedRoute.snapshot.queryParamMap.get('value');
@@ -137,43 +149,28 @@ export class PlayerPage implements OnInit {
         }
 
         else {
-          var idSplitted: any;
-          if (!this.newData) {
-            idSplitted = (JSON.parse(this.initValue)).split("-");
-          }
+          let temp: any;
+          
+          temp = JSON.parse(this.initValue).split("+", 2);
+          
+          this.animeId = temp[1];
+          this.videoId = temp[0];
 
-          else {
-            idSplitted = this.newData.split("-");
-          }
+          await this.gogoAnimeGetDetails(this.animeId).then((result: any) => {
 
-          let videoId = '';
+            this.global.animeCurrentEpisodes = result.episodes;
 
-          for (let i = 0; i < idSplitted.length; i++) {
-            if (idSplitted[i] != 'episode') {
-              videoId = videoId + idSplitted[i] + '-';
-            }
-
-            if (idSplitted[i] == 'episode') {
-              i = idSplitted.length
-            }
-          }
-
-          videoId = videoId?.slice(0, -1);
-
-          this.gogoAnimeGetDetails(videoId).then((result: any) => {
-            result.episodes.forEach((episode: any) => {
-              if ('"' + episode.id + '"' == this.initValue) {
-                this.data = episode;
+            result.episodes.forEach((ep: any) => {
+              if (this.videoId == ep.id) {
+                this.arrayNumber = result.episodes.indexOf(ep);
+                this.data = ep;
                 this.data['title'] = result.title;
                 this.data['image'] = result.image;
               }
             })
-            this.setLink();
-
-            this.nextVideo().then(() => {
-              nextAvailable();
-            })
           })
+          
+          this.setLink();
         }
       }
       else {
@@ -198,6 +195,170 @@ export class PlayerPage implements OnInit {
     this.volumeBar.value = this.localstorage.getItem('volumeLevel');
     this.changeVolumeIcon(this.volumeBar.value);
     this.resetIdleTimer();
+  }
+
+  setLink() {
+    this.isLoaded = true;
+    // this.alertInputs.values = {};
+    if (this.localstorage.getItem('isKdrama') == 'true') {
+      this.data['number'] = this.data.episode;
+      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
+      this.kdramaPlayVideo(this.data.id, this.kdramaId).then(async (value: any) => {
+        this.videoURL = value.sources[0].url;
+        // await check(this.videoURL);
+
+        if (Hls.isSupported()) {
+          this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+              // console.log('video and hls.js are now bound together !');
+          });
+  
+          this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+              for (let i = 0; i < data.levels.length; i++) {
+                this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+              }
+              this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+              this.alertInputs.values = this.alertInputs.values.reverse();
+          });
+
+          this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+          })
+          
+          this.currentVideo.removeAttribute('src');
+          this.hls.loadSource(this.videoURL);
+          this.hls.attachMedia(this.currentVideo);
+
+          if(this.newData) {
+            this.loaderService.hideLoader();
+            this.currentVideo.play();
+            this.progressBar.value = 0;
+            this.maxDuration.innerText = '00:00';
+            this.rewindBtn.classList.remove("alwaysHide");
+            this.forwardBtn.classList.remove("alwaysHide");
+            this.progressMain.classList.remove("alwaysHide");
+          }
+      }
+        whilePlaying();
+      })
+    }
+
+    else {
+      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
+
+      this.playVideo(this.data.id).then((result: any) => {
+
+        this.global.introTimeStart = result.intro.start;
+        this.global.introTimeEnd = result.intro.end;
+        introTime(this.global.introTimeStart, this.global.introTimeEnd);
+        this.global.outtroTimeStart = result.outro.start;
+
+        result.subtitles.forEach((sub: any) => {
+          if (sub.lang == 'English') {
+            this.ccLink = sub.url;
+          }
+        })
+        
+        result.sources.forEach(async (value: any) => {
+          this.videoURL = value.url;
+
+          if (Hls.isSupported()) {
+            this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+                // console.log('video and hls.js are now bound together !');
+            });
+    
+            this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+                for (let i = 0; i < data.levels.length; i++) {
+                  this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+                }
+                this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+                this.alertInputs.values = this.alertInputs.values.reverse();
+            });
+  
+            this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+            })
+            
+            this.currentVideo.removeAttribute('src');
+            this.hls.loadSource(this.videoURL);
+            this.hls.attachMedia(this.currentVideo);
+            // this.hls.subtitleDisplay = true;
+            // this.subtitle = this.ccLink;
+            // this.currentVideo.removeAttribute('src');
+            // this.subtitle.removeAttribute('src');
+            var sub = document.createElement('track');
+            sub.setAttribute('src', this.ccLink);
+            sub.setAttribute('label', 'English');
+            sub.setAttribute('kind', 'subtitles');
+            sub.setAttribute('srclang', 'en');
+            sub.setAttribute('default', '');
+            this.currentVideo.appendChild(sub);
+            // this.subtitle.src = this.ccLink;
+            // this.subtitle
+            // console.log(this.subtitle.src)
+
+
+            if(this.newData) {
+              this.loaderService.hideLoader();
+              this.currentVideo.play();
+              this.icon_name = 'pause';
+              this.progressBar.value = 0;
+              this.maxDuration.innerText = '00:00';
+              this.rewindBtn.classList.remove("alwaysHide");
+              this.forwardBtn.classList.remove("alwaysHide");
+              this.progressMain.classList.remove("alwaysHide");
+            }
+          }
+
+
+          // await this.nextVideo().then(() => {
+          //   if (this.isNextVideo) {
+          //     alert("TRUE")
+              
+          //   }
+          // })
+          this.nextVideo();
+          whilePlaying();
+
+
+          // if (value.quality == 'default') {
+          //   this.videoURL = value.url;
+          //   console.log(this.videoURL)
+
+          //   if (Hls.isSupported()) {
+          //     this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          //         // console.log('video and hls.js are now bound together !');
+          //     });
+      
+          //     this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
+          //         for (let i = 0; i < data.levels.length; i++) {
+          //           this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
+          //         }
+          //         this.alertInputs.values.push({'value': 'Auto', 'id': -1});
+          //         this.alertInputs.values = this.alertInputs.values.reverse();
+          //     });
+    
+          //     this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
+          //     })
+              
+          //     this.currentVideo.removeAttribute('src');
+          //     this.hls.loadSource(this.videoURL);
+          //     this.hls.attachMedia(this.currentVideo);
+
+          //     if(this.newData) {
+          //       this.loaderService.hideLoader();
+          //       this.currentVideo.play();
+          //       this.progressBar.value = 0;
+          //       this.maxDuration.innerText = '00:00';
+          //       this.rewindBtn.classList.remove("alwaysHide");
+          //       this.forwardBtn.classList.remove("alwaysHide");
+          //       this.progressMain.classList.remove("alwaysHide");
+          //     }
+          //   }
+          //   whilePlaying();
+          // }
+        })
+      }).then(() => {
+        let created = false;
+      })
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -255,100 +416,6 @@ export class PlayerPage implements OnInit {
         this.rewindBtn.classList.remove("alwaysHide");
         this.forwardBtn.classList.remove("alwaysHide");
         this.progressMain.classList.remove("alwaysHide");
-      })
-    }
-  }
-
-  setLink() {
-    this.isLoaded = true;
-    // this.alertInputs.values = {};
-    if (this.localstorage.getItem('isKdrama') == 'true') {
-      this.data['number'] = this.data.episode;
-      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
-      this.kdramaPlayVideo(this.data.id, this.kdramaId).then(async (value: any) => {
-        this.videoURL = value.sources[0].url;
-        // await check(this.videoURL);
-
-        if (Hls.isSupported()) {
-          this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-              // console.log('video and hls.js are now bound together !');
-          });
-  
-          this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
-              for (let i = 0; i < data.levels.length; i++) {
-                this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
-              }
-              this.alertInputs.values.push({'value': 'Auto', 'id': -1});
-              this.alertInputs.values = this.alertInputs.values.reverse();
-          });
-
-          this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
-          })
-          
-          this.currentVideo.removeAttribute('src');
-          this.hls.loadSource(this.videoURL);
-          this.hls.attachMedia(this.currentVideo);
-
-          if(this.newData) {
-            this.loaderService.hideLoader();
-            this.currentVideo.play();
-            this.progressBar.value = 0;
-            this.maxDuration.innerText = '00:00';
-            this.rewindBtn.classList.remove("alwaysHide");
-            this.forwardBtn.classList.remove("alwaysHide");
-            this.progressMain.classList.remove("alwaysHide");
-          }
-      }
-      console.log('ready to play')
-
-
-        whilePlaying();
-      })
-    }
-
-    else {
-      this.displayTitle = this.data.title + ' | Episode ' + this.data.number;
-
-      this.playVideo(this.data.id).then((result: any) => {
-        result.sources.forEach((value: any) => {
-          if (value.quality == 'default') {
-            this.videoURL = value.url;
-
-            if (Hls.isSupported()) {
-              this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-                  // console.log('video and hls.js are now bound together !');
-              });
-      
-              this.hls.on(Hls.Events.MANIFEST_PARSED,  (event, data) => {
-                  for (let i = 0; i < data.levels.length; i++) {
-                    this.alertInputs.values.push({'value': data.levels[i].height + 'p', 'id': i})
-                  }
-                  this.alertInputs.values.push({'value': 'Auto', 'id': -1});
-                  this.alertInputs.values = this.alertInputs.values.reverse();
-              });
-    
-              this.hls.on(Hls.Events.LEVEL_SWITCHING, () => {
-              })
-              
-              this.currentVideo.removeAttribute('src');
-              this.hls.loadSource(this.videoURL);
-              this.hls.attachMedia(this.currentVideo);
-
-              if(this.newData) {
-                this.loaderService.hideLoader();
-                this.currentVideo.play();
-                this.progressBar.value = 0;
-                this.maxDuration.innerText = '00:00';
-                this.rewindBtn.classList.remove("alwaysHide");
-                this.forwardBtn.classList.remove("alwaysHide");
-                this.progressMain.classList.remove("alwaysHide");
-              }
-            }
-            whilePlaying();
-          }
-        })
-      }).then(() => {
-        let created = false;
       })
     }
   }
@@ -476,7 +543,7 @@ export class PlayerPage implements OnInit {
 
     else {
       this.currentVideo.pause(); 
-      updateDb(this.data);
+      // updateDb(this.data);
       this.icon_name = 'play';
       dismissInterval();
       this.toggleOverlayByUser();
@@ -504,19 +571,33 @@ export class PlayerPage implements OnInit {
     }
   }
 
+  skipIntro() {
+    // this.skipBtn.classList.remove('skipIntro');
+    // this.skipBtn.classList.add('skipIntroHidden');
+    // this.rewindBtn.classList.add("alwaysHide");
+    // this.forwardBtn.classList.add("alwaysHide");
+    // this.progressMain.classList.add("alwaysHide");
+
+    this.currentVideo.currentTime = this.global.introTimeEnd;
+  }
+
   playNextVid() {
     this.btn.classList.remove('playNext');
     this.btn.classList.add('playNextHidden');
     this.rewindBtn.classList.add("alwaysHide");
-      this.forwardBtn.classList.add("alwaysHide");
-      this.progressMain.classList.add("alwaysHide");
+    this.forwardBtn.classList.add("alwaysHide");
+    this.progressMain.classList.add("alwaysHide");
     this.loaderService.showLoader();
-    videoEnded(this.data).then(() => {
-      this.newData = this.newVid;
+    this.ccLink = '';
+
+    this.isLoaded = false;
+
+    this.newData = this.newVid;
 
       this.currentVideo = document.getElementById("video");
       this.currentVideo.pause();
       this.currentVideo.removeAttribute('src');
+      this.currentVideo.removeAttribute('track');
 
       // this.localstorage.setItem('isFullscreen', 'true');
 
@@ -527,24 +608,50 @@ export class PlayerPage implements OnInit {
       const navigationExtras: NavigationExtras = {queryParams}
 
       this.router.navigate(['player'], navigationExtras);
-      this.isLoaded = false;
-      this.ionViewWillEnter();
-    })
+      this.initSetup();
+
+    // videoEnded(this.data).then(() => {
+    //   this.newData = this.newVid;
+
+    //   this.currentVideo = document.getElementById("video");
+    //   this.currentVideo.pause();
+    //   this.currentVideo.removeAttribute('src');
+
+    //   // this.localstorage.setItem('isFullscreen', 'true');
+
+    //   const queryParams: any = {};
+
+    //   queryParams.value = JSON.stringify(this.newVid + '+' + this.animeId);
+
+    //   const navigationExtras: NavigationExtras = {queryParams}
+
+    //   this.router.navigate(['player'], navigationExtras);
+    //   this.isLoaded = false;
+    //   this.ionViewWillEnter();
+    // })
   }
 
-  async nextVideo() {
-    const no = this.data.number + 1;
-    let idSplit = this.data.id.split("-");
+  nextVideo() {
+    // const no = this.data.number + 1;
+    // let idSplit = this.data.id.split("-");
 
-    if (idSplit[idSplit.length - 2] != 'episode') {
-      this.newVid = this.data.id + '-episode-' + no;
+    // if (idSplit[idSplit.length - 2] != 'episode') {
+    //   this.newVid = this.data.id + '-episode-' + no;
+    // }
+    // else {
+    //   this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
+    // }
+
+    this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id;
+
+    if (this.arrayNumber < this.global.animeCurrentEpisodes.length) {
+      this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id + '+' + this.animeId;
+      nextAvailable(this.global.outtroTimeStart, this.global.outtroTimeEnd);
+      this.isNextVideo = true;
     }
-    else {
-      this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
-    }
-    console.log(this.newVid)
-    await this.playVideo(this.newVid);
-    this.isNextVideo = true;
+
+    // await this.playVideo(this.newVid);
+    // this.isNextVideo = true;
   }
 
   toggleFullscreen() {
@@ -592,7 +699,7 @@ export class PlayerPage implements OnInit {
 
 
   goBack() {
-    updateDb(this.data);
+    // updateDb(this.data);
     this.localstorage.setItem('isFullscreen', 'false');
     this.localstorage.setItem('isKdrama', 'false');
     this.currentVideo = document.getElementById("video");
@@ -619,7 +726,7 @@ export class PlayerPage implements OnInit {
 
     this.global.fromPlayer = true;
 
-    this.router.navigate(['watch-list']);
+    this.router.navigate(['tabs/home']);
     
     // if (this.localstorage.getItem('isFrom') == 'home') {
     //   this.router.navigate(['tabs']);

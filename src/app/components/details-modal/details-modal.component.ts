@@ -181,11 +181,9 @@ export class DetailsModalComponent  implements OnInit {
     episode['isFrom'] = this.global.data.isFrom;
     episode['dramaId'] = this.global.data.id
     
-    console.log(episode)
-    // this.navCtrl.navigateForward('player', { state: episode });
     const queryParams: any = {};
 
-    queryParams.value = JSON.stringify(episode.id);
+    queryParams.value = JSON.stringify(episode.id + '+' + this.global.data.id);
 
     let navigationExtras: NavigationExtras = {};
 

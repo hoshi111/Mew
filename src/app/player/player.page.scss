@@ -154,6 +154,19 @@ ion-grid {
   height: 50px;
 }
 
+.skipIntroHidden {
+  visibility: hidden;
+}
+
+#skipIntro {
+  position: absolute;
+  right: 10%;
+  bottom: 20%;
+  --background: var(--mainColor);
+  z-index: 99999999;
+  color: white;
+}
+
 .playNextHidden {
   visibility: hidden;
 }
@@ -406,4 +419,8 @@ ion-col {
 
 .progressCol {
   height: 50px;
+}
+
+::cue {
+  line-height: 1.3;
 }

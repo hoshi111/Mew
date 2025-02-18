@@ -42,8 +42,12 @@ export class ApiService {
         return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/recent-episodes?page=' + page);
     }
 
+    // gogoAnimeTopAiring(page: number) {
+    //     return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/top-airing?page=' + page)
+    // }
+
     gogoAnimeTopAiring(page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/top-airing?page=' + page)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/top-airing?page=' + page)
     }
 
     getAnimeVideoServer(id: any) {
@@ -51,15 +55,23 @@ export class ApiService {
     }
 
     searchAnime(query: string, page: number) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/' + query + '?page=' + page)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/' + query + '?page=' + page)
     }
+
+    // gogoAnimeGetDetails(query: string) {
+    //     return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + query)
+    // }
 
     gogoAnimeGetDetails(query: string) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/info/' + query)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/info?id=' + query)
     }
 
+    // gogoAnimePlayVideo(query: any) {
+    //     return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + query + '&server=vidstreaming')
+    // }
+
     gogoAnimePlayVideo(query: any) {
-        return this.http.get('https://consumet-beige.vercel.app/anime/gogoanime/watch/' + query)
+        return this.http.get('https://consumet-beige.vercel.app/anime/zoro/watch?episodeId=' + query + '&server=vidstreaming')
     }
 
     kdramaSearch(query: any) {

@@ -2,7 +2,7 @@
 </ion-header>
 
 <ion-content>
-  @if (!global.data.isManga) {
+  @if (global.data.isKdrama) {
     <ion-grid>
       <ion-row>
         <ion-col size="6">
@@ -58,8 +58,74 @@
       </ion-row>
     </ion-grid>
   }
+  
+  @else if (!global.data.isKdrama && !global.data.isManga) {
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <img draggable="false" src="{{global.data.image}}">
+          <p><b>{{global.data.title}}</b></p>
+          <p>Genres: {{genres}}</p>
+          <p>Status: {{global.data.status}}</p>
+          <p>Total Episodes: {{global.data.totalEpisodes}}</p>
+        </ion-col>
+        <ion-col size="6">
+          <p>Summary:</p>
+          <p>{{global.data.description}}</p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="isNativePlatform">
+        <ion-col class="download" offset="6" size="6" (click)="downloadEpisodes()"><ion-icon name="download-outline"></ion-icon>Download Episodes</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          Episode List:
+        </ion-col>
+      </ion-row>
 
-  @else if (!global.data.isKdrama && global.data.isManga) {
+      <ion-row>
+        <ion-col size="2" *ngFor="let episode of global.data.episodes" (click)="playEpisode(episode)">
+          {{episode.number}}
+        </ion-col>
+      </ion-row>
+
+      <!-- FOR GOGOANIME -->
+       
+      <!-- <ion-row>
+        @if(!global.data.watchedEp) {
+          <ion-col size="2" *ngFor="let episode of global.data.episodes" (click)="playEpisode(episode)">
+            {{episode.number}}
+          </ion-col>
+        }
+  
+        @else {
+          @for(ep of epList; track ep) {
+            @if(ep.isWatched) {
+              @if(ep.isFinished) {
+                <ion-col size="2" class="finishedEpisode" (click)="playEpisode(ep.ep)">
+                  {{ep.ep.number}}
+                </ion-col>
+              }
+  
+              @else {
+                <ion-col size="2" class="continueEpisode" (click)="playEpisode(ep.ep)">
+                  {{ep.ep.number}}
+                </ion-col>
+              }
+            }
+    
+            @else {
+              <ion-col size="2" (click)="playEpisode(ep.ep)">
+                {{ep.ep.number}}
+              </ion-col>
+            }
+          }
+        }
+      </ion-row> -->
+    </ion-grid>
+  }
+
+  @else if (global.data.isManga) {
     <ion-grid>
       <ion-row>
         <ion-col size="6">

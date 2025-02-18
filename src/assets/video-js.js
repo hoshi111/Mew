@@ -1,4 +1,5 @@
 import { doc, setDoc, getDocs, collection } from "firebase/firestore"; 
+import { GlobalVariable } from "src/app/api/global";
 import { db } from "src/environments/environment";
 
 var dbSavingInterval;
@@ -184,22 +185,70 @@ export var rewind = function() {
     hls.currentLevel = 0;
 }
 
-export var nextAvailable = function() {
+export var introTime = function(start, end) {
     const video = document.getElementById("video");
     var flag = false;
-    video.addEventListener("timeupdate", () => { 
-    if (video.currentTime >= video.duration - 60 && video.currentTime > 0) {
+    video.addEventListener("timeupdate", () => {
+        if (video.currentTime >= start && video.currentTime <= end) {
             if (!flag) {
                 flag = true;
-                playNext.classList.remove('playNextHidden');
-                playNext.classList.add('playNext');
+                skipIntro.classList.remove('skipIntroHidden');
+                skipIntro.classList.add('skipIntro');
             }
         }
 
         else {
-            playNext.classList.remove('playNext');
-        playNext.classList.add('playNextHidden');
+            skipIntro.classList.remove('skipIntro');
+            skipIntro.classList.add('skipIntroHidden');
         }
+    })
+}
+
+export var nextAvailable = function(outtroStart, outtroEnd) {
+    const video = document.getElementById("video");
+    var flag = false;
+    var flag1 = false;
+    video.addEventListener("timeupdate", () => {
+
+        if (video.currentTime >= outtroStart) {
+                if (!flag1) {
+                    flag1 = true;
+                    playNext.classList.remove('playNextHidden');
+                    playNext.classList.add('playNext');
+                }
+    
+                // else {
+                //     playNext.classList.remove('playNext');
+                //     playNext.classList.add('playNextHidden');
+                // }
+            }
+    // if (outtroStart == 0) {
+    //     if (video.currentTime >= video.duration - 90) {
+    //         if (!flag) {
+    //             flag = true;
+    //             playNext.classList.remove('playNextHidden');
+    //             playNext.classList.add('playNext');
+    //         }
+
+    //         else {
+    //             playNext.classList.remove('playNext');
+    //             playNext.classList.add('playNextHidden');
+    //         }
+    //     }
+    // }
+    // else if (video.currentTime >= outtroStart) {
+        // console.log('outtro start')
+        //     if (!flag1) {
+        //         flag1 = true;
+        //         playNext.classList.remove('playNextHidden');
+        //         playNext.classList.add('playNext');
+        //     }
+
+        //     else {
+        //         playNext.classList.remove('playNext');
+        //         playNext.classList.add('playNextHidden');
+        //     }
+        // }
     })
 }
 
