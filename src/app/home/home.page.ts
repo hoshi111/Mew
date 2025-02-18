@@ -432,7 +432,6 @@ export class HomePage implements OnInit{
     this.loaderService.showLoader();
     this.global.isAnime = true;
     this.global.data = [];
-    alert(this.isAnimeLatest)
     if (this.isAnimeLatest) {
       this.gogoAnimeGetDetails(movieDetail.id).then((result: any) => {
         
