@@ -523,7 +523,7 @@ export class HomePage implements OnInit{
   }
 
   downloadApp() {
-    window.open('https://mega.nz/file/9iBmgDSA#syBDQdgEzJneGotfVOfPq49djVdAXI8Dadg_8lXoylU');
+    window.open('https://mega.nz/file/rQJVzTiZ#Ctiwg-pLKxt_QRc8vbC4utSoZsTK3EzAp1WTJm4V5nA');
     // const storage = getStorage();
     // getDownloadURL(ref(storage, 'gs://mew-4b389.appspot.com/✩.jpg'))
     //   .then((url) => {
