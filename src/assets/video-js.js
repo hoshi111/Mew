@@ -210,7 +210,7 @@ export var nextAvailable = function(outtroStart, outtroEnd) {
     var flag1 = false;
     video.addEventListener("timeupdate", () => {
 
-        if (video.currentTime >= outtroStart) {
+        if (video.currentTime >= outtroStart && outtroStart != 0) {
                 if (!flag1) {
                     flag1 = true;
                     playNext.classList.remove('playNextHidden');
