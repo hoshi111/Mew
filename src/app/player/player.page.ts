@@ -5,7 +5,7 @@ import { NavController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/api/loader.service';
 import { ApiService } from '../api/api.service';
 import { Subscription, interval } from 'rxjs';
-import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, setVideocurrentTime, rewind, forward, changeQuality, levels, introTime } from 'src/assets/video-js' ;
+import { check, whilePlaying, nextAvailable, updateDb, dismissInterval, videoEnded, rewind, forward, changeQuality, introTime, editTrack } from 'src/assets/video-js' ;
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar } from '@capacitor/status-bar';
 import { Location } from "@angular/common";
@@ -91,7 +91,7 @@ export class PlayerPage implements OnInit {
   }
 
   ngOnInit() {
-    if (this.platform.is('android')) {
+    if (this.platform.is('android') || this.platform.is ('ios')) {
       this.isAndroid = true;
     }
   }
@@ -297,6 +297,7 @@ export class PlayerPage implements OnInit {
 
             if(this.newData) {
               this.loaderService.hideLoader();
+              editTrack();
               this.currentVideo.play();
               this.icon_name = 'pause';
               this.progressBar.value = 0;
@@ -525,11 +526,12 @@ export class PlayerPage implements OnInit {
   playPauseVideo() {
     this.currentVideo = document.getElementById("video");
     if (!this.isPlaying) {
-      this.loaderPanel.classList.remove("loaderHidden");
-      setVideocurrentTime(this.data).then(() => {
-        this.loaderPanel.classList.add("loaderHidden");
-        this.isPlaying = true;
-      })
+      this.loaderPanel.classList.add("loaderHidden");
+      this.isPlaying = true;
+      // setVideocurrentTime(this.data).then(() => {
+      //   this.loaderPanel.classList.add("loaderHidden");
+      //   this.isPlaying = true;
+      // })
     }
 
     if (this.currentVideo.paused) {
@@ -642,9 +644,9 @@ export class PlayerPage implements OnInit {
     //   this.newVid = this.data.id.substr(0, this.data.id.lastIndexOf("-") + 1) + no;
     // }
 
-    this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id;
+    
 
-    if (this.arrayNumber < this.global.animeCurrentEpisodes.length) {
+    if (this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1]?.id) {
       this.newVid = this.global.animeCurrentEpisodes[this.arrayNumber + 1].id + '+' + this.animeId;
       nextAvailable(this.global.outtroTimeStart, this.global.outtroTimeEnd);
       this.isNextVideo = true;

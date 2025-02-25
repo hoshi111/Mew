@@ -91,11 +91,11 @@ export class ApiService {
     }
 
     mangaInfo(id: any) {
-        return this.http.get('https://consumet-beige.vercel.app/meta/anilist-manga/info/' + id + '?provider=mangahere')
+        return this.http.get('https://consumet-beige.vercel.app/meta/anilist-manga/info/' + id + '?provider=mangapark')
     }
     
     mangaGetPages(id: any) {
-        return this.http.get('https://consumet-beige.vercel.app/manga/mangahere/read?chapterId=' + id)
+        return this.http.get('https://consumet-beige.vercel.app/manga/mangapark/read?chapterId=' + id)
     }
 
     //Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1OGViZWFlYmMzNjgyYTI1YTQ0MmFkYTJjYjQ4M2YzNiIsInN1YiI6IjY2NDMwNTU5YzlhODVhYmZiODE4NDUxOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.vXwd_NFZYYnyFuLHu6KHIpspK2DgWidRhUVP3WjTlPI'

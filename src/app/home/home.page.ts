@@ -68,7 +68,7 @@ export class HomePage implements OnInit{
     // this.fetchData();
     this.localstorage.setItem('isKdrama', 'false');
 
-    if (this.platform.is('android')) {
+    if (this.platform.is('android') || this.platform.is('ios')) {
       this.isAndroid = true;
     }
     
@@ -522,7 +522,7 @@ export class HomePage implements OnInit{
   }
 
   downloadApp() {
-    window.open('https://mega.nz/file/rQJVzTiZ#Ctiwg-pLKxt_QRc8vbC4utSoZsTK3EzAp1WTJm4V5nA');
+    window.open('https://mega.nz/file/rZw2wAia#6hnd0UttisASCRYqzjK1PJJsIqjmBkCd4F9laADYy_s');
     // const storage = getStorage();
     // getDownloadURL(ref(storage, 'gs://mew-4b389.appspot.com/✩.jpg'))
     //   .then((url) => {

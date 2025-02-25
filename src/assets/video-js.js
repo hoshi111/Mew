@@ -7,6 +7,8 @@ var dbSavingInterval;
 var localstorage = localStorage;
 var uid = localstorage.getItem('uid');
 var hls = new Hls();
+let subPass = false;
+let count = 0;
 export let levels;
 
 export var windowResize = function() {
@@ -88,6 +90,10 @@ export var detachMedia = function() {
     hls.detachMedia();
 }
 
+export var editTrack = function() {
+    subPass = false;
+    count++;
+}
 
 export var whilePlaying = function() {
     const video = document.getElementById("video");
@@ -106,12 +112,26 @@ export var whilePlaying = function() {
         return `${minute}:${second}`; 
     };
 
+    video.addEventListener("loadstart", (event) => {
+        
+      });
+
     video.addEventListener("waiting", () => {
         loaderPanel.classList.remove("loaderHidden");
     })
 
     video.addEventListener("playing", () => {
         loaderPanel.classList.add("loaderHidden");
+        if (!subPass) {
+            const track = document.getElementsByTagName('track')[count].track;
+            if (track.cues[0]) {
+                for (let i = 0; i < track.cues.length; i ++) {
+                    track.cues[i].snapToLines = false;
+                    track.cues[i].line = 90;
+                }
+                subPass = true;
+            }
+        }
     })
 
     video.addEventListener("timeupdate", () => { 
@@ -300,22 +320,22 @@ export var updateDb = function(data) {
     })
 }
 
-export var setVideocurrentTime = async function(data) {
-    let flag = false;
-    const video = document.getElementById("video");
+// export var setVideocurrentTime = async function(data) {
+//     let flag = false;
+//     const video = document.getElementById("video");
 
-    const querySnapshot = await getDocs(collection(db, uid));
-     querySnapshot.forEach(result => {
-        if(data.id === result.id) {
-            video.currentTime = result.data().details.lastTimestamp;
-            flag = true;
-        }
-    });
+//     const querySnapshot = await getDocs(collection(db, uid));
+//      querySnapshot.forEach(result => {
+//         if(data.id === result.id) {
+//             video.currentTime = result.data().details.lastTimestamp;
+//             flag = true;
+//         }
+//     });
 
-    if (!flag) {
-        video.currentTime = 0;
-    }
-}
+//     if (!flag) {
+//         video.currentTime = 0;
+//     }
+// }
 
 export var dismissInterval = function() {
     clearInterval(dbSavingInterval);
